@@ -25,6 +25,13 @@ const WorkoutSchema = new mongoose.Schema({
     comment: {
         type: String
     },
+    caloriesBurned: {
+        type: Number
+    },
+    intensity: {
+        type: String,
+        enum: ['low', 'medium', 'high']
+    },
     createdAt: {
         type: Date,
         default: Date.now

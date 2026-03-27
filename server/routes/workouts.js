@@ -112,7 +112,7 @@ router.post(
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { type, date, time, duration, comment } = req.body;
+        const { type, date, time, duration, comment, caloriesBurned, intensity } = req.body;
 
         try {
             // Создание новой тренировки
@@ -122,7 +122,9 @@ router.post(
                 date,
                 time,
                 duration,
-                comment
+                comment,
+                caloriesBurned,
+                intensity
             });
 
             // Сохранение тренировки
@@ -156,7 +158,7 @@ router.put(
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { type, date, time, duration, comment } = req.body;
+        const { type, date, time, duration, comment, caloriesBurned, intensity } = req.body;
 
         try {
             // Поиск тренировки
@@ -178,6 +180,8 @@ router.put(
             workout.time = time;
             workout.duration = duration;
             workout.comment = comment;
+            if (caloriesBurned !== undefined) workout.caloriesBurned = caloriesBurned;
+            if (intensity !== undefined) workout.intensity = intensity;
 
             // Сохранение тренировки
             await workout.save();

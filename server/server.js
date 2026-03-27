@@ -35,6 +35,7 @@ const workoutRecommendationRoutes = require('./routes/workoutRecommendations');
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/goals', goalRoutes);
 app.use('/api/recommendations', workoutRecommendationRoutes);
+app.use('/api/nutrition', require('./routes/nutrition'));
 
 // Статические файлы в production
 if (process.env.NODE_ENV === 'production') {

@@ -65,20 +65,17 @@ const DailyStats = ({ targetCalories = 2000 }) => {
 
                 const [nutritionRes, workoutsRes] = await Promise.allSettled([
                     axios.get(`/api/nutrition/entries?date=${today}`),
-                    axios.get(`/api/workouts/date/today`)
+                    axios.get(`/api/workouts/date/${today}`)
                 ]);
 
                 if (nutritionRes.status === 'fulfilled') {
-                    const entries = nutritionRes.value.data || [];
-                    const totalCal = entries.reduce((sum, e) => sum + (e.calories || 0), 0);
-                    const totalProtein = entries.reduce((sum, e) => sum + (e.protein || 0), 0);
-                    const totalFat = entries.reduce((sum, e) => sum + (e.fat || 0), 0);
-                    const totalCarbs = entries.reduce((sum, e) => sum + (e.carbs || 0), 0);
-                    setConsumedCalories(Math.round(totalCal));
+                    const data = nutritionRes.value.data || {};
+                    const dailyTotals = data.dailyTotals || {};
+                    setConsumedCalories(Math.round(dailyTotals.calories || 0));
                     setMacros({
-                        protein: Math.round(totalProtein),
-                        fat: Math.round(totalFat),
-                        carbs: Math.round(totalCarbs)
+                        protein: Math.round(dailyTotals.protein || 0),
+                        fat: Math.round(dailyTotals.fat || 0),
+                        carbs: Math.round(dailyTotals.carbs || 0)
                     });
                 }
 

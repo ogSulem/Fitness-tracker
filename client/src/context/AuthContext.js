@@ -79,19 +79,11 @@ export const AuthProvider = ({ children }) => {
     };
 
     // Выход пользователя
-    const logout = async () => {
-        try {
-            await axios.post('/api/auth/logout');
-        } catch (err) {
-            console.error('Ошибка при выходе:', err);
-        } finally {
-            // Удаляем токен
-            localStorage.removeItem('token');
-            delete axios.defaults.headers.common['Authorization'];
-
-            setUser(null);
-            setIsAuthenticated(false);
-        }
+    const logout = () => {
+        localStorage.removeItem('token');
+        delete axios.defaults.headers.common['Authorization'];
+        setUser(null);
+        setIsAuthenticated(false);
     };
 
     // Обновление данных пользователя

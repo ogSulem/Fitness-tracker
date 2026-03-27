@@ -215,7 +215,7 @@ router.delete('/:id', auth, async (req, res) => {
         }
 
         // Удаление тренировки
-        await workout.remove();
+        await workout.deleteOne();
         res.json({ message: 'Тренировка удалена' });
     } catch (err) {
         console.error(err.message);

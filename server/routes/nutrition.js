@@ -1,7 +1,16 @@
 const express = require('express');
 const router = express.Router();
+const rateLimit = require('express-rate-limit');
 const auth = require('../middleware/auth');
 const FoodEntry = require('../models/FoodEntry');
+
+const nutritionLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100,
+    message: 'Слишком много запросов. Попробуйте позже.',
+    standardHeaders: true,
+    legacyHeaders: false
+});
 
 // Built-in food database (per 100g)
 const FOODS = [
@@ -61,7 +70,7 @@ function calcTotals(products) {
 }
 
 // GET /api/nutrition/entries?date=YYYY-MM-DD
-router.get('/entries', auth, async (req, res) => {
+router.get('/entries', nutritionLimiter, auth, async (req, res) => {
     try {
         const dateStr = req.query.date;
         const date = dateStr ? new Date(dateStr) : new Date();
@@ -107,7 +116,7 @@ router.get('/entries', auth, async (req, res) => {
 });
 
 // POST /api/nutrition/entries
-router.post('/entries', auth, async (req, res) => {
+router.post('/entries', nutritionLimiter, auth, async (req, res) => {
     try {
         const { date, mealType, products } = req.body;
 
@@ -134,7 +143,7 @@ router.post('/entries', auth, async (req, res) => {
 });
 
 // DELETE /api/nutrition/entries/:id
-router.delete('/entries/:id', auth, async (req, res) => {
+router.delete('/entries/:id', nutritionLimiter, auth, async (req, res) => {
     try {
         const entry = await FoodEntry.findById(req.params.id);
         if (!entry) {
@@ -155,7 +164,7 @@ router.delete('/entries/:id', auth, async (req, res) => {
 });
 
 // PATCH /api/nutrition/entries/:id/products - Add a product
-router.patch('/entries/:id/products', auth, async (req, res) => {
+router.patch('/entries/:id/products', nutritionLimiter, auth, async (req, res) => {
     try {
         const entry = await FoodEntry.findById(req.params.id);
         if (!entry) {
@@ -184,7 +193,7 @@ router.patch('/entries/:id/products', auth, async (req, res) => {
 });
 
 // DELETE /api/nutrition/entries/:id/products/:productId - Remove a product
-router.delete('/entries/:id/products/:productId', auth, async (req, res) => {
+router.delete('/entries/:id/products/:productId', nutritionLimiter, auth, async (req, res) => {
     try {
         const entry = await FoodEntry.findById(req.params.id);
         if (!entry) {
@@ -212,7 +221,7 @@ router.delete('/entries/:id/products/:productId', auth, async (req, res) => {
 });
 
 // GET /api/nutrition/summary?start=YYYY-MM-DD&end=YYYY-MM-DD
-router.get('/summary', auth, async (req, res) => {
+router.get('/summary', nutritionLimiter, auth, async (req, res) => {
     try {
         const { start, end } = req.query;
         if (!start || !end) {
@@ -251,7 +260,7 @@ router.get('/summary', auth, async (req, res) => {
 });
 
 // GET /api/nutrition/foods/search?q=query
-router.get('/foods/search', auth, async (req, res) => {
+router.get('/foods/search', nutritionLimiter, auth, async (req, res) => {
     try {
         const q = (req.query.q || '').toLowerCase().trim();
         if (!q) {

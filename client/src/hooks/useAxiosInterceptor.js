@@ -34,7 +34,6 @@ const useAxiosInterceptor = () => {
             },
             error => {
                 const statusCode = error.response?.status;
-                const errorMessage = error.response?.data?.message || 'Произошла ошибка при выполнении запроса';
 
                 console.error('Ошибка ответа:', statusCode, error.response?.data || error.message);
 

@@ -166,7 +166,8 @@ router.patch('/entries/:id/products', auth, async (req, res) => {
         }
 
         const { name, portion, calories, protein, fat, carbs } = req.body;
-        if (!name || portion == null || calories == null || protein == null || fat == null || carbs == null) {
+        const missing = [portion, calories, protein, fat, carbs].some(v => v === undefined || v === null);
+        if (!name || missing) {
             return res.status(400).json({ message: 'Необходимо указать все поля продукта' });
         }
 
@@ -198,7 +199,7 @@ router.delete('/entries/:id/products/:productId', auth, async (req, res) => {
             return res.status(404).json({ message: 'Продукт не найден' });
         }
 
-        product.deleteOne();
+        entry.products.pull(req.params.productId);
         await entry.save();
         res.json(entry);
     } catch (err) {

@@ -180,8 +180,8 @@ router.put(
             workout.time = time;
             workout.duration = duration;
             workout.comment = comment;
-            if (caloriesBurned !== undefined) workout.caloriesBurned = caloriesBurned;
-            if (intensity !== undefined) workout.intensity = intensity;
+            workout.caloriesBurned = caloriesBurned;
+            workout.intensity = intensity;
 
             // Сохранение тренировки
             await workout.save();

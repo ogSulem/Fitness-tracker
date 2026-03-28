@@ -191,7 +191,7 @@ router.delete('/:id', auth, async (req, res) => {
             return res.status(401).json({ message: 'Нет прав доступа' });
         }
 
-        await goal.remove();
+        await goal.deleteOne();
         res.json({ message: 'Цель удалена' });
     } catch (err) {
         console.error(err.message);

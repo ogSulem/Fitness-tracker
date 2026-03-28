@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import 'dayjs/locale/ru';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -17,17 +18,10 @@ import {
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
 
 ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    BarElement,
-    ArcElement,
-    Title,
-    Tooltip,
-    Legend,
-    Filler
+    CategoryScale, LinearScale, PointElement, LineElement,
+    BarElement, ArcElement, Title, Tooltip, Legend, Filler
 );
+dayjs.locale('ru');
 
 const StatSummaryCard = ({ icon, label, value, unit, sub, color }) => (
     <div className={`card border-l-4 ${color}`}>
@@ -43,23 +37,28 @@ const StatSummaryCard = ({ icon, label, value, unit, sub, color }) => (
 );
 
 const Analytics = () => {
-    const [workouts, setWorkouts] = useState([]);
-    const [period, setPeriod] = useState('week');
-    const [loading, setLoading] = useState(true);
+    const [workouts, setWorkouts]       = useState([]);
+    const [nutritionSummary, setNutritionSummary] = useState([]);
+    const [period, setPeriod]           = useState('week');
+    const [loading, setLoading]         = useState(true);
 
     useEffect(() => {
-        const fetchWorkouts = async () => {
+        const fetchData = async () => {
             try {
                 setLoading(true);
-                const res = await axios.get('/api/workouts');
-                setWorkouts(res.data || []);
+                const [workoutsRes, nutritionRes] = await Promise.allSettled([
+                    axios.get('/api/workouts'),
+                    axios.get(`/api/nutrition/summary?start=${dayjs().subtract(365, 'day').format('YYYY-MM-DD')}&end=${dayjs().format('YYYY-MM-DD')}`),
+                ]);
+                if (workoutsRes.status === 'fulfilled') setWorkouts(workoutsRes.value.data || []);
+                if (nutritionRes.status === 'fulfilled') setNutritionSummary(nutritionRes.value.data || []);
             } catch (err) {
-                console.error('Ошибка загрузки тренировок:', err);
+                console.error('Ошибка загрузки данных:', err);
             } finally {
                 setLoading(false);
             }
         };
-        fetchWorkouts();
+        fetchData();
     }, []);
 
     const getDaysBack = () => ({ week: 7, month: 30, year: 365 }[period] || 7);
@@ -159,6 +158,35 @@ const Analytics = () => {
         cutout: '65%',
     };
 
+    // Nutrition chart data
+    const filteredNutrition = nutritionSummary.filter(n =>
+        dayjs(n.date).isAfter(dayjs().subtract(getDaysBack(), 'day'))
+    );
+    const nutritionCaloriesData = labels.map(l => {
+        const dayIndex = labels.indexOf(l);
+        const targetDate = dayjs().subtract(getDaysBack() - 1 - dayIndex, 'day').format('YYYY-MM-DD');
+        const entry = filteredNutrition.find(n => n.date === targetDate);
+        return entry ? Math.round(entry.calories) : 0;
+    });
+
+    const nutritionChartData = {
+        labels,
+        datasets: [{
+            label: 'Калории',
+            data: nutritionCaloriesData,
+            backgroundColor: 'rgba(16, 185, 129, 0.15)',
+            borderColor: '#10b981',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#10b981',
+            pointRadius: 4,
+        }],
+    };
+
+    const totalConsumedCalories = filteredNutrition.reduce((s, n) => s + (n.calories || 0), 0);
+    const avgConsumedCalories   = filteredNutrition.length > 0 ? Math.round(totalConsumedCalories / filteredNutrition.length) : 0;
+
     return (
         <div className="container mx-auto px-4 py-8 animate-fadeIn">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
@@ -222,19 +250,19 @@ const Analytics = () => {
                             color="border-green-400"
                         />
                         <StatSummaryCard
-                            icon="📅"
-                            label="Активность"
-                            value={filteredWorkouts.length > 0 ? Math.round((filteredWorkouts.length / getDaysBack()) * 100) : 0}
-                            unit="%"
-                            sub="дней с тренировкой"
-                            color="border-sky-400"
+                            icon="🥗"
+                            label="Съедено"
+                            value={Math.round(totalConsumedCalories)}
+                            unit="ккал"
+                            sub={avgConsumedCalories > 0 ? `~${avgConsumedCalories} ккал/день` : 'нет данных'}
+                            color="border-emerald-400"
                         />
                     </div>
 
                     {/* Charts */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                         <div className="lg:col-span-2 card">
-                            <h3 className="text-base font-semibold text-gray-800 mb-4">🔥 Сожжённые калории</h3>
+                            <h3 className="text-base font-semibold text-gray-800 mb-4">🔥 Сожжённые калории (тренировки)</h3>
                             <Line data={caloriesChartData} options={chartOptions} />
                         </div>
                         <div className="card">
@@ -249,14 +277,31 @@ const Analytics = () => {
                         </div>
                     </div>
 
-                    <div className="card">
-                        <h3 className="text-base font-semibold text-gray-800 mb-4">⏱️ Продолжительность тренировок (мин)</h3>
-                        <Bar data={durationChartData} options={chartOptions} />
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <div className="card">
+                            <h3 className="text-base font-semibold text-gray-800 mb-4">⏱️ Длительность тренировок (мин)</h3>
+                            <Bar data={durationChartData} options={chartOptions} />
+                        </div>
+                        <div className="card">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-base font-semibold text-gray-800">🥗 Калории из питания</h3>
+                                {avgConsumedCalories > 0 && (
+                                    <span className="badge-primary text-xs">~{avgConsumedCalories} ккал/день</span>
+                                )}
+                            </div>
+                            {nutritionCaloriesData.some(v => v > 0) ? (
+                                <Line data={nutritionChartData} options={chartOptions} />
+                            ) : (
+                                <div className="flex items-center justify-center h-48 text-gray-400 text-sm">
+                                    Нет данных о питании
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Workout list */}
                     {filteredWorkouts.length > 0 && (
-                        <div className="card mt-6">
+                        <div className="card mt-2">
                             <h3 className="text-base font-semibold text-gray-800 mb-4">📋 Последние тренировки</h3>
                             <div className="space-y-2">
                                 {filteredWorkouts.slice(0, 10).map(w => (
@@ -281,7 +326,7 @@ const Analytics = () => {
                     )}
 
                     {filteredWorkouts.length === 0 && (
-                        <div className="card text-center py-12 mt-6">
+                        <div className="card text-center py-12 mt-2">
                             <div className="text-5xl mb-4">📊</div>
                             <p className="text-gray-500 font-medium">Нет данных за выбранный период</p>
                             <p className="text-gray-400 text-sm mt-1">Добавьте тренировки в календарь, чтобы увидеть статистику</p>

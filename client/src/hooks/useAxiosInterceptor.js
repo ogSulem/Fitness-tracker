@@ -40,11 +40,9 @@ const useAxiosInterceptor = () => {
                 // Обрабатываем ошибки аутентификации
                 if (statusCode === 401) {
                     showNotification('Сессия истекла. Необходимо войти заново.', 'error');
-                    logout(); // Выходим при истечении токена
+                    logout();
                 } else if (statusCode === 403) {
                     showNotification('У вас нет доступа к этому ресурсу', 'error');
-                } else if (statusCode === 404) {
-                    showNotification('Запрашиваемый ресурс не найден', 'error');
                 } else if (statusCode >= 500) {
                     showNotification('Ошибка сервера. Попробуйте позже', 'error');
                 }

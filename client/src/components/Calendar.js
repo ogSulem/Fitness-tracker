@@ -230,17 +230,17 @@ const Calendar = () => {
                 <div className="flex space-x-2">
                     <button
                         onClick={goToPreviousMonth}
-                        className="p-2 rounded-md hover:bg-gray-100"
+                        className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
                     >
-                        <svg className="h-5 w-5 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                         </svg>
                     </button>
                     <button
                         onClick={goToNextMonth}
-                        className="p-2 rounded-md hover:bg-gray-100"
+                        className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
                     >
-                        <svg className="h-5 w-5 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
                     </button>
@@ -272,14 +272,14 @@ const Calendar = () => {
                             <div className="flex justify-between items-center mb-1">
                                 <span
                                     className={`text-sm font-medium rounded-full w-6 h-6 flex items-center justify-center
-                                        ${isToday ? 'bg-primary text-white' : ''}
+                                        ${isToday ? 'bg-primary-600 text-white' : ''}
                                         ${!day.isCurrentMonth ? 'text-gray-400' : ''}
                                     `}
                                 >
                                     {day.date.date()}
                                 </span>
                                 {dayWorkouts.length > 0 && (
-                                    <span className="bg-primary text-xs text-white px-1.5 py-0.5 rounded">
+                                    <span className="bg-primary-600 text-xs text-white px-1.5 py-0.5 rounded-full font-medium">
                                         {dayWorkouts.length}
                                     </span>
                                 )}
@@ -319,15 +319,15 @@ const Calendar = () => {
             <div className="flex justify-between items-center mt-4">
                 <button
                     onClick={openGoalModal}
-                    className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md"
+                    className="btn-secondary"
                 >
-                    Добавить цель
+                    🎯 Добавить цель
                 </button>
                 <button
                     onClick={() => openWorkoutModal()}
-                    className="bg-primary hover:bg-purple-800 text-white py-2 px-4 rounded-md"
+                    className="btn-primary"
                 >
-                    Добавить тренировку
+                    + Добавить тренировку
                 </button>
             </div>
 
@@ -384,7 +384,7 @@ const Calendar = () => {
                         <div className="flex justify-end">
                             <button
                                 onClick={() => setIsViewWorkoutModalOpen(false)}
-                                className="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-md"
+                                className="btn-secondary"
                             >
                                 Закрыть
                             </button>
@@ -412,13 +412,13 @@ const Calendar = () => {
 
                         <div>
                             <p className="text-sm text-gray-500">Прогресс</p>
-                            <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                            <div className="progress-bar mt-1">
                                 <div
-                                    className="bg-primary h-2.5 rounded-full"
+                                    className="progress-fill bg-primary-500"
                                     style={{
                                         width: `${Math.min(100, Math.max(0, ((selectedGoal.currentValue - selectedGoal.startValue) / (selectedGoal.targetValue - selectedGoal.startValue)) * 100))}%`
                                     }}
-                                ></div>
+                                />
                             </div>
                             <div className="flex justify-between text-xs text-gray-500 mt-1">
                                 <span>{selectedGoal.startValue}</span>
@@ -437,7 +437,7 @@ const Calendar = () => {
                         <div className="flex justify-end">
                             <button
                                 onClick={() => setIsViewGoalModalOpen(false)}
-                                className="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-md"
+                                className="btn-secondary"
                             >
                                 Закрыть
                             </button>

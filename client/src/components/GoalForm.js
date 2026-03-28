@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 import dayjs from 'dayjs';
 
+const GOAL_TYPES = [
+    { value: 'вес',      label: '⚖️ Вес',               unit: 'кг' },
+    { value: 'частота',  label: '�� Частота тренировок', unit: 'тр/нед' },
+    { value: 'дистанция',label: '📏 Дистанция',          unit: 'км' },
+    { value: 'сила',     label: '💪 Сила',               unit: 'кг' },
+    { value: 'другое',   label: '🎯 Другое',              unit: '' },
+];
+
 const GoalForm = ({ onSubmit }) => {
     const [formData, setFormData] = useState({
         title: '',
@@ -8,155 +16,142 @@ const GoalForm = ({ onSubmit }) => {
         startValue: '',
         currentValue: '',
         targetValue: '',
+        unit: 'кг',
         deadline: dayjs().add(30, 'day').format('YYYY-MM-DD'),
         description: '',
     });
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value
-        });
+        const updated = { ...formData, [name]: value };
+        if (name === 'type') {
+            const typeInfo = GOAL_TYPES.find(t => t.value === value);
+            updated.unit = typeInfo?.unit || '';
+        }
+        setFormData(updated);
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Если текущее значение не указано, используем начальное
-        const dataToSubmit = {
+        onSubmit({
             ...formData,
-            currentValue: formData.currentValue || formData.startValue
-        };
-        onSubmit(dataToSubmit);
+            currentValue: formData.currentValue || formData.startValue,
+        });
     };
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-                    Название цели *
-                </label>
+                <label className="label">Название цели *</label>
                 <input
                     type="text"
-                    id="title"
                     name="title"
                     value={formData.title}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary"
+                    className="input"
                     placeholder="Например: Сбросить 5 кг"
                     required
                 />
             </div>
 
             <div>
-                <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
-                    Тип цели *
-                </label>
-                <select
-                    id="type"
-                    name="type"
-                    value={formData.type}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary"
-                    required
-                >
-                    <option value="вес">Вес</option>
-                    <option value="частота">Частота тренировок</option>
-                    <option value="дистанция">Дистанция</option>
-                    <option value="сила">Сила</option>
-                    <option value="другое">Другое</option>
-                </select>
+                <label className="label">Тип цели *</label>
+                <div className="flex flex-wrap gap-2">
+                    {GOAL_TYPES.map(t => (
+                        <label
+                            key={t.value}
+                            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border-2 cursor-pointer transition-all text-sm font-medium ${
+                                formData.type === t.value
+                                    ? 'border-primary-500 bg-primary-50 text-primary-700'
+                                    : 'border-gray-200 text-gray-600 hover:border-primary-200'
+                            }`}
+                        >
+                            <input
+                                type="radio"
+                                name="type"
+                                value={t.value}
+                                checked={formData.type === t.value}
+                                onChange={handleChange}
+                                className="hidden"
+                            />
+                            {t.label}
+                        </label>
+                    ))}
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
                 <div>
-                    <label htmlFor="startValue" className="block text-sm font-medium text-gray-700 mb-1">
-                        Начальное значение *
-                    </label>
+                    <label className="label">Начальное значение *</label>
                     <input
                         type="number"
-                        id="startValue"
                         name="startValue"
                         value={formData.startValue}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary"
+                        className="input"
                         placeholder="Например: 80"
+                        step="0.1"
                         required
                     />
                 </div>
-
                 <div>
-                    <label htmlFor="targetValue" className="block text-sm font-medium text-gray-700 mb-1">
-                        Целевое значение *
-                    </label>
+                    <label className="label">Целевое значение *</label>
                     <input
                         type="number"
-                        id="targetValue"
                         name="targetValue"
                         value={formData.targetValue}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary"
+                        className="input"
                         placeholder="Например: 70"
+                        step="0.1"
+                        required
+                    />
+                </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+                <div>
+                    <label className="label">Единица измерения</label>
+                    <input
+                        type="text"
+                        name="unit"
+                        value={formData.unit}
+                        onChange={handleChange}
+                        className="input"
+                        placeholder="кг, км, раз..."
+                    />
+                </div>
+                <div>
+                    <label className="label">Дедлайн *</label>
+                    <input
+                        type="date"
+                        name="deadline"
+                        value={formData.deadline}
+                        onChange={handleChange}
+                        className="input"
+                        min={dayjs().format('YYYY-MM-DD')}
                         required
                     />
                 </div>
             </div>
 
             <div>
-                <label htmlFor="currentValue" className="block text-sm font-medium text-gray-700 mb-1">
-                    Текущее значение (необязательно)
-                </label>
-                <input
-                    type="number"
-                    id="currentValue"
-                    name="currentValue"
-                    value={formData.currentValue}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary"
-                    placeholder="Если не указано, будет равно начальному значению"
-                />
-            </div>
-
-            <div>
-                <label htmlFor="deadline" className="block text-sm font-medium text-gray-700 mb-1">
-                    Дедлайн *
-                </label>
-                <input
-                    type="date"
-                    id="deadline"
-                    name="deadline"
-                    value={formData.deadline}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary"
-                    required
-                />
-            </div>
-
-            <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                    Описание (необязательно)
-                </label>
+                <label className="label">Описание (необязательно)</label>
                 <textarea
-                    id="description"
                     name="description"
-                    rows="3"
+                    rows="2"
                     value={formData.description}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary"
-                    placeholder="Дополнительная информация о цели"
+                    className="input resize-none"
+                    placeholder="Дополнительная информация о цели..."
                 />
             </div>
 
-            <div className="flex justify-end">
-                <button
-                    type="submit"
-                    className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md"
-                >
-                    Сохранить
-                </button>
-            </div>
+            <button type="submit" className="btn-primary w-full">
+                Сохранить цель
+            </button>
         </form>
     );
 };
 
-export default GoalForm; 
+export default GoalForm;

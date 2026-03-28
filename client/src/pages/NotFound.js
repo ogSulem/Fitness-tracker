@@ -3,20 +3,18 @@ import { Link } from 'react-router-dom';
 
 const NotFound = () => {
     return (
-        <div className="flex flex-col items-center justify-center py-16">
-            <h1 className="text-6xl font-bold text-primary mb-4">404</h1>
-            <p className="text-xl text-gray-700 mb-8">Страница не найдена</p>
-            <p className="text-gray-600 mb-8 text-center max-w-md">
-                Извините, но страница, которую вы ищете, не существует или была перемещена.
+        <div className="flex flex-col items-center justify-center py-24 px-4 animate-fadeIn">
+            <div className="text-8xl mb-4">🏋️</div>
+            <h1 className="text-7xl font-bold text-primary-600 mb-4">404</h1>
+            <p className="text-xl font-semibold text-gray-800 mb-2">Страница не найдена</p>
+            <p className="text-gray-400 mb-8 text-center max-w-md">
+                Страница, которую вы ищете, не существует или была перемещена.
             </p>
-            <Link
-                to="/"
-                className="bg-primary hover:bg-purple-800 text-white py-2 px-6 rounded-md"
-            >
-                Вернуться на главную
+            <Link to="/" className="btn-primary">
+                ← Вернуться на главную
             </Link>
         </div>
     );
 };
 
-export default NotFound; 
+export default NotFound;

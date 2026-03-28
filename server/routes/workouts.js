@@ -1,8 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const { check, validationResult } = require('express-validator');
+const rateLimit = require('express-rate-limit');
 const Workout = require('../models/Workout');
 const auth = require('../middleware/auth');
+
+const workoutsLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 минут
+    max: 100,
+    message: 'Слишком много запросов. Попробуйте позже.',
+    standardHeaders: true,
+    legacyHeaders: false
+});
 
 // @route   GET api/workouts
 // @desc    Получение всех тренировок пользователя
@@ -199,7 +208,7 @@ router.put(
 // @route   DELETE api/workouts/:id
 // @desc    Удаление тренировки
 // @access  Private
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', workoutsLimiter, auth, async (req, res) => {
     try {
         // Поиск тренировки
         const workout = await Workout.findById(req.params.id);

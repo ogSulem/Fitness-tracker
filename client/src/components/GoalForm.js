@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 
 const GOAL_TYPES = [
     { value: 'вес',      label: '⚖️ Вес',               unit: 'кг' },
-    { value: 'частота',  label: '�� Частота тренировок', unit: 'тр/нед' },
+    { value: 'частота',  label: '🔄 Частота тренировок', unit: 'тр/нед' },
     { value: 'дистанция',label: '📏 Дистанция',          unit: 'км' },
     { value: 'сила',     label: '💪 Сила',               unit: 'кг' },
     { value: 'другое',   label: '🎯 Другое',              unit: '' },

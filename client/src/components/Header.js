@@ -7,8 +7,8 @@ const Header = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const navigate = useNavigate();
 
-    const handleLogout = async () => {
-        await logout();
+    const handleLogout = () => {
+        logout();
         setMobileMenuOpen(false);
         navigate('/login');
     };

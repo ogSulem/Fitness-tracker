@@ -131,8 +131,6 @@ const Calendar = () => {
     // Добавление новой тренировки
     const handleAddWorkout = async (workoutData) => {
         try {
-            console.log('Отправляемые данные тренировки:', workoutData);
-
             if (!isAuthenticated) {
                 showNotification('Необходимо войти в систему', 'error');
                 return;
@@ -146,7 +144,6 @@ const Calendar = () => {
 
             // Сохраняем тренировку через API
             const response = await axios.post('/api/workouts', numericWorkoutData);
-            console.log('Ответ сервера при добавлении тренировки:', response.data);
 
             const newWorkout = response.data;
             setWorkouts([...workouts, newWorkout]);
@@ -167,8 +164,6 @@ const Calendar = () => {
     // Добавление новой цели
     const handleAddGoal = async (goalData) => {
         try {
-            console.log('Отправляемые данные цели:', goalData);
-
             if (!isAuthenticated) {
                 showNotification('Необходимо войти в систему', 'error');
                 return;
@@ -184,7 +179,6 @@ const Calendar = () => {
 
             // Сохраняем цель через API
             const response = await axios.post('/api/goals', numericGoalData);
-            console.log('Ответ сервера при добавлении цели:', response.data);
 
             const newGoal = response.data;
             setGoals([...goals, newGoal]);
@@ -199,6 +193,19 @@ const Calendar = () => {
                 : err.response?.data?.message || 'Ошибка при добавлении цели';
 
             showNotification(errorMessage, 'error');
+        }
+    };
+
+    // Удаление тренировки
+    const handleDeleteWorkout = async (workoutId) => {
+        try {
+            await axios.delete(`/api/workouts/${workoutId}`);
+            setWorkouts(prev => prev.filter(w => w._id !== workoutId));
+            setIsViewWorkoutModalOpen(false);
+            showNotification('Тренировка удалена', 'success');
+        } catch (err) {
+            console.error('Ошибка при удалении тренировки:', err);
+            showNotification('Ошибка при удалении тренировки', 'error');
         }
     };
 
@@ -381,7 +388,13 @@ const Calendar = () => {
                             </div>
                         )}
 
-                        <div className="flex justify-end">
+                        <div className="flex justify-between items-center">
+                            <button
+                                onClick={() => handleDeleteWorkout(selectedWorkout._id)}
+                                className="btn-danger text-sm py-2 px-4"
+                            >
+                                🗑️ Удалить
+                            </button>
                             <button
                                 onClick={() => setIsViewWorkoutModalOpen(false)}
                                 className="btn-secondary"

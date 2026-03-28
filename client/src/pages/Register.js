@@ -245,7 +245,7 @@ const Register = () => {
                                         className="input"
                                         placeholder="70"
                                         min="30"
-                                        max="300"
+                                        max="200"
                                         required
                                     />
                                 </div>

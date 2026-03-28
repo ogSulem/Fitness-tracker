@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
@@ -6,6 +6,7 @@ import { AuthContext } from '../context/AuthContext';
 import Calendar from '../components/Calendar';
 import CalorieCalculator from '../components/CalorieCalculator';
 import DailyStats from '../components/DailyStats';
+import WorkoutRecommendations from '../components/WorkoutRecommendations';
 
 dayjs.locale('ru');
 
@@ -25,6 +26,7 @@ const QuickActionCard = ({ icon, title, description, onClick, gradient }) => (
 const Home = () => {
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
+    const calendarRef = useRef(null);
 
     const targetCalories = (() => {
         if (!user) return 2000;
@@ -67,7 +69,7 @@ const Home = () => {
             {/* Two-column layout */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Calendar - takes 2/3 */}
-                <div className="lg:col-span-2">
+                <div ref={calendarRef} className="lg:col-span-2">
                     <Calendar />
                 </div>
 
@@ -84,7 +86,7 @@ const Home = () => {
                                 title="Добавить тренировку"
                                 description="Записать активность"
                                 gradient="bg-gradient-to-br from-primary-100 to-primary-200"
-                                onClick={() => navigate('/')}
+                                onClick={() => calendarRef.current?.scrollIntoView({ behavior: 'smooth' })}
                             />
                             <QuickActionCard
                                 icon="🥗"
@@ -105,6 +107,9 @@ const Home = () => {
 
                     {/* Calorie Calculator compact */}
                     <CalorieCalculator />
+
+                    {/* Workout Recommendations */}
+                    <WorkoutRecommendations />
                 </div>
             </div>
         </div>

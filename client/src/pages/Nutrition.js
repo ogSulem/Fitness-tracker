@@ -74,9 +74,7 @@ const Nutrition = () => {
     };
 
     const handlePortionChange = (e) => {
-        const portion = Number(e.target.value) || 100;
         setFormData(prev => ({ ...prev, portion: e.target.value }));
-        // Recalculate if food was selected from DB (we don't store per100g values in state, so skip auto-recalc)
     };
 
     const handleSubmit = async (e) => {

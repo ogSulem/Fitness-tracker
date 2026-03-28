@@ -62,14 +62,14 @@ const CalorieCalculator = () => {
     if (!user) {
         return (
             <div className="card">
-                <p className="text-gray-500 text-sm">Войдите, чтобы использовать калькулятор</p>
+                <p className="text-gray-500 dark:text-slate-400 text-sm">Войдите, чтобы использовать калькулятор</p>
             </div>
         );
     }
 
     return (
         <div className="card">
-            <h3 className="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2">
                 <span className="text-lg">🔢</span> Калькулятор калорий
             </h3>
 
@@ -106,43 +106,43 @@ const CalorieCalculator = () => {
 
             {result && (
                 <div className="space-y-3">
-                    <div className="bg-gradient-to-r from-primary-50 to-primary-100 rounded-xl p-4 text-center">
-                        <p className="text-xs text-primary-600 font-medium mb-1">Рекомендуемая норма</p>
-                        <p className="text-3xl font-bold text-primary-700">{result.targetCalories}</p>
-                        <p className="text-xs text-primary-500">ккал / день</p>
+                    <div className="bg-gradient-to-r from-violet-50 to-violet-100 dark:from-violet-900/30 dark:to-violet-800/20 rounded-xl p-4 text-center">
+                        <p className="text-xs text-violet-600 dark:text-violet-400 font-medium mb-1">Рекомендуемая норма</p>
+                        <p className="text-3xl font-bold text-violet-700 dark:text-violet-300">{result.targetCalories}</p>
+                        <p className="text-xs text-violet-500 dark:text-violet-400">ккал / день</p>
                     </div>
 
                     <div className="grid grid-cols-3 gap-2 text-center">
-                        <div className="bg-blue-50 rounded-xl p-2">
-                            <p className="text-xs text-blue-500 font-medium">Белки</p>
-                            <p className="text-base font-bold text-blue-700">{result.protein}г</p>
+                        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-2">
+                            <p className="text-xs text-blue-500 dark:text-blue-400 font-medium">Белки</p>
+                            <p className="text-base font-bold text-blue-700 dark:text-blue-300">{result.protein}г</p>
                         </div>
-                        <div className="bg-amber-50 rounded-xl p-2">
-                            <p className="text-xs text-amber-500 font-medium">Жиры</p>
-                            <p className="text-base font-bold text-amber-700">{result.fat}г</p>
+                        <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-2">
+                            <p className="text-xs text-amber-500 dark:text-amber-400 font-medium">Жиры</p>
+                            <p className="text-base font-bold text-amber-700 dark:text-amber-300">{result.fat}г</p>
                         </div>
-                        <div className="bg-green-50 rounded-xl p-2">
-                            <p className="text-xs text-green-500 font-medium">Углеводы</p>
-                            <p className="text-base font-bold text-green-700">{result.carbs}г</p>
+                        <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-2">
+                            <p className="text-xs text-green-500 dark:text-green-400 font-medium">Углеводы</p>
+                            <p className="text-base font-bold text-green-700 dark:text-green-300">{result.carbs}г</p>
                         </div>
                     </div>
 
                     <div className="space-y-1.5">
-                        <div className="flex justify-between text-xs text-gray-500">
+                        <div className="flex justify-between text-xs text-gray-500 dark:text-slate-400">
                             <span>Белки (30%)</span>
                             <span>{result.protein}г</span>
                         </div>
                         <div className="progress-bar">
                             <div className="progress-fill bg-blue-400" style={{ width: '30%' }} />
                         </div>
-                        <div className="flex justify-between text-xs text-gray-500">
+                        <div className="flex justify-between text-xs text-gray-500 dark:text-slate-400">
                             <span>Жиры (30%)</span>
                             <span>{result.fat}г</span>
                         </div>
                         <div className="progress-bar">
                             <div className="progress-fill bg-amber-400" style={{ width: '30%' }} />
                         </div>
-                        <div className="flex justify-between text-xs text-gray-500">
+                        <div className="flex justify-between text-xs text-gray-500 dark:text-slate-400">
                             <span>Углеводы (40%)</span>
                             <span>{result.carbs}г</span>
                         </div>
@@ -153,13 +153,13 @@ const CalorieCalculator = () => {
 
                     <div className="flex gap-3 pt-1">
                         <div className="flex-1 text-center">
-                            <p className="text-xs text-gray-400">БОВ</p>
-                            <p className="text-sm font-semibold text-gray-600">{result.bmr}</p>
+                            <p className="text-xs text-gray-400 dark:text-slate-500">БОВ</p>
+                            <p className="text-sm font-semibold text-gray-600 dark:text-slate-300">{result.bmr}</p>
                         </div>
-                        <div className="w-px bg-gray-100" />
+                        <div className="w-px bg-gray-100 dark:bg-slate-700" />
                         <div className="flex-1 text-center">
-                            <p className="text-xs text-gray-400">TDEE</p>
-                            <p className="text-sm font-semibold text-gray-600">{result.tdee}</p>
+                            <p className="text-xs text-gray-400 dark:text-slate-500">TDEE</p>
+                            <p className="text-sm font-semibold text-gray-600 dark:text-slate-300">{result.tdee}</p>
                         </div>
                     </div>
                 </div>
@@ -167,6 +167,5 @@ const CalorieCalculator = () => {
         </div>
     );
 };
-
 
 export default CalorieCalculator;

@@ -18,6 +18,7 @@ const Register = () => {
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const { register } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -65,9 +66,13 @@ const Register = () => {
     };
 
     return (
-        <div className="min-h-screen flex">
+        <div className="min-h-screen flex bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
             {/* Left decorative panel */}
-            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 flex-col items-center justify-center p-12 relative overflow-hidden">
+            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-violet-600 via-violet-700 to-violet-900 flex-col items-center justify-center p-12 relative overflow-hidden">
+                <div className="absolute inset-0 overflow-hidden">
+                    <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-white/5 blur-3xl" />
+                    <div className="absolute -bottom-20 -left-20 w-96 h-96 rounded-full bg-white/5 blur-3xl" />
+                </div>
                 <div className="absolute inset-0 opacity-10">
                     <div className="absolute top-10 left-10 text-9xl">🏆</div>
                     <div className="absolute bottom-20 right-10 text-8xl">🚴</div>
@@ -76,22 +81,23 @@ const Register = () => {
                     <div className="absolute bottom-10 left-20 text-5xl">🥇</div>
                 </div>
                 <div className="relative z-10 text-center text-white">
-                    <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center mx-auto mb-6">
-                        <span className="text-3xl">⚡</span>
+                    <div className="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mx-auto mb-6 shadow-xl">
+                        <span className="text-4xl">⚡</span>
                     </div>
-                    <h1 className="text-4xl font-bold mb-4">FitTrack</h1>
-                    <p className="text-primary-200 text-lg max-w-xs leading-relaxed">
-                        Начни свой путь к идеальной форме уже сегодня
+                    <h1 className="text-5xl font-bold mb-4 tracking-tight">FitTrack</h1>
+                    <p className="text-violet-200 text-lg max-w-xs leading-relaxed">
+                        Начни свой путь к здоровому образу жизни уже сегодня
                     </p>
-                    <div className="mt-10 space-y-3">
+                    <div className="mt-12 space-y-3 text-left max-w-xs mx-auto">
                         {[
                             { icon: '✅', text: 'Отслеживай тренировки' },
                             { icon: '✅', text: 'Контролируй питание' },
                             { icon: '✅', text: 'Анализируй прогресс' },
-                        ].map(item => (
-                            <div key={item.text} className="flex items-center gap-3 text-primary-200">
+                            { icon: '✅', text: 'Достигай целей' },
+                        ].map((item) => (
+                            <div key={item.text} className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2.5">
                                 <span>{item.icon}</span>
-                                <span>{item.text}</span>
+                                <span className="text-sm text-violet-100 font-medium">{item.text}</span>
                             </div>
                         ))}
                     </div>
@@ -99,62 +105,52 @@ const Register = () => {
             </div>
 
             {/* Right form panel */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white dark:bg-slate-800 transition-colors duration-300">
                 <div className="w-full max-w-md animate-slideUp">
                     <div className="flex items-center gap-2 mb-8 lg:hidden">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-violet-800 flex items-center justify-center">
                             <span className="text-white text-sm">⚡</span>
                         </div>
-                        <span className="text-xl font-bold text-gray-900">FitTrack</span>
+                        <span className="text-xl font-bold text-gray-900 dark:text-white">FitTrack</span>
                     </div>
 
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Создать аккаунт</h2>
+                    <p className="text-gray-400 dark:text-slate-500 mb-6">Шаг {step + 1} из {STEPS.length}: {STEPS[step]}</p>
+
                     {/* Step indicator */}
-                    <div className="flex items-center gap-2 mb-8">
+                    <div className="flex gap-2 mb-8">
                         {STEPS.map((s, i) => (
-                            <React.Fragment key={s}>
-                                <div className="flex items-center gap-2">
-                                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                                        i <= step ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-400'
-                                    }`}>
-                                        {i < step ? '✓' : i + 1}
-                                    </div>
-                                    <span className={`text-sm font-medium ${i <= step ? 'text-primary-600' : 'text-gray-400'}`}>{s}</span>
-                                </div>
-                                {i < STEPS.length - 1 && (
-                                    <div className={`flex-1 h-0.5 rounded-full transition-all ${i < step ? 'bg-primary-400' : 'bg-gray-100'}`} />
-                                )}
-                            </React.Fragment>
+                            <div
+                                key={s}
+                                className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
+                                    i <= step ? 'bg-violet-600' : 'bg-gray-200 dark:bg-slate-600'
+                                }`}
+                            />
                         ))}
                     </div>
 
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                        {step === 0 ? 'Создать аккаунт' : 'Расскажи о себе'}
-                    </h2>
-                    <p className="text-gray-400 mb-6 text-sm">
-                        {step === 0 ? 'Заполни данные для регистрации' : 'Нужно для расчёта калорий и рекомендаций'}
-                    </p>
-
                     {error && (
-                        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-5 flex items-center gap-2 text-sm">
+                        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl mb-6 flex items-center gap-2 text-sm">
                             <span>⚠️</span> {error}
                         </div>
                     )}
 
-                    {step === 0 ? (
-                        <div className="space-y-4">
+                    {step === 0 && (
+                        <div className="space-y-5">
                             <div>
-                                <label className="label">Имя</label>
+                                <label className="label">Имя *</label>
                                 <input
                                     type="text"
                                     name="name"
                                     value={formData.name}
                                     onChange={handleChange}
                                     className="input"
-                                    placeholder="Введите ваше имя"
+                                    placeholder="Иван Иванов"
+                                    required
                                 />
                             </div>
                             <div>
-                                <label className="label">Email</label>
+                                <label className="label">Email *</label>
                                 <input
                                     type="email"
                                     name="email"
@@ -162,22 +158,32 @@ const Register = () => {
                                     onChange={handleChange}
                                     className="input"
                                     placeholder="example@mail.ru"
+                                    required
                                 />
                             </div>
                             <div>
-                                <label className="label">Пароль</label>
-                                <input
-                                    type="password"
-                                    name="password"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    className="input"
-                                    placeholder="Минимум 6 символов"
-                                    minLength="6"
-                                />
+                                <label className="label">Пароль *</label>
+                                <div className="relative">
+                                    <input
+                                        type={showPassword ? 'text' : 'password'}
+                                        name="password"
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        className="input pr-12"
+                                        placeholder="Минимум 6 символов"
+                                        required
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 transition-colors"
+                                    >
+                                        {showPassword ? '🙈' : '👁️'}
+                                    </button>
+                                </div>
                             </div>
                             <div>
-                                <label className="label">Подтверждение пароля</label>
+                                <label className="label">Подтвердите пароль *</label>
                                 <input
                                     type="password"
                                     name="confirmPassword"
@@ -185,25 +191,34 @@ const Register = () => {
                                     onChange={handleChange}
                                     className="input"
                                     placeholder="Повторите пароль"
-                                    minLength="6"
+                                    required
                                 />
                             </div>
-                            <button type="button" onClick={handleNext} className="btn-primary w-full mt-2">
+                            <button
+                                type="button"
+                                onClick={handleNext}
+                                className="btn-primary w-full justify-center"
+                            >
                                 Далее →
                             </button>
                         </div>
-                    ) : (
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                    )}
+
+                    {step === 1 && (
+                        <form onSubmit={handleSubmit} className="space-y-5">
                             <div>
-                                <label className="label">Пол</label>
+                                <label className="label">Пол *</label>
                                 <div className="grid grid-cols-2 gap-3">
-                                    {[{ value: 'male', label: '👨 Мужской' }, { value: 'female', label: '👩 Женский' }].map(opt => (
+                                    {[
+                                        { value: 'male', label: '👨 Мужской' },
+                                        { value: 'female', label: '�� Женский' },
+                                    ].map(opt => (
                                         <label
                                             key={opt.value}
                                             className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all text-sm font-medium ${
                                                 formData.gender === opt.value
-                                                    ? 'border-primary-500 bg-primary-50 text-primary-700'
-                                                    : 'border-gray-200 text-gray-600 hover:border-primary-300'
+                                                    ? 'border-violet-500 bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300'
+                                                    : 'border-gray-200 dark:border-slate-600 text-gray-600 dark:text-slate-400 hover:border-violet-200 dark:hover:border-violet-700'
                                             }`}
                                         >
                                             <input
@@ -219,10 +234,9 @@ const Register = () => {
                                     ))}
                                 </div>
                             </div>
-
                             <div className="grid grid-cols-3 gap-3">
                                 <div>
-                                    <label className="label">Возраст</label>
+                                    <label className="label">Возраст *</label>
                                     <input
                                         type="number"
                                         name="age"
@@ -236,7 +250,7 @@ const Register = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="label">Вес, кг</label>
+                                    <label className="label">Вес (кг) *</label>
                                     <input
                                         type="number"
                                         name="weight"
@@ -245,12 +259,13 @@ const Register = () => {
                                         className="input"
                                         placeholder="70"
                                         min="30"
-                                        max="200"
+                                        max="300"
+                                        step="0.1"
                                         required
                                     />
                                 </div>
                                 <div>
-                                    <label className="label">Рост, см</label>
+                                    <label className="label">Рост (см) *</label>
                                     <input
                                         type="number"
                                         name="height"
@@ -264,33 +279,36 @@ const Register = () => {
                                     />
                                 </div>
                             </div>
-
-                            <div className="flex gap-3 mt-2">
+                            <div className="flex gap-3">
                                 <button
                                     type="button"
                                     onClick={() => { setStep(0); setError(''); }}
-                                    className="btn-secondary flex-1"
+                                    className="btn-secondary flex-1 justify-center"
                                 >
                                     ← Назад
                                 </button>
-                                <button type="submit" disabled={loading} className="btn-primary flex-1">
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="btn-primary flex-1 justify-center"
+                                >
                                     {loading ? (
                                         <span className="flex items-center justify-center gap-2">
                                             <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
                                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                                             </svg>
-                                            Регистрация...
+                                            Загрузка...
                                         </span>
-                                    ) : 'Создать аккаунт'}
+                                    ) : 'Зарегистрироваться'}
                                 </button>
                             </div>
                         </form>
                     )}
 
-                    <p className="mt-6 text-center text-sm text-gray-500">
+                    <p className="mt-6 text-center text-sm text-gray-500 dark:text-slate-500">
                         Уже есть аккаунт?{' '}
-                        <Link to="/login" className="text-primary-600 hover:text-primary-700 font-semibold">
+                        <Link to="/login" className="text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-semibold">
                             Войти
                         </Link>
                     </p>

@@ -34,7 +34,6 @@ const WorkoutForm = ({ onSubmit, initialDate }) => {
         setFormData(prev => ({ ...prev, date }));
     }, [initialDate]);
 
-    // Auto-calculate calories when type/duration/intensity change
     useEffect(() => {
         const typeInfo = WORKOUT_TYPES.find(t => t.value === formData.type);
         const intensityInfo = INTENSITY_OPTIONS.find(i => i.value === formData.intensity);
@@ -62,7 +61,6 @@ const WorkoutForm = ({ onSubmit, initialDate }) => {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Type */}
             <div>
                 <label className="label">Тип тренировки *</label>
                 <select name="type" value={formData.type} onChange={handleChange} className="input" required>
@@ -72,7 +70,6 @@ const WorkoutForm = ({ onSubmit, initialDate }) => {
                 </select>
             </div>
 
-            {/* Date + Time */}
             <div className="grid grid-cols-2 gap-3">
                 <div>
                     <label className="label">Дата *</label>
@@ -84,7 +81,6 @@ const WorkoutForm = ({ onSubmit, initialDate }) => {
                 </div>
             </div>
 
-            {/* Duration + Intensity */}
             <div className="grid grid-cols-2 gap-3">
                 <div>
                     <label className="label">Длительность, мин *</label>
@@ -100,7 +96,6 @@ const WorkoutForm = ({ onSubmit, initialDate }) => {
                 </div>
             </div>
 
-            {/* Calories burned */}
             <div>
                 <label className="label">Сожжено калорий (авторасчёт)</label>
                 <div className="relative">
@@ -113,12 +108,11 @@ const WorkoutForm = ({ onSubmit, initialDate }) => {
                         min="0"
                         placeholder="0"
                     />
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">ккал</span>
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-400 dark:text-slate-500 font-medium">ккал</span>
                 </div>
-                <p className="text-xs text-gray-400 mt-1">Рассчитывается автоматически, можно изменить вручную</p>
+                <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">Рассчитывается автоматически, можно изменить вручную</p>
             </div>
 
-            {/* Comment */}
             <div>
                 <label className="label">Комментарий</label>
                 <textarea

@@ -24,31 +24,23 @@ function App() {
     useAxiosInterceptor();
 
     return (
-        <div className="flex flex-col min-h-screen bg-gray-50">
+        <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
             <Header />
             <main className="flex-grow">
                 <Routes>
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/" element={
-                        <PrivateRoute>
-                            <Home />
-                        </PrivateRoute>
+                        <PrivateRoute><Home /></PrivateRoute>
                     } />
                     <Route path="/nutrition" element={
-                        <PrivateRoute>
-                            <Nutrition />
-                        </PrivateRoute>
+                        <PrivateRoute><Nutrition /></PrivateRoute>
                     } />
                     <Route path="/analytics" element={
-                        <PrivateRoute>
-                            <Analytics />
-                        </PrivateRoute>
+                        <PrivateRoute><Analytics /></PrivateRoute>
                     } />
                     <Route path="/profile" element={
-                        <PrivateRoute>
-                            <Profile />
-                        </PrivateRoute>
+                        <PrivateRoute><Profile /></PrivateRoute>
                     } />
                     <Route path="*" element={<NotFound />} />
                 </Routes>
@@ -58,4 +50,4 @@ function App() {
     );
 }
 
-export default App; 
+export default App;

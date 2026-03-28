@@ -22,7 +22,6 @@ const Calendar = () => {
     const [isViewWorkoutModalOpen, setIsViewWorkoutModalOpen] = useState(false);
     const [isViewGoalModalOpen, setIsViewGoalModalOpen] = useState(false);
 
-    // Получение данных о тренировках и целях
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -31,18 +30,15 @@ const Calendar = () => {
                 const startOfMonth = currentDate.startOf('month').format('YYYY-MM-DD');
                 const endOfMonth = currentDate.endOf('month').format('YYYY-MM-DD');
 
-                // Получаем тренировки из API
                 const workoutsRes = await axios.get('/api/workouts');
                 const allWorkouts = workoutsRes.data;
 
-                // Фильтруем тренировки для текущего месяца
                 const filteredWorkouts = allWorkouts.filter(workout => {
                     const workoutDate = dayjs(workout.date);
                     return workoutDate.isAfter(dayjs(startOfMonth).subtract(1, 'day')) &&
                         workoutDate.isBefore(dayjs(endOfMonth).add(1, 'day'));
                 });
 
-                // Получаем цели из API
                 const goalsRes = await axios.get('/api/goals');
                 const allGoals = goalsRes.data;
 
@@ -57,15 +53,13 @@ const Calendar = () => {
         fetchData();
     }, [currentDate, isAuthenticated, showNotification]);
 
-    // Генерация дней календаря
     useEffect(() => {
         const firstDayOfMonth = currentDate.startOf('month');
         const lastDayOfMonth = currentDate.endOf('month');
-        const startDay = firstDayOfMonth.day() === 0 ? 6 : firstDayOfMonth.day() - 1; // Понедельник - 0, Воскресенье - 6
+        const startDay = firstDayOfMonth.day() === 0 ? 6 : firstDayOfMonth.day() - 1;
 
         const days = [];
 
-        // Добавление дней предыдущего месяца
         for (let i = startDay - 1; i >= 0; i--) {
             days.push({
                 date: firstDayOfMonth.subtract(i + 1, 'day'),
@@ -73,7 +67,6 @@ const Calendar = () => {
             });
         }
 
-        // Добавление дней текущего месяца
         for (let i = 0; i < lastDayOfMonth.date(); i++) {
             days.push({
                 date: firstDayOfMonth.add(i, 'day'),
@@ -81,8 +74,7 @@ const Calendar = () => {
             });
         }
 
-        // Добавление дней следующего месяца
-        const remainingDays = 42 - days.length; // 6 строк по 7 дней
+        const remainingDays = 42 - days.length;
         for (let i = 1; i <= remainingDays; i++) {
             days.push({
                 date: lastDayOfMonth.add(i, 'day'),
@@ -93,42 +85,28 @@ const Calendar = () => {
         setCalendarDays(days);
     }, [currentDate]);
 
-    // Переход к предыдущему месяцу
-    const goToPreviousMonth = () => {
-        setCurrentDate(currentDate.subtract(1, 'month'));
-    };
+    const goToPreviousMonth = () => setCurrentDate(currentDate.subtract(1, 'month'));
+    const goToNextMonth = () => setCurrentDate(currentDate.add(1, 'month'));
 
-    // Переход к следующему месяцу
-    const goToNextMonth = () => {
-        setCurrentDate(currentDate.add(1, 'month'));
-    };
-
-    // Открытие модального окна для добавления тренировки
     const openWorkoutModal = (date) => {
         setSelectedDate(date || dayjs());
         setIsWorkoutModalOpen(true);
     };
 
-    // Открытие модального окна для добавления цели
-    const openGoalModal = () => {
-        setIsGoalModalOpen(true);
-    };
+    const openGoalModal = () => setIsGoalModalOpen(true);
 
-    // Открытие модального окна для просмотра тренировки
     const openViewWorkoutModal = (workout, e) => {
         e.stopPropagation();
         setSelectedWorkout(workout);
         setIsViewWorkoutModalOpen(true);
     };
 
-    // Открытие модального окна для просмотра цели
     const openViewGoalModal = (goal, e) => {
         e.stopPropagation();
         setSelectedGoal(goal);
         setIsViewGoalModalOpen(true);
     };
 
-    // Добавление новой тренировки
     const handleAddWorkout = async (workoutData) => {
         try {
             if (!isAuthenticated) {
@@ -136,15 +114,12 @@ const Calendar = () => {
                 return;
             }
 
-            // Преобразуем duration в число
             const numericWorkoutData = {
                 ...workoutData,
                 duration: Number(workoutData.duration)
             };
 
-            // Сохраняем тренировку через API
             const response = await axios.post('/api/workouts', numericWorkoutData);
-
             const newWorkout = response.data;
             setWorkouts([...workouts, newWorkout]);
             setIsWorkoutModalOpen(false);
@@ -152,7 +127,6 @@ const Calendar = () => {
         } catch (err) {
             console.error('Ошибка при добавлении тренировки:', err.response?.data || err.message);
 
-            // Показываем детальное сообщение об ошибке
             const errorMessage = err.response?.data?.errors
                 ? `Ошибка: ${err.response.data.errors.map(e => e.msg).join(', ')}`
                 : err.response?.data?.message || 'Ошибка при добавлении тренировки';
@@ -161,7 +135,6 @@ const Calendar = () => {
         }
     };
 
-    // Добавление новой цели
     const handleAddGoal = async (goalData) => {
         try {
             if (!isAuthenticated) {
@@ -169,7 +142,6 @@ const Calendar = () => {
                 return;
             }
 
-            // Преобразуем числовые поля из строк в числа
             const numericGoalData = {
                 ...goalData,
                 startValue: Number(goalData.startValue),
@@ -177,9 +149,7 @@ const Calendar = () => {
                 targetValue: Number(goalData.targetValue)
             };
 
-            // Сохраняем цель через API
             const response = await axios.post('/api/goals', numericGoalData);
-
             const newGoal = response.data;
             setGoals([...goals, newGoal]);
             setIsGoalModalOpen(false);
@@ -187,7 +157,6 @@ const Calendar = () => {
         } catch (err) {
             console.error('Ошибка при добавлении цели:', err.response?.data || err.message);
 
-            // Показываем детальное сообщение об ошибке
             const errorMessage = err.response?.data?.errors
                 ? `Ошибка: ${err.response.data.errors.map(e => e.msg).join(', ')}`
                 : err.response?.data?.message || 'Ошибка при добавлении цели';
@@ -196,7 +165,6 @@ const Calendar = () => {
         }
     };
 
-    // Удаление тренировки
     const handleDeleteWorkout = async (workoutId) => {
         try {
             await axios.delete(`/api/workouts/${workoutId}`);
@@ -209,35 +177,30 @@ const Calendar = () => {
         }
     };
 
-    // Получение тренировок для конкретного дня
     const getWorkoutsForDay = (date) => {
         return workouts.filter(workout =>
             dayjs(workout.date).format('YYYY-MM-DD') === date.format('YYYY-MM-DD')
         );
     };
 
-    // Получение целей для конкретного дня
     const getGoalsForDay = (date) => {
         return goals.filter(goal =>
             dayjs(goal.deadline).format('YYYY-MM-DD') === date.format('YYYY-MM-DD')
         );
     };
 
-    // Дни недели
     const weekDays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 
     return (
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-4 transition-colors duration-200">
             <div className="flex justify-between items-center mb-4">
-                <div>
-                    <h2 className="text-xl font-bold text-gray-800">
-                        {currentDate.format('MMMM YYYY')}
-                    </h2>
-                </div>
+                <h2 className="text-xl font-bold text-gray-800 dark:text-slate-100">
+                    {currentDate.format('MMMM YYYY')}
+                </h2>
                 <div className="flex space-x-2">
                     <button
                         onClick={goToPreviousMonth}
-                        className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
+                        className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-500 dark:text-slate-400 transition-colors"
                     >
                         <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -245,7 +208,7 @@ const Calendar = () => {
                     </button>
                     <button
                         onClick={goToNextMonth}
-                        className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
+                        className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-500 dark:text-slate-400 transition-colors"
                     >
                         <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -256,7 +219,7 @@ const Calendar = () => {
 
             <div className="grid grid-cols-7 gap-1">
                 {weekDays.map(day => (
-                    <div key={day} className="text-center py-2 font-semibold text-sm text-gray-600">
+                    <div key={day} className="text-center py-2 font-semibold text-sm text-gray-600 dark:text-slate-400">
                         {day}
                     </div>
                 ))}
@@ -271,22 +234,25 @@ const Calendar = () => {
                             key={index}
                             onClick={() => openWorkoutModal(day.date)}
                             className={`
-                                min-h-[100px] p-1 border border-gray-200 cursor-pointer
-                                ${!day.isCurrentMonth ? 'bg-gray-50' : ''}
-                                ${isToday ? 'bg-purple-50 border-purple-200' : ''}
+                                min-h-[100px] p-1 border cursor-pointer transition-colors duration-150
+                                ${!day.isCurrentMonth
+                                    ? 'bg-gray-50 dark:bg-slate-800/50 border-gray-100 dark:border-slate-700/50'
+                                    : 'border-gray-200 dark:border-slate-600 hover:bg-violet-50/30 dark:hover:bg-violet-900/10'
+                                }
+                                ${isToday ? 'bg-violet-50 dark:bg-violet-900/20 border-violet-200 dark:border-violet-700' : ''}
                             `}
                         >
                             <div className="flex justify-between items-center mb-1">
                                 <span
                                     className={`text-sm font-medium rounded-full w-6 h-6 flex items-center justify-center
-                                        ${isToday ? 'bg-primary-600 text-white' : ''}
-                                        ${!day.isCurrentMonth ? 'text-gray-400' : ''}
+                                        ${isToday ? 'bg-violet-600 text-white' : ''}
+                                        ${!day.isCurrentMonth ? 'text-gray-400 dark:text-slate-600' : 'text-gray-700 dark:text-slate-300'}
                                     `}
                                 >
                                     {day.date.date()}
                                 </span>
                                 {dayWorkouts.length > 0 && (
-                                    <span className="bg-primary-600 text-xs text-white px-1.5 py-0.5 rounded-full font-medium">
+                                    <span className="bg-violet-600 text-xs text-white px-1.5 py-0.5 rounded-full font-medium">
                                         {dayWorkouts.length}
                                     </span>
                                 )}
@@ -297,13 +263,13 @@ const Calendar = () => {
                                     <div
                                         key={workout._id}
                                         onClick={(e) => openViewWorkoutModal(workout, e)}
-                                        className="text-xs p-1 rounded bg-purple-100 text-purple-800 truncate"
+                                        className="text-xs p-1 rounded bg-violet-100 dark:bg-violet-900/40 text-violet-800 dark:text-violet-300 truncate"
                                     >
                                         {workout.time} - {workout.type}
                                     </div>
                                 ))}
                                 {dayWorkouts.length > 2 && (
-                                    <div className="text-xs text-gray-500">
+                                    <div className="text-xs text-gray-500 dark:text-slate-500">
                                         +{dayWorkouts.length - 2} еще
                                     </div>
                                 )}
@@ -312,7 +278,7 @@ const Calendar = () => {
                                     <div
                                         key={goal._id}
                                         onClick={(e) => openViewGoalModal(goal, e)}
-                                        className="text-xs p-1 rounded bg-green-100 text-green-800 truncate"
+                                        className="text-xs p-1 rounded bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 truncate"
                                     >
                                         {goal.title}
                                     </div>
@@ -338,7 +304,7 @@ const Calendar = () => {
                 </button>
             </div>
 
-            {/* Модальное окно для добавления тренировки */}
+            {/* Workout add modal */}
             <Modal
                 isOpen={isWorkoutModalOpen}
                 onClose={() => setIsWorkoutModalOpen(false)}
@@ -350,7 +316,7 @@ const Calendar = () => {
                 />
             </Modal>
 
-            {/* Модальное окно для добавления цели */}
+            {/* Goal add modal */}
             <Modal
                 isOpen={isGoalModalOpen}
                 onClose={() => setIsGoalModalOpen(false)}
@@ -359,7 +325,7 @@ const Calendar = () => {
                 <GoalForm onSubmit={handleAddGoal} />
             </Modal>
 
-            {/* Модальное окно для просмотра тренировки */}
+            {/* Workout view modal */}
             <Modal
                 isOpen={isViewWorkoutModalOpen}
                 onClose={() => setIsViewWorkoutModalOpen(false)}
@@ -368,23 +334,30 @@ const Calendar = () => {
                 {selectedWorkout && (
                     <div className="space-y-4">
                         <div>
-                            <h3 className="text-lg font-medium text-gray-900">
+                            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
                                 {selectedWorkout.type}
                             </h3>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-gray-500 dark:text-slate-400">
                                 {dayjs(selectedWorkout.date).format('DD.MM.YYYY')} в {selectedWorkout.time}
                             </p>
                         </div>
 
                         <div>
-                            <p className="text-sm text-gray-500">Продолжительность</p>
-                            <p className="font-medium">{selectedWorkout.duration} минут</p>
+                            <p className="text-sm text-gray-500 dark:text-slate-400">Продолжительность</p>
+                            <p className="font-medium text-gray-800 dark:text-slate-200">{selectedWorkout.duration} минут</p>
                         </div>
+
+                        {selectedWorkout.caloriesBurned > 0 && (
+                            <div>
+                                <p className="text-sm text-gray-500 dark:text-slate-400">Сожжено калорий</p>
+                                <p className="font-medium text-gray-800 dark:text-slate-200">{selectedWorkout.caloriesBurned} ккал</p>
+                            </div>
+                        )}
 
                         {selectedWorkout.comment && (
                             <div>
-                                <p className="text-sm text-gray-500">Комментарий</p>
-                                <p className="font-medium">{selectedWorkout.comment}</p>
+                                <p className="text-sm text-gray-500 dark:text-slate-400">Комментарий</p>
+                                <p className="font-medium text-gray-800 dark:text-slate-200">{selectedWorkout.comment}</p>
                             </div>
                         )}
 
@@ -406,7 +379,7 @@ const Calendar = () => {
                 )}
             </Modal>
 
-            {/* Модальное окно для просмотра цели */}
+            {/* Goal view modal */}
             <Modal
                 isOpen={isViewGoalModalOpen}
                 onClose={() => setIsViewGoalModalOpen(false)}
@@ -415,25 +388,25 @@ const Calendar = () => {
                 {selectedGoal && (
                     <div className="space-y-4">
                         <div>
-                            <h3 className="text-lg font-medium text-gray-900">
+                            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
                                 {selectedGoal.title}
                             </h3>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-gray-500 dark:text-slate-400">
                                 Дедлайн: {dayjs(selectedGoal.deadline).format('DD.MM.YYYY')}
                             </p>
                         </div>
 
                         <div>
-                            <p className="text-sm text-gray-500">Прогресс</p>
+                            <p className="text-sm text-gray-500 dark:text-slate-400">Прогресс</p>
                             <div className="progress-bar mt-1">
                                 <div
-                                    className="progress-fill bg-primary-500"
+                                    className="progress-fill bg-violet-500"
                                     style={{
                                         width: `${Math.min(100, Math.max(0, ((selectedGoal.currentValue - selectedGoal.startValue) / (selectedGoal.targetValue - selectedGoal.startValue)) * 100))}%`
                                     }}
                                 />
                             </div>
-                            <div className="flex justify-between text-xs text-gray-500 mt-1">
+                            <div className="flex justify-between text-xs text-gray-500 dark:text-slate-400 mt-1">
                                 <span>{selectedGoal.startValue}</span>
                                 <span>{selectedGoal.currentValue}</span>
                                 <span>{selectedGoal.targetValue}</span>
@@ -442,8 +415,8 @@ const Calendar = () => {
 
                         {selectedGoal.description && (
                             <div>
-                                <p className="text-sm text-gray-500">Описание</p>
-                                <p className="font-medium">{selectedGoal.description}</p>
+                                <p className="text-sm text-gray-500 dark:text-slate-400">Описание</p>
+                                <p className="font-medium text-gray-800 dark:text-slate-200">{selectedGoal.description}</p>
                             </div>
                         )}
 
@@ -462,4 +435,4 @@ const Calendar = () => {
     );
 };
 
-export default Calendar; 
+export default Calendar;

@@ -6,11 +6,11 @@ const Footer = () => {
     const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
 
     return (
-        <footer className="bg-secondary text-white py-8 mt-auto">
+        <footer className="bg-slate-900 dark:bg-slate-950 text-white py-8 mt-auto border-t border-slate-700 dark:border-slate-800 transition-colors duration-300">
             <div className="container mx-auto px-4">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                     <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center">
+                        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center">
                             <span className="text-white text-sm">⚡</span>
                         </div>
                         <span className="text-lg font-bold text-white">FitTrack</span>
@@ -31,7 +31,7 @@ const Footer = () => {
                 title="О проекте"
             >
                 <div className="space-y-4">
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-slate-300">
                         Данная работа выполнена студентом Казанского Федерального Университета,
                         направление Прикладная информатика, группа 09-253,
                         Богдановым Артуром Владимировичем.
@@ -50,4 +50,4 @@ const Footer = () => {
     );
 };
 
-export default Footer; 
+export default Footer;

@@ -15,8 +15,9 @@ const CircleProgress = ({ percent, size = 120, strokeWidth = 10, color = '#7c3ae
                 cy={size / 2}
                 r={radius}
                 fill="none"
-                stroke="#f1f5f9"
+                stroke="currentColor"
                 strokeWidth={strokeWidth}
+                className="text-gray-100 dark:text-slate-600"
             />
             <circle
                 cx={size / 2}
@@ -39,8 +40,8 @@ const MacroBar = ({ label, value, max, color }) => {
     return (
         <div className="space-y-1">
             <div className="flex justify-between text-xs">
-                <span className="text-gray-500 font-medium">{label}</span>
-                <span className="text-gray-700 font-semibold">{value}г</span>
+                <span className="text-gray-500 dark:text-slate-400 font-medium">{label}</span>
+                <span className="text-gray-700 dark:text-slate-300 font-semibold">{value}г</span>
             </div>
             <div className="progress-bar">
                 <div
@@ -106,10 +107,10 @@ const DailyStats = ({ targetCalories = 2000 }) => {
     if (loading) {
         return (
             <div className="card animate-pulse">
-                <div className="h-6 bg-gray-100 rounded w-48 mb-4" />
+                <div className="h-6 bg-gray-100 dark:bg-slate-700 rounded w-48 mb-4" />
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {[...Array(4)].map((_, i) => (
-                        <div key={i} className="h-24 bg-gray-100 rounded-xl" />
+                        <div key={i} className="h-24 bg-gray-100 dark:bg-slate-700 rounded-xl" />
                     ))}
                 </div>
             </div>
@@ -119,7 +120,7 @@ const DailyStats = ({ targetCalories = 2000 }) => {
     return (
         <div className="card animate-slideUp">
             <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-bold text-gray-800">Статистика сегодня</h2>
+                <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100">Статистика сегодня</h2>
                 <span className="badge-primary">{dayjs().format('DD MMMM')}</span>
             </div>
 
@@ -134,56 +135,56 @@ const DailyStats = ({ targetCalories = 2000 }) => {
                             color={isOver ? '#ef4444' : '#7c3aed'}
                         />
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            <span className="text-2xl font-bold text-gray-800">{pct}%</span>
-                            <span className="text-xs text-gray-400">от нормы</span>
+                            <span className="text-2xl font-bold text-gray-800 dark:text-slate-100">{pct}%</span>
+                            <span className="text-xs text-gray-400 dark:text-slate-500">от нормы</span>
                         </div>
                     </div>
-                    <p className="text-sm text-gray-500 mt-2 text-center">
+                    <p className="text-sm text-gray-500 dark:text-slate-400 mt-2 text-center">
                         {consumedCalories} / {targetCalories} ккал
                     </p>
                 </div>
 
                 {/* Stat cards */}
                 <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl p-4">
+                    <div className="bg-gradient-to-br from-violet-50 to-violet-100 dark:from-violet-900/30 dark:to-violet-800/20 rounded-xl p-4">
                         <div className="text-2xl mb-1">🔥</div>
-                        <p className="text-xs font-medium text-primary-600 mb-1">Потреблено</p>
-                        <p className="text-xl font-bold text-primary-700">{consumedCalories}</p>
-                        <p className="text-xs text-primary-400">ккал</p>
+                        <p className="text-xs font-medium text-violet-600 dark:text-violet-400 mb-1">Потреблено</p>
+                        <p className="text-xl font-bold text-violet-700 dark:text-violet-300">{consumedCalories}</p>
+                        <p className="text-xs text-violet-400 dark:text-violet-500">ккал</p>
                         <div className="progress-bar mt-2">
                             <div
-                                className="progress-fill bg-primary-500"
+                                className="progress-fill bg-violet-500"
                                 style={{ width: `${Math.min(100, pct)}%` }}
                             />
                         </div>
                     </div>
 
-                    <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-4">
+                    <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-800/20 rounded-xl p-4">
                         <div className="text-2xl mb-1">💪</div>
-                        <p className="text-xs font-medium text-amber-600 mb-1">Сожжено</p>
-                        <p className="text-xl font-bold text-amber-700">{burnedCalories}</p>
-                        <p className="text-xs text-amber-400">ккал</p>
+                        <p className="text-xs font-medium text-amber-600 dark:text-amber-400 mb-1">Сожжено</p>
+                        <p className="text-xl font-bold text-amber-700 dark:text-amber-300">{burnedCalories}</p>
+                        <p className="text-xs text-amber-400 dark:text-amber-500">ккал</p>
                     </div>
 
-                    <div className={`bg-gradient-to-br rounded-xl p-4 ${isOver ? 'from-red-50 to-red-100' : 'from-green-50 to-green-100'}`}>
+                    <div className={`bg-gradient-to-br rounded-xl p-4 ${isOver ? 'from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/20' : 'from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/20'}`}>
                         <div className="text-2xl mb-1">⚖️</div>
-                        <p className={`text-xs font-medium mb-1 ${isOver ? 'text-red-600' : 'text-green-600'}`}>Баланс</p>
-                        <p className={`text-xl font-bold ${isOver ? 'text-red-700' : 'text-green-700'}`}>{netCalories}</p>
-                        <p className={`text-xs ${isOver ? 'text-red-400' : 'text-green-400'}`}>ккал</p>
+                        <p className={`text-xs font-medium mb-1 ${isOver ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>Баланс</p>
+                        <p className={`text-xl font-bold ${isOver ? 'text-red-700 dark:text-red-300' : 'text-green-700 dark:text-green-300'}`}>{netCalories}</p>
+                        <p className={`text-xs ${isOver ? 'text-red-400 dark:text-red-500' : 'text-green-400 dark:text-green-500'}`}>ккал</p>
                     </div>
 
-                    <div className="bg-gradient-to-br from-sky-50 to-sky-100 rounded-xl p-4">
+                    <div className="bg-gradient-to-br from-sky-50 to-sky-100 dark:from-sky-900/30 dark:to-sky-800/20 rounded-xl p-4">
                         <div className="text-2xl mb-1">🎯</div>
-                        <p className="text-xs font-medium text-sky-600 mb-1">До цели</p>
-                        <p className="text-xl font-bold text-sky-700">{remaining}</p>
-                        <p className="text-xs text-sky-400">ккал</p>
+                        <p className="text-xs font-medium text-sky-600 dark:text-sky-400 mb-1">До цели</p>
+                        <p className="text-xl font-bold text-sky-700 dark:text-sky-300">{remaining}</p>
+                        <p className="text-xs text-sky-400 dark:text-sky-500">ккал</p>
                     </div>
                 </div>
             </div>
 
             {/* Macros */}
-            <div className="mt-6 border-t border-gray-100 pt-4">
-                <h3 className="text-sm font-semibold text-gray-600 mb-3">Макронутриенты</h3>
+            <div className="mt-6 border-t border-gray-100 dark:border-slate-700 pt-4">
+                <h3 className="text-sm font-semibold text-gray-600 dark:text-slate-400 mb-3">Макронутриенты</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <MacroBar
                         label={`Белки (цель ${targetProtein}г)`}

@@ -5,11 +5,9 @@ import './index.css';
 import App from './App';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
-
-// Импортируем axios для работы с API
+import { ThemeProvider } from './context/ThemeContext';
 import axios from 'axios';
 
-// Настройка глобальных параметров axios
 const token = localStorage.getItem('token');
 if (token) {
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -18,12 +16,14 @@ if (token) {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <React.StrictMode>
-        <Router>
-            <NotificationProvider>
-                <AuthProvider>
-                    <App />
-                </AuthProvider>
-            </NotificationProvider>
-        </Router>
+        <ThemeProvider>
+            <Router>
+                <NotificationProvider>
+                    <AuthProvider>
+                        <App />
+                    </AuthProvider>
+                </NotificationProvider>
+            </Router>
+        </ThemeProvider>
     </React.StrictMode>
-); 
+);

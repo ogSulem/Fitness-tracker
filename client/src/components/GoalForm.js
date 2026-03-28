@@ -62,8 +62,8 @@ const GoalForm = ({ onSubmit }) => {
                             key={t.value}
                             className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border-2 cursor-pointer transition-all text-sm font-medium ${
                                 formData.type === t.value
-                                    ? 'border-primary-500 bg-primary-50 text-primary-700'
-                                    : 'border-gray-200 text-gray-600 hover:border-primary-200'
+                                    ? 'border-violet-500 bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300'
+                                    : 'border-gray-200 dark:border-slate-600 text-gray-600 dark:text-slate-400 hover:border-violet-200 dark:hover:border-violet-700'
                             }`}
                         >
                             <input

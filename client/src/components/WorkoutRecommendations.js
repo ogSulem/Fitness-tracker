@@ -39,7 +39,7 @@ const WorkoutRecommendations = () => {
 
     return (
         <div className="card">
-            <h2 className="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <h2 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2">
                 <span>🎯</span> Рекомендации по тренировкам
             </h2>
 
@@ -53,8 +53,8 @@ const WorkoutRecommendations = () => {
                                 onClick={() => setSelectedGoal(g.value)}
                                 className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
                                     selectedGoal === g.value
-                                        ? 'bg-primary-600 text-white shadow-sm'
-                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                        ? 'bg-violet-600 text-white shadow-sm'
+                                        : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-600'
                                 }`}
                             >
                                 {g.label}
@@ -71,8 +71,8 @@ const WorkoutRecommendations = () => {
                                 onClick={() => setSelectedLevel(l.value)}
                                 className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
                                     selectedLevel === l.value
-                                        ? 'bg-primary-600 text-white shadow-sm'
-                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                        ? 'bg-violet-600 text-white shadow-sm'
+                                        : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-600'
                                 }`}
                             >
                                 {l.label}
@@ -84,7 +84,7 @@ const WorkoutRecommendations = () => {
 
             {loading && (
                 <div className="flex items-center justify-center py-6">
-                    <svg className="animate-spin w-6 h-6 text-primary-600" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin w-6 h-6 text-violet-600" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
@@ -92,25 +92,25 @@ const WorkoutRecommendations = () => {
             )}
 
             {error && !loading && (
-                <div className="bg-red-50 text-red-600 rounded-xl p-3 text-sm text-center">{error}</div>
+                <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl p-3 text-sm text-center">{error}</div>
             )}
 
             {recommendation && !loading && !error && (
                 <div className="space-y-4 animate-fadeIn">
                     <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-primary-50 rounded-xl p-3">
-                            <p className="text-xs font-medium text-primary-500 mb-0.5">Частота</p>
-                            <p className="text-sm font-semibold text-primary-800">{recommendation.frequency}</p>
+                        <div className="bg-violet-50 dark:bg-violet-900/20 rounded-xl p-3">
+                            <p className="text-xs font-medium text-violet-500 dark:text-violet-400 mb-0.5">Частота</p>
+                            <p className="text-sm font-semibold text-violet-800 dark:text-violet-300">{recommendation.frequency}</p>
                         </div>
-                        <div className="bg-accent-50 rounded-xl p-3">
-                            <p className="text-xs font-medium text-accent-600 mb-0.5">Длительность</p>
-                            <p className="text-sm font-semibold text-accent-700">{recommendation.duration}</p>
+                        <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-3">
+                            <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400 mb-0.5">Длительность</p>
+                            <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">{recommendation.duration}</p>
                         </div>
                     </div>
 
                     {recommendation.types?.length > 0 && (
                         <div>
-                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Типы тренировок</p>
+                            <p className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-2">Типы тренировок</p>
                             <div className="flex flex-wrap gap-1.5">
                                 {recommendation.types.map((type, i) => (
                                     <span key={i} className="badge-primary text-xs">{type}</span>
@@ -121,11 +121,11 @@ const WorkoutRecommendations = () => {
 
                     {recommendation.tips?.length > 0 && (
                         <div>
-                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Советы</p>
+                            <p className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-2">Советы</p>
                             <ul className="space-y-1.5">
                                 {recommendation.tips.map((tip, i) => (
-                                    <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
-                                        <span className="text-accent-500 shrink-0 mt-0.5">✓</span>
+                                    <li key={i} className="flex items-start gap-2 text-sm text-gray-600 dark:text-slate-300">
+                                        <span className="text-emerald-500 shrink-0 mt-0.5">✓</span>
                                         {tip}
                                     </li>
                                 ))}

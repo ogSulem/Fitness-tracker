@@ -58,6 +58,35 @@
 - ПРИЛОЖЕНИЕ А. Основные компоненты серверной части
 - ПРИЛОЖЕНИЕ Б. Основные компоненты клиентской части
 
+**СПИСОК РИСУНКОВ**
+
+| № | Название | Страница |
+|---|---|---|
+| Рис. 1 | Диаграмма Ганта: этапы разработки | Введение |
+| Рис. 2 | Диаграмма вариантов использования (Use Case) | Раздел 1.3 |
+| Рис. 3 | Трёхуровневая архитектура системы | Раздел 3.2 |
+| Рис. 4 | Карта страниц приложения (Sitemap) | Раздел 3.2 |
+| Рис. 5 | ER-диаграмма базы данных | Раздел 3.3 |
+| Рис. 6 | Диаграмма последовательности: восстановление пароля | Раздел 4.3 |
+| Рис. 7 | Блок-схема расчёта TDEE и макронутриентов | Раздел 4.4 |
+| Рис. 8 | Диаграмма последовательности: регистрация и авторизация | Раздел 4.3 |
+| Рис. 9 | Схема переключения темы через View Transitions API | Раздел 3.5 |
+
+**СПИСОК ТАБЛИЦ**
+
+| № | Название | Страница |
+|---|---|---|
+| Табл. 1 | Задачи и методы их решения | Введение |
+| Табл. 2 | Статистика рынка фитнес-приложений | Раздел 1.1 |
+| Табл. 3 | Коэффициенты активности для расчёта TDEE | Раздел 4.4 |
+| Табл. 4 | Адаптивные брейкпоинты (Tailwind CSS) | Раздел 3.5 |
+| Табл. 5 | Сравнение СУБД | Раздел 3.1 |
+| Табл. 6 | Сравнение UI-фреймворков | Раздел 3.1 |
+| Табл. 7 | Сравнение аналогов | Раздел 1.3 |
+| Табл. 8 | Функциональные требования с реализацией | Раздел 2.1 |
+| Табл. 9 | Тест-матрица функционального тестирования | Раздел 5.1 |
+| Табл. 10 | Результаты нагрузочного тестирования | Раздел 5.2 |
+
 ---
 
 ## ВВЕДЕНИЕ
@@ -83,6 +112,48 @@
 
 **Практическая значимость** работы заключается в создании готового к развёртыванию веб-приложения, доступного с любого устройства без установки дополнительного программного обеспечения.
 
+**Таблица 1 — Задачи и методы их решения**
+
+| № | Задача | Метод решения |
+|---|---|---|
+| 1 | Анализ предметной области и аналогов | Сравнительный анализ, обзор литературы |
+| 2 | Формирование требований | UML Use Case, таблицы требований |
+| 3 | Проектирование архитектуры | ER-диаграмма, описание REST API |
+| 4 | Разработка серверной части | Node.js + Express + MongoDB |
+| 5 | Разработка клиентской части | React 18 + Tailwind CSS + Chart.js |
+| 6 | Аутентификация и восстановление пароля | JWT + bcrypt + crypto.randomBytes |
+| 7 | Дневник питания и учёт тренировок | REST API + MongoDB коллекции |
+| 8 | Аналитика и экспорт | Chart.js + CSV Blob API |
+| 9 | Тестирование | Метод чёрного ящика + нагрузочное |
+
+**Рисунок 1 — Диаграмма Ганта: этапы разработки**
+
+```mermaid
+gantt
+    title Этапы разработки FitTrack
+    dateFormat  YYYY-MM-DD
+    section Анализ и проектирование
+    Анализ предметной области    :done, a1, 2025-02-01, 14d
+    Формирование требований      :done, a2, after a1, 7d
+    Проектирование архитектуры   :done, a3, after a2, 10d
+    section Разработка Backend
+    REST API аутентификации      :done, b1, after a3, 7d
+    API тренировок и целей       :done, b2, after b1, 10d
+    API питания и аналитики      :done, b3, after b2, 7d
+    Восстановление пароля        :done, b4, after b3, 5d
+    section Разработка Frontend
+    Страницы Login / Register    :done, f1, after b1, 7d
+    Дашборд и Календарь          :done, f2, after f1, 10d
+    Страница Питание             :done, f3, after f2, 7d
+    Страница Аналитика + CSV     :done, f4, after f3, 7d
+    Профиль и уведомления        :done, f5, after f4, 5d
+    Тёмная тема (анимация)       :done, f6, after f5, 3d
+    section Тестирование
+    Функциональное тестирование  :done, t1, after f6, 7d
+    Нагрузочное тестирование     :done, t2, after t1, 3d
+    Исправление ошибок           :done, t3, after t2, 5d
+```
+
 ---
 
 ## 1. Анализ предметной области
@@ -100,6 +171,18 @@
 - Высокий порог вхождения существующих решений (сложный интерфейс, платные функции);
 - Недостаточная персонализация: большинство приложений используют усреднённые нормы без учёта индивидуальных параметров пользователя;
 - Ограниченная аналитика: визуализация данных за разные периоды в бесплатных версиях недоступна.
+
+**Таблица 2 — Статистика рынка фитнес-приложений**
+
+| Показатель | Значение | Источник |
+|---|---|---|
+| Объём рынка РФ в 2024 г. | > 12 млрд руб. | НАФИ, 2024 |
+| Ежегодный рост рынка | 17,6% | НАФИ, 2024 |
+| Доля взрослых с недостаточной активностью | 23% | ВОЗ, 2022 |
+| Доля подростков с недостаточной активностью | 81% | ВОЗ, 2022 |
+| Рост числа «домашних» тренировок (2020–2022) | +70% | НАФИ, 2024 |
+| Повышение вероятности достижения цели при совмест. мониторинге | +42% | Petrov et al., 2024 |
+| Снижение риска ССЗ при регулярной активности | −35% | ВОЗ, 2022 |
 
 ### 1.2. Обзор существующих решений и их недостатки
 
@@ -134,6 +217,62 @@
 | Восстановление пароля | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 Анализ аналогов подтверждает востребованность разрабатываемого решения: FitTrack обеспечивает комплексный функционал при полной бесплатности и удобном веб-интерфейсе.
+
+**Рисунок 2 — Диаграмма вариантов использования (Use Case)**
+
+```mermaid
+flowchart TD
+    Actor([👤 Пользователь])
+
+    subgraph Auth["🔐 Аутентификация"]
+        UC1[Зарегистрироваться]
+        UC2[Войти в систему]
+        UC3[Восстановить пароль]
+        UC4[Выйти из системы]
+    end
+
+    subgraph Profile["👤 Профиль"]
+        UC5[Редактировать профиль]
+        UC6[Просмотреть историю веса]
+    end
+
+    subgraph Goals["🎯 Цели"]
+        UC7[Выбрать цель]
+        UC8[Расчёт нормы калорий]
+        UC9[Скорректировать цель]
+        UC10[Просмотр прогресса]
+    end
+
+    subgraph Nutrition["🥗 Питание"]
+        UC11[Добавить приём пищи]
+        UC12[Поиск продукта]
+        UC13[Добавить свой продукт]
+        UC14[Просмотр суточного баланса]
+    end
+
+    subgraph Workouts["🏋️ Тренировки"]
+        UC15[Добавить тренировку]
+        UC16[Просмотр календаря]
+        UC17[Получить рекомендации]
+    end
+
+    subgraph Analytics["📊 Аналитика"]
+        UC18[Просмотр графиков]
+        UC19[Экспорт в CSV]
+    end
+
+    subgraph Notifications["🔔 Уведомления"]
+        UC20[Настроить напоминания]
+    end
+
+    Actor --> UC1 & UC2 & UC3 & UC4
+    Actor --> UC5 & UC6
+    Actor --> UC7 & UC8 & UC9 & UC10
+    Actor --> UC11 & UC12 & UC13 & UC14
+    Actor --> UC15 & UC16 & UC17
+    Actor --> UC18 & UC19
+    Actor --> UC20
+```
 
 ---
 
@@ -231,6 +370,29 @@
 
 При выборе технологического стека учитывались следующие критерии: зрелость экосистемы, производительность, наличие документации, бесплатность для разработки.
 
+**Таблица 5 — Сравнение СУБД для хранения данных приложения**
+
+| Критерий | MongoDB | PostgreSQL | MySQL |
+|---|---|---|---|
+| Тип | Документоориентированная | Реляционная | Реляционная |
+| Гибкость схемы | ✅ Высокая (JSON-документы) | ❌ Жёсткая схема | ❌ Жёсткая схема |
+| Горизонтальное масштабирование | ✅ Нативный Sharding | ⚠️ Ограниченное | ⚠️ Ограниченное |
+| Скорость разработки | ✅ Высокая (Mongoose ODM) | ⚠️ Средняя | ⚠️ Средняя |
+| Подходит для разнородных данных | ✅ Идеально | ❌ Сложнее | ❌ Сложнее |
+| Облачный хостинг | ✅ MongoDB Atlas (free tier) | ✅ Supabase | ✅ PlanetScale |
+| **Итог** | **✅ Выбрана** | — | — |
+
+**Таблица 6 — Сравнение UI-фреймворков**
+
+| Критерий | Tailwind CSS | Bootstrap | Material UI |
+|---|---|---|---|
+| Подход | Utility-first | Component-based | Component-based |
+| Вес CSS в production | ~10KB (purge) | ~30KB | ~50KB |
+| Кастомизация | ✅ Полная | ⚠️ Ограниченная | ⚠️ Ограниченная |
+| Тёмная тема | ✅ `darkMode: 'class'` | ⚠️ Требует настройки | ✅ Встроена |
+| Скорость разработки | ✅ Высокая | ✅ Высокая | ⚠️ Средняя |
+| **Итог** | **✅ Выбран** | — | — |
+
 #### Frontend
 
 | Технология | Версия | Обоснование |
@@ -261,31 +423,63 @@
 
 Система построена по архитектуре **клиент-сервер** с разделением на три уровня:
 
+**Рисунок 3 — Трёхуровневая архитектура системы**
+
+```mermaid
+flowchart TD
+    subgraph Client["🖥️ КЛИЕНТСКАЯ ЧАСТЬ (React SPA)"]
+        direction TB
+        P1[Home — Дашборд]
+        P2[Nutrition — Питание]
+        P3[Analytics — Аналитика]
+        P4[Profile — Профиль]
+        P5[Login / Register]
+        P6[ForgotPassword / ResetPassword]
+        C1[Header + ThemeContext]
+        C2[AuthContext — JWT]
+        C3[NotificationContext]
+        C4[Chart.js графики]
+    end
+
+    subgraph Server["⚙️ СЕРВЕРНАЯ ЧАСТЬ (Node.js + Express)"]
+        direction TB
+        M1[auth.js — Аутентификация]
+        M2[users.js — Профиль]
+        M3[workouts.js — Тренировки]
+        M4[nutrition.js — Питание]
+        M5[goals.js — Цели]
+        M6[recommendations.js]
+        MW1[JWT Middleware]
+        MW2[Rate Limiter]
+        MW3[express-validator]
+    end
+
+    subgraph DB["🗄️ БАЗА ДАННЫХ (MongoDB)"]
+        direction TB
+        D1[(users)]
+        D2[(workouts)]
+        D3[(nutritionentries)]
+        D4[(goals)]
+        D5[(recommendations)]
+    end
+
+    Client -->|"REST API / JSON\nAuthorization: Bearer JWT"| Server
+    Server -->|Mongoose ODM| DB
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                      КЛИЕНТСКАЯ ЧАСТЬ                        │
-│  React SPA (Tailwind CSS, Chart.js, React Router)           │
-│  Pages: Home | Nutrition | Analytics | Profile              │
-│  Pages: Login | Register | ForgotPassword | ResetPassword   │
-│  Components: Header | Calendar | DailyStats | Modal | ...   │
-│  Context: AuthContext | ThemeContext | NotificationContext   │
-└────────────────────────┬────────────────────────────────────┘
-                         │ REST API (JSON / HTTPS)
-                         │ JWT Bearer Token
-┌────────────────────────▼────────────────────────────────────┐
-│                      СЕРВЕРНАЯ ЧАСТЬ                         │
-│  Node.js + Express                                          │
-│  Middleware: auth.js | rateLimit.js | express-validator     │
-│  Routes: /api/auth | /api/users | /api/workouts             │
-│          /api/nutrition | /api/goals | /api/recommendations │
-└────────────────────────┬────────────────────────────────────┘
-                         │ Mongoose ODM
-┌────────────────────────▼────────────────────────────────────┐
-│                      БАЗА ДАННЫХ                            │
-│  MongoDB                                                    │
-│  Collections: users | workouts | nutritionentries | goals   │
-│               recommendations                               │
-└─────────────────────────────────────────────────────────────┘
+
+**Рисунок 4 — Карта страниц приложения (Sitemap)**
+
+```mermaid
+flowchart LR
+    Root["/"] -->|не авторизован| Login["/login"]
+    Root -->|авторизован| Home["/  Home\nДашборд"]
+    Login --> Register["/register"]
+    Login --> Forgot["/forgot-password"]
+    Forgot --> Reset["/reset-password/:token"]
+    Home --> Nutrition["/nutrition\nДневник питания"]
+    Home --> Analytics["/analytics\nАналитика + CSV"]
+    Home --> Profile["/profile\nПрофиль + Уведомления"]
+    Profile --> Tabs["Вкладки:\nПрофиль | Вес | Цели | Тренировки"]
 ```
 
 **Структура проекта:**
@@ -410,6 +604,75 @@ Fitness-tracker/
 }
 ```
 
+**Рисунок 5 — ER-диаграмма базы данных**
+
+```mermaid
+erDiagram
+    USERS {
+        ObjectId _id PK
+        String   name
+        String   email
+        String   password
+        String   gender
+        Number   age
+        Number   weight
+        Number   height
+        Array    weightHistory
+        String   resetPasswordToken
+        Date     resetPasswordExpires
+        Date     createdAt
+    }
+    WORKOUTS {
+        ObjectId _id PK
+        ObjectId userId FK
+        String   type
+        String   date
+        String   time
+        Number   duration
+        Number   caloriesBurned
+        String   intensity
+        String   notes
+        Date     createdAt
+    }
+    NUTRITION_ENTRIES {
+        ObjectId _id PK
+        ObjectId userId FK
+        String   date
+        String   mealType
+        String   productName
+        Number   amount
+        Number   calories
+        Number   protein
+        Number   fat
+        Number   carbs
+        Date     createdAt
+    }
+    GOALS {
+        ObjectId _id PK
+        ObjectId userId FK
+        String   type
+        Number   targetWeight
+        Date     targetDate
+        Number   targetCalories
+        String   notes
+        Date     createdAt
+    }
+    RECOMMENDATIONS {
+        ObjectId _id PK
+        String   goalType
+        String   level
+        String   title
+        String   description
+        Number   duration
+        String   intensity
+    }
+
+    USERS ||--o{ WORKOUTS          : "имеет"
+    USERS ||--o{ NUTRITION_ENTRIES : "имеет"
+    USERS ||--o{ GOALS             : "ставит"
+    GOALS }o--o{ RECOMMENDATIONS  : "использует"
+```
+
 ### 3.4. Проектирование REST API
 
 | Метод | Маршрут | Описание | Доступ |
@@ -444,6 +707,46 @@ Fitness-tracker/
 - **Card-based UI** — информация организована в карточках с закруглёнными углами;
 - **Gradients & Micro-animations** — плавные переходы, count-up анимации чисел, ripple-эффект переключения темы;
 - **View Transitions API** — анимация смены темы в виде расширяющегося круга от точки клика.
+
+**Рисунок 9 — Схема переключения темы через View Transitions API**
+
+```mermaid
+stateDiagram-v2
+    [*] --> CheckStorage : Загрузка приложения
+    CheckStorage --> CheckSystem : localStorage пуст
+    CheckStorage --> DarkTheme : localStorage = "dark"
+    CheckStorage --> LightTheme : localStorage = "light"
+    CheckSystem --> DarkTheme : prefers-color-scheme = dark
+    CheckSystem --> LightTheme : prefers-color-scheme = light
+
+    DarkTheme --> Transition : Нажатие кнопки 🌙/☀️
+    LightTheme --> Transition : Нажатие кнопки 🌙/☀️
+
+    state Transition {
+        [*] --> SetRippleCoords : Сохранить X,Y клика в CSS vars
+        SetRippleCoords --> StartViewTransition : document.startViewTransition()
+        StartViewTransition --> FlushSync : flushSync(setIsDark)
+        FlushSync --> AnimateCircle : clip-path: circle(0 → 150vmax)
+        AnimateCircle --> [*]
+    }
+
+    Transition --> DarkTheme : было Light
+    Transition --> LightTheme : было Dark
+    DarkTheme --> SaveStorage : localStorage.setItem("dark")
+    LightTheme --> SaveStorage : localStorage.setItem("light")
+    SaveStorage --> [*]
+```
+
+**Таблица 4 — Адаптивные брейкпоинты интерфейса (Tailwind CSS)**
+
+| Брейкпоинт | Ширина | Количество колонок | Примечание |
+|---|---|---|---|
+| `default` (xs) | < 640px | 1 | Мобильные телефоны |
+| `sm` | ≥ 640px | 1–2 | Большие телефоны, планшеты |
+| `md` | ≥ 768px | 2 | Небольшие планшеты |
+| `lg` | ≥ 1024px | 3 | Ноутбуки |
+| `xl` | ≥ 1280px | 3–4 | Мониторы |
+| `2xl` | ≥ 1536px | 4 | Широкие мониторы |
 
 ---
 
@@ -548,6 +851,38 @@ export const AuthProvider = ({ children }) => {
 
 Аутентификация реализована на основе **JWT (JSON Web Tokens)** по стандарту RFC 7519.
 
+**Рисунок 8 — Диаграмма последовательности: регистрация и авторизация**
+
+```mermaid
+sequenceDiagram
+    actor U as 👤 Пользователь
+    participant C as 🖥️ Клиент
+    participant S as ⚙️ Сервер
+    participant DB as 🗄️ MongoDB
+
+    Note over U,DB: Регистрация
+    U->>C: Заполняет форму регистрации
+    C->>C: Клиентская валидация полей
+    C->>S: POST /api/auth/register {name, email, password, gender, age, weight, height}
+    S->>S: express-validator проверяет данные
+    S->>DB: findOne({ email }) — проверка дубликата
+    DB-->>S: null (email свободен)
+    S->>S: bcrypt.hash(password, 10)
+    S->>DB: save(newUser)
+    DB-->>S: User._id
+    S->>S: jwt.sign({ user.id }, secret, { expiresIn: '7d' })
+    S-->>C: 200 { token, user }
+    C->>C: localStorage.setItem('token', ...)
+    C-->>U: Редирект на /
+
+    Note over U,DB: Последующие запросы
+    C->>S: GET /api/auth/user\nAuthorization: Bearer <token>
+    S->>S: jwt.verify(token, secret)
+    S->>DB: findById(user.id)
+    DB-->>S: User document
+    S-->>C: 200 { name, email, weight, ... }
+```
+
 **Процесс регистрации:**
 1. Клиент отправляет данные формы на `POST /api/auth/register`;
 2. Сервер валидирует входные данные через `express-validator`;
@@ -557,26 +892,51 @@ export const AuthProvider = ({ children }) => {
 6. Генерируется JWT-токен с payload `{ user: { id } }` и сроком жизни 7 дней;
 7. Токен возвращается клиенту и сохраняется в `localStorage`.
 
-**Процесс восстановления пароля (схема):**
+**Рисунок 6 — Диаграмма последовательности: процесс восстановления пароля**
 
-```
-Пользователь                Клиент (React)              Сервер
-     │                           │                          │
-     │── Вводит email ──────────►│                          │
-     │                           │── POST /forgot-password ─►│
-     │                           │                          │── Генерирует crypto.randomBytes(32)
-     │                           │                          │── Сохраняет token + expires в БД
-     │                           │◄── { resetLink } ────────│   (dev: возвращает ссылку напрямую)
-     │◄── Показывает ссылку ─────│                          │   (prod: отправляет email)
-     │                           │                          │
-     │── Переходит по ссылке ───►│                          │
-     │── Вводит новый пароль ───►│                          │
-     │                           │── POST /reset-password/:token ──►│
-     │                           │                          │── Ищет user по token + проверяет expires
-     │                           │                          │── Хеширует новый пароль
-     │                           │                          │── Очищает token поля
-     │                           │◄── 200 OK ───────────────│
-     │◄── Редирект на /login ────│                          │
+```mermaid
+sequenceDiagram
+    actor U as 👤 Пользователь
+    participant C as 🖥️ Клиент (React)
+    participant S as ⚙️ Сервер (Express)
+    participant DB as 🗄️ MongoDB
+
+    U->>C: Открывает /forgot-password
+    U->>C: Вводит email и отправляет форму
+    C->>S: POST /api/auth/forgot-password {email}
+    S->>S: Rate limit check (≤3 req/15 min)
+    S->>DB: findOne({ email })
+    alt Email не найден
+        DB-->>S: null
+        S-->>C: 200 OK "Ссылка отправлена (если email есть)"
+        Note over S,C: Не раскрываем наличие аккаунта
+    else Email найден
+        DB-->>S: User document
+        S->>S: crypto.randomBytes(32) → token
+        S->>S: expires = now + 1h
+        S->>DB: save(token, expires)
+        DB-->>S: OK
+        S-->>C: 200 {resetLink} (dev mode)
+        C-->>U: Показывает ссылку / сообщение
+    end
+
+    U->>C: Переходит по ссылке /reset-password/:token
+    U->>C: Вводит новый пароль и подтверждение
+    C->>C: Клиентская валидация (мин. 6 символов, совпадение)
+    C->>S: POST /api/auth/reset-password/:token {password}
+    S->>DB: findOne({ resetPasswordToken: token, expires > now })
+    alt Токен недействителен или истёк
+        DB-->>S: null
+        S-->>C: 400 "Ссылка недействительна"
+        C-->>U: Показывает ошибку
+    else Токен валидный
+        DB-->>S: User document
+        S->>S: bcrypt.hash(password, 10)
+        S->>DB: save(newHash, token=null, expires=null)
+        DB-->>S: OK
+        S-->>C: 200 "Пароль успешно изменён"
+        C-->>U: Редирект на /login (через 3 сек)
+    end
 ```
 
 Токен сброса пароля генерируется с помощью `crypto.randomBytes(32)`, что обеспечивает 256 бит энтропии и криптографическую стойкость. Срок действия токена — 1 час. После использования токен немедленно аннулируется.
@@ -591,13 +951,46 @@ export const AuthProvider = ({ children }) => {
 - Добавление собственных продуктов с указанием нутриционного профиля;
 - Автоматический пересчёт КБЖУ при изменении количества.
 
-**Расчёт суточной нормы калорий** выполняется по формуле Миффлина-Сан Жеора:
+**Расчёт суточной нормы калорий** выполняется по формуле Миффлина-Сан Жеора [12]:
 
 Для мужчин: `BMR = 88.362 + (13.397 × вес_кг) + (4.799 × рост_см) − (5.677 × возраст)`
 
 Для женщин: `BMR = 447.593 + (9.247 × вес_кг) + (3.098 × рост_см) − (4.330 × возраст)`
 
 `TDEE = BMR × коэффициент_активности`
+
+**Таблица 3 — Коэффициенты активности для расчёта TDEE**
+
+| Уровень активности | Описание | Коэффициент |
+|---|---|---|
+| Сидячий образ жизни | Офисная работа, почти без спорта | 1.2 |
+| Слабая активность | Лёгкие тренировки 1–3 дня в неделю | 1.375 |
+| Умеренная активность | Тренировки 3–5 дней в неделю | 1.55 |
+| Высокая активность | Интенсивные тренировки 6–7 дней | 1.725 |
+| Очень высокая активность | Физический труд + ежедневные тренировки | 1.9 |
+
+**Рисунок 7 — Блок-схема расчёта TDEE и распределения макронутриентов**
+
+```mermaid
+flowchart TD
+    Start([Начало]) --> Input[Получить данные профиля:\nвес, рост, возраст, пол, активность, цель]
+    Input --> GenderCheck{Пол?}
+    GenderCheck -->|Мужчина| BMR_M["BMR = 88.362\n+ 13.397 × вес\n+ 4.799 × рост\n− 5.677 × возраст"]
+    GenderCheck -->|Женщина| BMR_F["BMR = 447.593\n+ 9.247 × вес\n+ 3.098 × рост\n− 4.330 × возраст"]
+    BMR_M --> TDEE["TDEE = BMR × К_активности\n(1.2 / 1.375 / 1.55 / 1.725 / 1.9)"]
+    BMR_F --> TDEE
+    TDEE --> GoalCheck{Цель?}
+    GoalCheck -->|Снижение веса| DeficitCal["Калории = TDEE − 500 ккал"]
+    GoalCheck -->|Поддержание| MaintCal["Калории = TDEE"]
+    GoalCheck -->|Набор массы| SurplusCal["Калории = TDEE + 300 ккал"]
+    DeficitCal --> Macros
+    MaintCal --> Macros
+    SurplusCal --> Macros
+    Macros["Распределение макронутриентов:\nБелки 30% → граммы = Кал × 0.30 ÷ 4\nЖиры  30% → граммы = Кал × 0.30 ÷ 9\nУглев 40% → граммы = Кал × 0.40 ÷ 4"]
+    Macros --> Save[Сохранить в профиль / цель]
+    Save --> Display[Отобразить прогресс-бары\nи калькулятор на Дашборде]
+    Display --> End([Конец])
+```
 
 Распределение макронутриентов по умолчанию: белки — 30%, жиры — 30%, углеводы — 40%.
 

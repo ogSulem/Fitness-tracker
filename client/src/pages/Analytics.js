@@ -27,9 +27,9 @@ const StatSummaryCard = ({ icon, label, value, unit, sub, color }) => (
     <div className={`card border-l-4 ${color}`}>
         <div className="flex items-start justify-between">
             <div>
-                <p className="text-sm text-gray-500 font-medium">{label}</p>
-                <p className="text-2xl font-bold text-gray-800 mt-1">{value}<span className="text-sm font-normal text-gray-400 ml-1">{unit}</span></p>
-                {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
+                <p className="text-sm text-gray-500 dark:text-slate-400 font-medium">{label}</p>
+                <p className="text-2xl font-bold text-gray-800 dark:text-slate-100 mt-1">{value}<span className="text-sm font-normal text-gray-400 dark:text-slate-500 ml-1">{unit}</span></p>
+                {sub && <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">{sub}</p>}
             </div>
             <span className="text-3xl">{icon}</span>
         </div>
@@ -191,12 +191,12 @@ const Analytics = () => {
         <div className="container mx-auto px-4 py-8 animate-fadeIn">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                         📊 Аналитика
                     </h1>
-                    <p className="text-gray-400 mt-1 text-sm">Анализируй свой прогресс и достижения</p>
+                    <p className="text-gray-400 dark:text-slate-500 mt-1 text-sm">Анализируй свой прогресс и достижения</p>
                 </div>
-                <div className="flex gap-2 bg-gray-100 rounded-xl p-1">
+                <div className="flex gap-2 bg-gray-100 dark:bg-slate-700 rounded-xl p-1">
                     {[
                         { key: 'week', label: '7 дней' },
                         { key: 'month', label: '30 дней' },
@@ -207,8 +207,8 @@ const Analytics = () => {
                             onClick={() => setPeriod(opt.key)}
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                                 period === opt.key
-                                    ? 'bg-white text-primary-600 shadow-sm'
-                                    : 'text-gray-500 hover:text-gray-700'
+                                    ? 'bg-white dark:bg-slate-600 text-primary-600 dark:text-violet-300 shadow-sm'
+                                    : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'
                             }`}
                         >
                             {opt.label}
@@ -219,7 +219,7 @@ const Analytics = () => {
 
             {loading ? (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse mb-8">
-                    {[...Array(4)].map((_, i) => <div key={i} className="h-24 bg-gray-100 rounded-2xl" />)}
+                    {[...Array(4)].map((_, i) => <div key={i} className="h-24 bg-gray-100 dark:bg-slate-700 rounded-2xl" />)}
                 </div>
             ) : (
                 <>
@@ -262,15 +262,15 @@ const Analytics = () => {
                     {/* Charts */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                         <div className="lg:col-span-2 card">
-                            <h3 className="text-base font-semibold text-gray-800 mb-4">🔥 Сожжённые калории (тренировки)</h3>
+                            <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4">🔥 Сожжённые калории (тренировки)</h3>
                             <Line data={caloriesChartData} options={chartOptions} />
                         </div>
                         <div className="card">
-                            <h3 className="text-base font-semibold text-gray-800 mb-4">🏷️ Типы тренировок</h3>
+                            <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4">🏷️ Типы тренировок</h3>
                             {Object.keys(workoutTypes).length > 0 ? (
                                 <Doughnut data={doughnutData} options={doughnutOptions} />
                             ) : (
-                                <div className="flex items-center justify-center h-48 text-gray-400 text-sm">
+                                <div className="flex items-center justify-center h-48 text-gray-400 dark:text-slate-500 text-sm">
                                     Нет данных
                                 </div>
                             )}
@@ -279,12 +279,12 @@ const Analytics = () => {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                         <div className="card">
-                            <h3 className="text-base font-semibold text-gray-800 mb-4">⏱️ Длительность тренировок (мин)</h3>
+                            <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4">⏱️ Длительность тренировок (мин)</h3>
                             <Bar data={durationChartData} options={chartOptions} />
                         </div>
                         <div className="card">
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-base font-semibold text-gray-800">🥗 Калории из питания</h3>
+                                <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100">🥗 Калории из питания</h3>
                                 {avgConsumedCalories > 0 && (
                                     <span className="badge-primary text-xs">~{avgConsumedCalories} ккал/день</span>
                                 )}
@@ -292,7 +292,7 @@ const Analytics = () => {
                             {nutritionCaloriesData.some(v => v > 0) ? (
                                 <Line data={nutritionChartData} options={chartOptions} />
                             ) : (
-                                <div className="flex items-center justify-center h-48 text-gray-400 text-sm">
+                                <div className="flex items-center justify-center h-48 text-gray-400 dark:text-slate-500 text-sm">
                                     Нет данных о питании
                                 </div>
                             )}
@@ -302,22 +302,22 @@ const Analytics = () => {
                     {/* Workout list */}
                     {filteredWorkouts.length > 0 && (
                         <div className="card mt-2">
-                            <h3 className="text-base font-semibold text-gray-800 mb-4">📋 Последние тренировки</h3>
+                            <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4">📋 Последние тренировки</h3>
                             <div className="space-y-2">
                                 {filteredWorkouts.slice(0, 10).map(w => (
-                                    <div key={w._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                                    <div key={w._id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 rounded-xl bg-primary-100 flex items-center justify-center text-primary-600 font-bold text-sm">
+                                            <div className="w-9 h-9 rounded-xl bg-primary-100 dark:bg-violet-900/40 flex items-center justify-center text-primary-600 font-bold text-sm">
                                                 🏋️
                                             </div>
                                             <div>
-                                                <p className="font-medium text-gray-800 text-sm">{w.type || 'Тренировка'}</p>
-                                                <p className="text-xs text-gray-400">{dayjs(w.date).format('D MMM YYYY')}</p>
+                                                <p className="font-medium text-gray-800 dark:text-slate-100 text-sm">{w.type || 'Тренировка'}</p>
+                                                <p className="text-xs text-gray-400 dark:text-slate-500">{dayjs(w.date).format('D MMM YYYY')}</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-4 text-sm">
-                                            <span className="text-amber-600 font-medium">{w.caloriesBurned || 0} ккал</span>
-                                            <span className="text-gray-400">{w.duration || 0} мин</span>
+                                            <span className="text-amber-600 dark:text-amber-400 font-medium">{w.caloriesBurned || 0} ккал</span>
+                                            <span className="text-gray-400 dark:text-slate-500">{w.duration || 0} мин</span>
                                         </div>
                                     </div>
                                 ))}
@@ -328,8 +328,8 @@ const Analytics = () => {
                     {filteredWorkouts.length === 0 && (
                         <div className="card text-center py-12 mt-2">
                             <div className="text-5xl mb-4">📊</div>
-                            <p className="text-gray-500 font-medium">Нет данных за выбранный период</p>
-                            <p className="text-gray-400 text-sm mt-1">Добавьте тренировки в календарь, чтобы увидеть статистику</p>
+                            <p className="text-gray-500 dark:text-slate-400 font-medium">Нет данных за выбранный период</p>
+                            <p className="text-gray-400 dark:text-slate-500 text-sm mt-1">Добавьте тренировки в календарь, чтобы увидеть статистику</p>
                         </div>
                     )}
                 </>

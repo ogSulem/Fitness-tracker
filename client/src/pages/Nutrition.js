@@ -134,8 +134,8 @@ const Nutrition = () => {
             {/* Page header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">🥗 Дневник питания</h1>
-                    <p className="text-gray-400 mt-0.5 text-sm">Отслеживай калории и макронутриенты</p>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">🥗 Дневник питания</h1>
+                    <p className="text-gray-400 dark:text-slate-500 mt-0.5 text-sm">Отслеживай калории и макронутриенты</p>
                 </div>
                 <button onClick={() => { setShowForm(!showForm); setSearchQuery(''); setSearchResults([]); }} className="btn-primary shrink-0">
                     {showForm ? '✕ Отмена' : '+ Добавить'}
@@ -144,7 +144,7 @@ const Nutrition = () => {
 
             {/* Date navigation */}
             <div className="card mb-6 p-4 flex items-center justify-between">
-                <button onClick={() => changeDay(-1)} className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors">
+                <button onClick={() => changeDay(-1)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-500 dark:text-slate-400 transition-colors">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
                 <div className="flex items-center gap-3">
@@ -158,7 +158,7 @@ const Nutrition = () => {
                         <button onClick={goToday} className="text-xs text-primary-600 hover:underline font-medium">Сегодня</button>
                     )}
                 </div>
-                <button onClick={() => changeDay(1)} className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors">
+                <button onClick={() => changeDay(1)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-500 dark:text-slate-400 transition-colors">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                 </button>
             </div>
@@ -166,7 +166,7 @@ const Nutrition = () => {
             {/* Add form */}
             {showForm && (
                 <div className="card mb-6 animate-slideUp">
-                    <h3 className="text-base font-semibold text-gray-800 mb-4">Добавить приём пищи</h3>
+                    <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4">Добавить приём пищи</h3>
 
                     {/* Food search */}
                     <div className="mb-4 relative">
@@ -180,16 +180,16 @@ const Nutrition = () => {
                         />
                         {searching && <p className="text-xs text-gray-400 mt-1">Поиск...</p>}
                         {searchResults.length > 0 && (
-                            <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-52 overflow-y-auto">
+                            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl shadow-lg max-h-52 overflow-y-auto">
                                 {searchResults.map(food => (
                                     <button
                                         key={food.name}
                                         type="button"
                                         onClick={() => fillFromSearch(food)}
-                                        className="w-full text-left px-4 py-2.5 hover:bg-primary-50 transition-colors text-sm border-b border-gray-50 last:border-0"
+                                        className="w-full text-left px-4 py-2.5 hover:bg-primary-50 dark:hover:bg-violet-900/30 transition-colors text-sm border-b border-gray-50 dark:border-slate-700 last:border-0"
                                     >
-                                        <span className="font-medium text-gray-800">{food.name}</span>
-                                        <span className="text-gray-400 ml-2 text-xs">{food.calories} ккал / 100г · Б{food.protein} Ж{food.fat} У{food.carbs}</span>
+                                        <span className="font-medium text-gray-800 dark:text-slate-100">{food.name}</span>
+                                        <span className="text-gray-400 dark:text-slate-500 ml-2 text-xs">{food.calories} ккал / 100г · Б{food.protein} Ж{food.fat} У{food.carbs}</span>
                                     </button>
                                 ))}
                             </div>
@@ -269,8 +269,8 @@ const Nutrition = () => {
             ) : totalEntries === 0 ? (
                 <div className="card text-center py-16">
                     <div className="text-5xl mb-4">🥗</div>
-                    <p className="text-gray-600 font-semibold text-lg">Нет записей питания</p>
-                    <p className="text-gray-400 text-sm mt-1">Нажмите «+ Добавить», чтобы записать приём пищи</p>
+                    <p className="text-gray-600 dark:text-slate-300 font-semibold text-lg">Нет записей питания</p>
+                    <p className="text-gray-400 dark:text-slate-500 text-sm mt-1">Нажмите «+ Добавить», чтобы записать приём пищи</p>
                 </div>
             ) : (
                 <div className="space-y-4">
@@ -279,9 +279,9 @@ const Nutrition = () => {
                         if (!mealData || !mealData.entries || mealData.entries.length === 0) return null;
                         const mealCals = Math.round(mealData.totals?.calories || 0);
                         return (
-                            <div key={type} className={`bg-gradient-to-br ${meta.color} rounded-2xl border border-white shadow-sm overflow-hidden`}>
-                                <div className="flex items-center justify-between px-5 py-4 border-b border-white/60">
-                                    <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+                            <div key={type} className={`bg-gradient-to-br ${meta.color} dark:bg-none dark:bg-slate-800/80 rounded-2xl border border-white dark:border-slate-700 shadow-sm overflow-hidden`}>
+                                <div className="flex items-center justify-between px-5 py-4 border-b border-white/60 dark:border-slate-700">
+                                    <h3 className="font-semibold text-gray-800 dark:text-slate-100 flex items-center gap-2">
                                         <span className="text-xl">{meta.icon}</span>
                                         {meta.label}
                                     </h3>
@@ -290,10 +290,10 @@ const Nutrition = () => {
                                 <div className="p-3 space-y-2">
                                     {mealData.entries.map(entry =>
                                         (entry.products || []).map((product, pi) => (
-                                            <div key={`${entry._id}-${pi}`} className="flex items-center justify-between bg-white/70 backdrop-blur-sm rounded-xl px-4 py-3 hover:bg-white/90 transition-colors group">
+                                            <div key={`${entry._id}-${pi}`} className="flex items-center justify-between bg-white/70 dark:bg-slate-700/60 backdrop-blur-sm rounded-xl px-4 py-3 hover:bg-white/90 dark:hover:bg-slate-700 transition-colors group">
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="font-medium text-gray-800 text-sm truncate">{product.name}</p>
-                                                    <p className="text-xs text-gray-400 mt-0.5">
+                                                    <p className="font-medium text-gray-800 dark:text-slate-100 text-sm truncate">{product.name}</p>
+                                                    <p className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">
                                                         {product.portion}г · Б{product.protein || 0} Ж{product.fat || 0} У{product.carbs || 0}
                                                     </p>
                                                 </div>

@@ -22,9 +22,9 @@ const TABS = [
 ];
 
 const StatPill = ({ label, value }) => (
-    <div className="bg-gray-50 rounded-xl px-4 py-3 text-center">
-        <p className="text-2xl font-bold text-gray-800">{value}</p>
-        <p className="text-xs text-gray-400 mt-0.5">{label}</p>
+    <div className="bg-gray-50 dark:bg-slate-700 rounded-xl px-4 py-3 text-center">
+        <p className="text-2xl font-bold text-gray-800 dark:text-white">{value}</p>
+        <p className="text-xs text-gray-400 dark:text-slate-400 mt-0.5">{label}</p>
     </div>
 );
 
@@ -175,15 +175,15 @@ const Profile = () => {
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-1 bg-gray-100 rounded-xl p-1 mb-6 overflow-x-auto">
+            <div className="flex gap-1 bg-gray-100 dark:bg-slate-700 rounded-xl p-1 mb-6 overflow-x-auto">
                 {TABS.map(tab => (
                     <button
                         key={tab.key}
                         onClick={() => setActiveTab(tab.key)}
                         className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
                             activeTab === tab.key
-                                ? 'bg-white text-primary-600 shadow-sm'
-                                : 'text-gray-500 hover:text-gray-700'
+                                ? 'bg-white dark:bg-slate-600 text-primary-600 dark:text-violet-300 shadow-sm'
+                                : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'
                         }`}
                     >
                         <span>{tab.icon}</span>
@@ -196,7 +196,7 @@ const Profile = () => {
             {activeTab === 'profile' && (
                 <div className="card animate-fadeIn">
                     <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-lg font-bold text-gray-800">Личные данные</h2>
+                        <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100">Личные данные</h2>
                         {!editMode && (
                             <button onClick={() => setEditMode(true)} className="btn-secondary text-sm py-2 px-4">
                                 ✏️ Редактировать
@@ -217,8 +217,8 @@ const Profile = () => {
                                         {[{ value: 'male', label: '👨 Мужской' }, { value: 'female', label: '👩 Женский' }].map(opt => (
                                             <label key={opt.value} className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border-2 cursor-pointer transition-all text-sm font-medium ${
                                                 formData.gender === opt.value
-                                                    ? 'border-primary-500 bg-primary-50 text-primary-700'
-                                                    : 'border-gray-200 text-gray-600 hover:border-primary-200'
+                                                    ? 'border-primary-500 bg-primary-50 dark:bg-violet-900/30 text-primary-700 dark:text-violet-300'
+                                                    : 'border-gray-200 dark:border-slate-600 text-gray-600 dark:text-slate-400 hover:border-primary-200'
                                             }`}>
                                                 <input type="radio" name="gender" value={opt.value} checked={formData.gender === opt.value} onChange={handleChange} className="hidden" />
                                                 {opt.label}
@@ -258,9 +258,9 @@ const Profile = () => {
                                 { label: 'Вес', value: `${user?.weight} кг` },
                                 { label: 'Рост', value: `${user?.height} см` },
                             ].map(item => (
-                                <div key={item.label} className="bg-gray-50 rounded-xl p-4">
-                                    <p className="text-xs text-gray-400 font-medium mb-1">{item.label}</p>
-                                    <p className="text-gray-800 font-semibold">{item.value}</p>
+                                <div key={item.label} className="bg-gray-50 dark:bg-slate-700 rounded-xl p-4">
+                                    <p className="text-xs text-gray-400 dark:text-slate-400 font-medium mb-1">{item.label}</p>
+                                    <p className="text-gray-800 dark:text-slate-100 font-semibold">{item.value}</p>
                                 </div>
                             ))}
                         </div>
@@ -271,7 +271,7 @@ const Profile = () => {
             {/* Tab: Weight */}
             {activeTab === 'weight' && (
                 <div className="card animate-fadeIn">
-                    <h2 className="text-lg font-bold text-gray-800 mb-6">Динамика веса</h2>
+                    <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100 mb-6">Динамика веса</h2>
                     {weightHistory.length > 1 ? (
                         <>
                             <div className="mb-4">
@@ -286,8 +286,8 @@ const Profile = () => {
                     ) : (
                         <div className="text-center py-12">
                             <div className="text-5xl mb-4">⚖️</div>
-                            <p className="text-gray-500 font-medium">Пока нет истории изменений веса</p>
-                            <p className="text-gray-400 text-sm mt-1">Обновите профиль с новым весом, чтобы увидеть динамику</p>
+                            <p className="text-gray-500 dark:text-slate-400 font-medium">Пока нет истории изменений веса</p>
+                            <p className="text-gray-400 dark:text-slate-500 text-sm mt-1">Обновите профиль с новым весом, чтобы увидеть динамику</p>
                         </div>
                     )}
                 </div>
@@ -296,12 +296,12 @@ const Profile = () => {
             {/* Tab: Goals */}
             {activeTab === 'goals' && (
                 <div className="card animate-fadeIn">
-                    <h2 className="text-lg font-bold text-gray-800 mb-6">Мои цели</h2>
+                    <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100 mb-6">Мои цели</h2>
                     {goals.length === 0 ? (
                         <div className="text-center py-12">
                             <div className="text-5xl mb-4">🎯</div>
-                            <p className="text-gray-500 font-medium">Нет активных целей</p>
-                            <p className="text-gray-400 text-sm mt-1">Добавьте цель через календарь на главной странице</p>
+                            <p className="text-gray-500 dark:text-slate-400 font-medium">Нет активных целей</p>
+                            <p className="text-gray-400 dark:text-slate-500 text-sm mt-1">Добавьте цель через календарь на главной странице</p>
                         </div>
                     ) : (
                         <div className="space-y-4">
@@ -312,11 +312,11 @@ const Profile = () => {
                                     : goal.completed ? 100 : 0;
                                 const daysLeft = dayjs(goal.deadline).diff(dayjs(), 'day');
                                 return (
-                                    <div key={goal._id} className={`rounded-2xl border p-5 ${goal.completed ? 'bg-green-50 border-green-200' : 'bg-white border-gray-100'}`}>
+                                    <div key={goal._id} className={`rounded-2xl border p-5 ${goal.completed ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' : 'bg-white dark:bg-slate-700/50 border-gray-100 dark:border-slate-700'}`}>
                                         <div className="flex items-start justify-between gap-3 mb-3">
                                             <div>
-                                                <h3 className="font-semibold text-gray-800">{goal.title}</h3>
-                                                {goal.description && <p className="text-sm text-gray-500 mt-0.5">{goal.description}</p>}
+                                                <h3 className="font-semibold text-gray-800 dark:text-slate-100">{goal.title}</h3>
+                                                {goal.description && <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">{goal.description}</p>}
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
@@ -345,9 +345,9 @@ const Profile = () => {
                                                 style={{ width: `${progress}%` }}
                                             />
                                         </div>
-                                        <div className="flex justify-between text-xs text-gray-400">
+                                        <div className="flex justify-between text-xs text-gray-400 dark:text-slate-500">
                                             <span>{goal.startValue} {goal.unit}</span>
-                                            <span className="font-medium text-gray-600">{progress}%</span>
+                                            <span className="font-medium text-gray-600 dark:text-slate-300">{progress}%</span>
                                             <span>{goal.targetValue} {goal.unit}</span>
                                         </div>
                                     </div>
@@ -361,29 +361,29 @@ const Profile = () => {
             {/* Tab: Workouts */}
             {activeTab === 'workouts' && (
                 <div className="card animate-fadeIn">
-                    <h2 className="text-lg font-bold text-gray-800 mb-6">История тренировок</h2>
+                    <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100 mb-6">История тренировок</h2>
                     {workouts.length === 0 ? (
                         <div className="text-center py-12">
                             <div className="text-5xl mb-4">🏋️</div>
-                            <p className="text-gray-500 font-medium">Тренировки ещё не добавлены</p>
-                            <p className="text-gray-400 text-sm mt-1">Добавьте тренировку через календарь на главной странице</p>
+                            <p className="text-gray-500 dark:text-slate-400 font-medium">Тренировки ещё не добавлены</p>
+                            <p className="text-gray-400 dark:text-slate-500 text-sm mt-1">Добавьте тренировку через календарь на главной странице</p>
                         </div>
                     ) : (
                         <div className="space-y-2">
                             {workouts.map(w => (
-                                <div key={w._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                                <div key={w._id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-xl bg-primary-100 flex items-center justify-center text-lg">🏋️</div>
+                                        <div className="w-10 h-10 rounded-xl bg-primary-100 dark:bg-violet-900/40 flex items-center justify-center text-lg">🏋️</div>
                                         <div>
-                                            <p className="font-medium text-gray-800 text-sm">{w.type}</p>
-                                            <p className="text-xs text-gray-400">{dayjs(w.date).format('D MMMM YYYY')} · {w.time}</p>
+                                            <p className="font-medium text-gray-800 dark:text-slate-100 text-sm">{w.type}</p>
+                                            <p className="text-xs text-gray-400 dark:text-slate-500">{dayjs(w.date).format('D MMMM YYYY')} · {w.time}</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-4 text-sm">
                                         {w.caloriesBurned > 0 && (
-                                            <span className="text-amber-600 font-medium">{w.caloriesBurned} ккал</span>
+                                            <span className="text-amber-600 dark:text-amber-400 font-medium">{w.caloriesBurned} ккал</span>
                                         )}
-                                        <span className="text-gray-400">{w.duration} мин</span>
+                                        <span className="text-gray-400 dark:text-slate-500">{w.duration} мин</span>
                                     </div>
                                 </div>
                             ))}

@@ -13,13 +13,13 @@ dayjs.locale('ru');
 const QuickActionCard = ({ icon, title, description, onClick, gradient }) => (
     <button
         onClick={onClick}
-        className={`w-full text-left p-4 rounded-xl border border-gray-100 bg-white hover:shadow-md transition-all duration-200 group`}
+        className="w-full text-left p-4 rounded-xl border border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-800 hover:shadow-md transition-all duration-200 group"
     >
         <div className={`w-10 h-10 rounded-xl ${gradient} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200`}>
             <span className="text-xl">{icon}</span>
         </div>
-        <p className="font-semibold text-gray-800 text-sm">{title}</p>
-        <p className="text-xs text-gray-400 mt-0.5">{description}</p>
+        <p className="font-semibold text-gray-800 dark:text-slate-100 text-sm">{title}</p>
+        <p className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">{description}</p>
     </button>
 );
 
@@ -48,10 +48,10 @@ const Home = () => {
             <div className="mb-8">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div>
-                        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+                        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
                             Привет, {user?.name?.split(' ')[0] || 'Пользователь'}! 👋
                         </h1>
-                        <p className="text-gray-400 mt-1 capitalize">{capitalToday}</p>
+                        <p className="text-gray-400 dark:text-slate-500 mt-1 capitalize">{capitalToday}</p>
                     </div>
                     <div className="flex gap-2">
                         <span className="badge-primary text-sm px-3 py-1.5">
@@ -77,7 +77,7 @@ const Home = () => {
                 <div className="space-y-6">
                     {/* Quick Actions */}
                     <div className="card">
-                        <h3 className="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2">
                             <span>⚡</span> Быстрые действия
                         </h3>
                         <div className="grid grid-cols-1 gap-3">

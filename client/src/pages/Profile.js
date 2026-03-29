@@ -391,9 +391,136 @@ const Profile = () => {
                     )}
                 </div>
             )}
+
+            {/* Notifications widget — always visible at bottom */}
+            <NotificationsWidget />
+        </div>
+    );
+};
+
+// ─── Browser Notification Reminders ─────────────────────────────────────────
+const NotificationsWidget = () => {
+    const [permission, setPermission] = useState(() =>
+        'Notification' in window ? Notification.permission : 'unsupported'
+    );
+    const [mealTime, setMealTime] = useState('08:00');
+    const [workoutTime, setWorkoutTime] = useState('18:00');
+    const [mealEnabled, setMealEnabled] = useState(false);
+    const [workoutEnabled, setWorkoutEnabled] = useState(false);
+
+    const requestPermission = async () => {
+        if (!('Notification' in window)) return;
+        const result = await Notification.requestPermission();
+        setPermission(result);
+    };
+
+    // Simple daily reminder via setTimeout until next occurrence
+    const scheduleNotification = (title, body, timeStr) => {
+        const [h, m] = timeStr.split(':').map(Number);
+        const now = new Date();
+        const target = new Date();
+        target.setHours(h, m, 0, 0);
+        if (target <= now) target.setDate(target.getDate() + 1);
+        const delay = target - now;
+        setTimeout(() => {
+            if (Notification.permission === 'granted') {
+                new Notification(title, { body, icon: '/favicon.ico' });
+            }
+        }, delay);
+    };
+
+    const save = () => {
+        if (permission !== 'granted') return;
+        if (mealEnabled) {
+            scheduleNotification('🥗 Время поесть!', `Не забудьте записать приём пищи в FitTrack`, mealTime);
+        }
+        if (workoutEnabled) {
+            scheduleNotification('🏋️ Время тренировки!', `Сегодня запланирована тренировка — вперёд!`, workoutTime);
+        }
+    };
+
+    if (permission === 'unsupported') return null;
+
+    return (
+        <div className="card animate-fadeIn mt-6">
+            <div className="flex items-center gap-2 mb-4">
+                <span className="text-xl">🔔</span>
+                <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100">Напоминания</h2>
+                {permission === 'granted' && (
+                    <span className="badge-accent ml-auto">Разрешены</span>
+                )}
+            </div>
+
+            {permission !== 'granted' ? (
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <p className="text-sm text-gray-500 dark:text-slate-400">
+                        Разрешите уведомления, чтобы получать напоминания о приёмах пищи и тренировках.
+                    </p>
+                    <button
+                        onClick={requestPermission}
+                        className="btn-primary text-sm py-2 shrink-0"
+                    >
+                        Разрешить уведомления
+                    </button>
+                </div>
+            ) : (
+                <div className="space-y-4">
+                    {/* Meal reminder */}
+                    <div className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-slate-700/50 rounded-xl">
+                        <input
+                            type="checkbox"
+                            id="meal-reminder"
+                            checked={mealEnabled}
+                            onChange={(e) => setMealEnabled(e.target.checked)}
+                            className="w-4 h-4 accent-violet-600 cursor-pointer"
+                        />
+                        <label htmlFor="meal-reminder" className="flex-1 text-sm font-medium text-gray-700 dark:text-slate-200 cursor-pointer">
+                            🥗 Напоминание о приёме пищи
+                        </label>
+                        <input
+                            type="time"
+                            value={mealTime}
+                            onChange={(e) => setMealTime(e.target.value)}
+                            disabled={!mealEnabled}
+                            className="input w-32 text-sm py-1.5 disabled:opacity-50"
+                        />
+                    </div>
+
+                    {/* Workout reminder */}
+                    <div className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-slate-700/50 rounded-xl">
+                        <input
+                            type="checkbox"
+                            id="workout-reminder"
+                            checked={workoutEnabled}
+                            onChange={(e) => setWorkoutEnabled(e.target.checked)}
+                            className="w-4 h-4 accent-violet-600 cursor-pointer"
+                        />
+                        <label htmlFor="workout-reminder" className="flex-1 text-sm font-medium text-gray-700 dark:text-slate-200 cursor-pointer">
+                            🏋️ Напоминание о тренировке
+                        </label>
+                        <input
+                            type="time"
+                            value={workoutTime}
+                            onChange={(e) => setWorkoutTime(e.target.value)}
+                            disabled={!workoutEnabled}
+                            className="input w-32 text-sm py-1.5 disabled:opacity-50"
+                        />
+                    </div>
+
+                    <button
+                        onClick={save}
+                        disabled={!mealEnabled && !workoutEnabled}
+                        className="btn-primary text-sm py-2"
+                    >
+                        Сохранить напоминания
+                    </button>
+                    <p className="text-xs text-gray-400 dark:text-slate-500">
+                        Уведомления работают, пока браузер открыт. Они придут в указанное время.
+                    </p>
+                </div>
+            )}
         </div>
     );
 };
 
 export default Profile;
-

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const { check, validationResult } = require('express-validator');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
@@ -176,4 +177,105 @@ router.get('/user', auth, async (req, res) => {
     }
 });
 
-module.exports = router; 
+// Rate limiter for forgot-password (prevent spam)
+const forgotLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 3,
+    message: 'Слишком много запросов. Попробуйте позже.',
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// @route   POST api/auth/forgot-password
+// @desc    Request password reset — generates a secure token valid 1 hour.
+//          In production, send the link via email (configure SMTP_* env vars).
+//          In development the link is returned directly in the response so you
+//          can test without an email server.
+// @access  Public
+router.post(
+    '/forgot-password',
+    forgotLimiter,
+    [check('email', 'Введите корректный email').isEmail()],
+    async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        try {
+            const user = await User.findOne({ email: req.body.email });
+
+            // Always respond with 200 to avoid leaking whether email exists
+            if (!user) {
+                return res.json({
+                    message: 'Если пользователь с таким email существует, ссылка для сброса пароля будет отправлена.'
+                });
+            }
+
+            // Generate crypto-random token
+            const token = crypto.randomBytes(32).toString('hex');
+            user.resetPasswordToken = token;
+            user.resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+            await user.save();
+
+            const clientUrl = process.env.CLIENT_URL || 'http://localhost:3000';
+            const resetLink = `${clientUrl}/reset-password/${token}`;
+
+            // --- Email sending (optional) ---
+            // If you configure nodemailer, uncomment and fill in SMTP_* env vars:
+            // const transporter = nodemailer.createTransport({ ... });
+            // await transporter.sendMail({ to: user.email, subject: 'Сброс пароля', text: resetLink });
+
+            // In development: return the reset link directly so you can test
+            if (process.env.NODE_ENV !== 'production') {
+                return res.json({
+                    message: 'Ссылка для сброса пароля создана (dev-режим: email не отправляется).',
+                    resetLink // remove this in production
+                });
+            }
+
+            res.json({ message: 'Ссылка для сброса пароля отправлена на ваш email.' });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send('Ошибка сервера');
+        }
+    }
+);
+
+// @route   POST api/auth/reset-password/:token
+// @desc    Reset password using the token received via forgot-password
+// @access  Public
+router.post(
+    '/reset-password/:token',
+    [check('password', 'Пароль должен содержать не менее 6 символов').isLength({ min: 6 })],
+    async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        try {
+            const user = await User.findOne({
+                resetPasswordToken: req.params.token,
+                resetPasswordExpires: { $gt: new Date() }
+            });
+
+            if (!user) {
+                return res.status(400).json({ message: 'Ссылка для сброса пароля недействительна или истекла.' });
+            }
+
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(req.body.password, salt);
+            user.resetPasswordToken = null;
+            user.resetPasswordExpires = null;
+            await user.save();
+
+            res.json({ message: 'Пароль успешно изменён. Теперь вы можете войти.' });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send('Ошибка сервера');
+        }
+    }
+);
+
+module.exports = router;

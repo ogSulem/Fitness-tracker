@@ -44,11 +44,41 @@ const UserSchema = new mongoose.Schema({
             default: Date.now
         }
     }],
+    // Password reset fields
+    resetPasswordToken: {
+        type: String,
+        default: null
+    },
+    resetPasswordExpires: {
+        type: Date,
+        default: null
+    },
     createdAt: {
         type: Date,
         default: Date.now
     }
 });
+
+// Создаем отдельную модель для истории веса
+const WeightHistorySchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+        index: true
+    },
+    weight: {
+        type: Number,
+        required: true
+    },
+    date: {
+        type: Date,
+        default: Date.now,
+        index: true
+    }
+});
+
+module.exports = mongoose.model('User', UserSchema);
 
 // Создаем отдельную модель для истории веса
 const WeightHistorySchema = new mongoose.Schema({

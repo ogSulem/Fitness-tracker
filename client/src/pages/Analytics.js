@@ -187,6 +187,48 @@ const Analytics = () => {
     const totalConsumedCalories = filteredNutrition.reduce((s, n) => s + (n.calories || 0), 0);
     const avgConsumedCalories   = filteredNutrition.length > 0 ? Math.round(totalConsumedCalories / filteredNutrition.length) : 0;
 
+    // ─── CSV Export ──────────────────────────────────────────────────────────────
+    const exportCSV = () => {
+        const rows = [];
+
+        // Workouts
+        rows.push(['=== ТРЕНИРОВКИ ===']);
+        rows.push(['Дата', 'Тип', 'Длительность (мин)', 'Калорий сожжено', 'Примечание']);
+        filteredWorkouts.forEach(w => {
+            rows.push([
+                dayjs(w.date).format('YYYY-MM-DD'),
+                w.type || '',
+                w.duration || '',
+                w.caloriesBurned || '',
+                (w.notes || '').replace(/,/g, ';')
+            ]);
+        });
+
+        rows.push([]);
+
+        // Nutrition
+        rows.push(['=== ПИТАНИЕ ===']);
+        rows.push(['Дата', 'Калории', 'Белки (г)', 'Жиры (г)', 'Углеводы (г)']);
+        filteredNutrition.forEach(n => {
+            rows.push([
+                dayjs(n.date).format('YYYY-MM-DD'),
+                Math.round(n.calories || 0),
+                Math.round(n.protein || 0),
+                Math.round(n.fat || 0),
+                Math.round(n.carbs || 0)
+            ]);
+        });
+
+        const csv = rows.map(r => r.join(',')).join('\n');
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `fittrack_export_${dayjs().format('YYYY-MM-DD')}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <div className="container mx-auto px-4 py-8 animate-fadeIn">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
@@ -196,24 +238,36 @@ const Analytics = () => {
                     </h1>
                     <p className="text-gray-400 dark:text-slate-500 mt-1 text-sm">Анализируй свой прогресс и достижения</p>
                 </div>
-                <div className="flex gap-2 bg-gray-100 dark:bg-slate-700 rounded-xl p-1">
-                    {[
-                        { key: 'week', label: '7 дней' },
-                        { key: 'month', label: '30 дней' },
-                        { key: 'year', label: 'Год' },
-                    ].map(opt => (
-                        <button
-                            key={opt.key}
-                            onClick={() => setPeriod(opt.key)}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                                period === opt.key
-                                    ? 'bg-white dark:bg-slate-600 text-primary-600 dark:text-violet-300 shadow-sm'
-                                    : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'
-                            }`}
-                        >
-                            {opt.label}
-                        </button>
-                    ))}
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={exportCSV}
+                        title="Экспорт данных в CSV"
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-slate-400 border border-gray-200 dark:border-slate-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 hover:text-violet-600 dark:hover:text-violet-400 hover:border-violet-300 dark:hover:border-violet-700 transition-all duration-200"
+                    >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        CSV
+                    </button>
+                    <div className="flex gap-2 bg-gray-100 dark:bg-slate-700 rounded-xl p-1">
+                        {[
+                            { key: 'week', label: '7 дней' },
+                            { key: 'month', label: '30 дней' },
+                            { key: 'year', label: 'Год' },
+                        ].map(opt => (
+                            <button
+                                key={opt.key}
+                                onClick={() => setPeriod(opt.key)}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                                    period === opt.key
+                                        ? 'bg-white dark:bg-slate-600 text-primary-600 dark:text-violet-300 shadow-sm'
+                                        : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'
+                                }`}
+                            >
+                                {opt.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
 

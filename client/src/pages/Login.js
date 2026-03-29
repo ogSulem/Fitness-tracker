@@ -102,7 +102,15 @@ const Login = () => {
                             />
                         </div>
                         <div>
-                            <label htmlFor="password" className="label">Пароль</label>
+                            <div className="flex items-center justify-between mb-1.5">
+                                <label htmlFor="password" className="label mb-0">Пароль</label>
+                                <Link
+                                    to="/forgot-password"
+                                    className="text-xs text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-medium transition-colors"
+                                >
+                                    Забыли пароль?
+                                </Link>
+                            </div>
                             <div className="relative">
                                 <input
                                     type={showPassword ? 'text' : 'password'}

@@ -12,6 +12,7 @@ import NotFound from './pages/NotFound';
 
 import Header from './components/Header';
 import Footer from './components/Footer';
+import ScrollProgress from './components/ScrollProgress';
 
 import useAxiosInterceptor from './hooks/useAxiosInterceptor';
 
@@ -25,6 +26,7 @@ function App() {
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
+            <ScrollProgress />
             <Header />
             <main className="flex-grow">
                 <Routes>

@@ -1,30 +1,28 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useRef } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { ThemeContext } from '../context/ThemeContext';
-
-const SunIcon = () => (
-    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m8.66-9H21m-18 0H3m15.36-5.36l-.7.7M6.34 17.66l-.7.7m12.02 0l-.7-.7M6.34 6.34l-.7-.7M12 6a6 6 0 100 12A6 6 0 0012 6z" />
-    </svg>
-);
-
-const MoonIcon = () => (
-    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
-    </svg>
-);
 
 const Header = () => {
     const { isAuthenticated, user, logout } = useContext(AuthContext);
     const { isDark, toggleTheme } = useContext(ThemeContext);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [iconAnimating, setIconAnimating] = useState(false);
     const navigate = useNavigate();
+    const toggleBtnRef = useRef(null);
 
     const handleLogout = () => {
         logout();
         setMobileMenuOpen(false);
         navigate('/login');
+    };
+
+    const handleToggleTheme = (e) => {
+        // Spin the icon
+        setIconAnimating(true);
+        setTimeout(() => setIconAnimating(false), 500);
+        // Pass raw event so ThemeContext can read click coordinates
+        toggleTheme(e);
     };
 
     const navLinkClass = ({ isActive }) =>
@@ -39,8 +37,8 @@ const Header = () => {
             <div className="container mx-auto px-4">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
-                    <Link to="/" className="flex items-center gap-2 shrink-0">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-violet-800 flex items-center justify-center shadow-sm">
+                    <Link to="/" className="flex items-center gap-2 shrink-0 group">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-violet-800 flex items-center justify-center shadow-sm group-hover:shadow-violet-300 dark:group-hover:shadow-violet-900 group-hover:scale-105 transition-all duration-200">
                             <span className="text-white text-base">⚡</span>
                         </div>
                         <span className="text-xl font-bold text-gray-900 dark:text-white">FitTrack</span>
@@ -68,17 +66,32 @@ const Header = () => {
                     <div className="flex items-center gap-2">
                         {/* Theme toggle */}
                         <button
-                            onClick={toggleTheme}
-                            className="p-2 rounded-lg text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition-all duration-150"
+                            ref={toggleBtnRef}
+                            onClick={handleToggleTheme}
+                            className="relative p-2 rounded-xl text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-violet-600 dark:hover:text-violet-400 transition-all duration-150 overflow-hidden"
                             aria-label="Переключить тему"
                         >
-                            {isDark ? <SunIcon /> : <MoonIcon />}
+                            {/* Ripple ring on button itself */}
+                            <span className={`absolute inset-0 rounded-xl ${iconAnimating ? 'animate-ping bg-violet-400/20' : ''}`} />
+                            <span className={`relative block ${iconAnimating ? 'theme-icon-animate' : ''}`}>
+                                {isDark ? (
+                                    /* Sun */
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m8.66-9H21m-18 0H3m15.36-5.36l-.7.7M6.34 17.66l-.7.7m12.02 0l-.7-.7M6.34 6.34l-.7-.7M12 6a6 6 0 100 12A6 6 0 0012 6z" />
+                                    </svg>
+                                ) : (
+                                    /* Moon */
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                                    </svg>
+                                )}
+                            </span>
                         </button>
 
                         {isAuthenticated ? (
                             <>
                                 <div className="hidden md:flex items-center gap-2">
-                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white text-sm font-semibold">
+                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-white text-sm font-semibold ring-2 ring-white dark:ring-slate-800">
                                         {user?.name?.charAt(0)?.toUpperCase() || 'U'}
                                     </div>
                                     <span className="text-sm font-medium text-gray-700 dark:text-slate-300">{user?.name}</span>

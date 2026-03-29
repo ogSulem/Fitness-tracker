@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
@@ -10,10 +10,59 @@ import WorkoutRecommendations from '../components/WorkoutRecommendations';
 
 dayjs.locale('ru');
 
+const QUOTES = [
+    { text: 'Каждая тренировка — это шаг ближе к лучшей версии себя.', author: 'Аноним' },
+    { text: 'Боль, которую ты чувствуешь сегодня, — это сила, которую ты почувствуешь завтра.', author: 'Аноним' },
+    { text: 'Не считай дни — делай дни счастливыми.', author: 'Мухаммед Али' },
+    { text: 'Успех — это сумма маленьких усилий, повторяемых день за днём.', author: 'Роберт Коллиер' },
+    { text: 'Тело способно на большее. Убеди в этом свой разум.', author: 'Аноним' },
+    { text: 'Тяжело в тренировке — легко в бою.', author: 'А. В. Суворов' },
+    { text: 'Хочешь изменить тело — начни с мысли.', author: 'Аноним' },
+    { text: 'Единственная плохая тренировка — та, которую ты пропустил.', author: 'Аноним' },
+];
+
+const MotivationCard = () => {
+    const [idx, setIdx] = useState(() => Math.floor(Math.random() * QUOTES.length));
+    const [visible, setVisible] = useState(true);
+    const q = QUOTES[idx];
+
+    const next = () => {
+        setVisible(false);
+        setTimeout(() => {
+            setIdx(i => (i + 1) % QUOTES.length);
+            setVisible(true);
+        }, 250);
+    };
+
+    return (
+        <div className="card relative overflow-hidden">
+            {/* decorative gradient blob */}
+            <div className="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-br from-violet-400/20 to-pink-400/20 rounded-full blur-2xl pointer-events-none" />
+            <div className="flex items-start gap-3">
+                <span className="text-2xl mt-0.5 animate-float">✨</span>
+                <div className="flex-1 min-w-0">
+                    <p className={`text-sm font-medium text-gray-700 dark:text-slate-200 leading-relaxed transition-opacity duration-250 ${visible ? 'opacity-100' : 'opacity-0'}`}>
+                        «{q.text}»
+                    </p>
+                    <p className={`text-xs text-gray-400 dark:text-slate-500 mt-1 transition-opacity duration-250 ${visible ? 'opacity-100' : 'opacity-0'}`}>
+                        — {q.author}
+                    </p>
+                </div>
+            </div>
+            <button
+                onClick={next}
+                className="mt-3 text-xs text-violet-500 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300 font-medium transition-colors"
+            >
+                Следующая →
+            </button>
+        </div>
+    );
+};
+
 const QuickActionCard = ({ icon, title, description, onClick, gradient }) => (
     <button
         onClick={onClick}
-        className="w-full text-left p-4 rounded-xl border border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-800 hover:shadow-md transition-all duration-200 group"
+        className="w-full text-left p-4 rounded-xl border border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-800 hover:shadow-md hover:scale-[1.02] transition-all duration-200 group"
     >
         <div className={`w-10 h-10 rounded-xl ${gradient} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200`}>
             <span className="text-xl">{icon}</span>
@@ -75,6 +124,9 @@ const Home = () => {
 
                 {/* Right sidebar - takes 1/3 */}
                 <div className="space-y-6">
+                    {/* Motivational quote */}
+                    <MotivationCard />
+
                     {/* Quick Actions */}
                     <div className="card">
                         <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2">
@@ -116,4 +168,4 @@ const Home = () => {
     );
 };
 
-export default Home; 
+export default Home;

@@ -77,6 +77,18 @@ const Profile = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleCancelEdit = () => {
+        setEditMode(false);
+        setFormData({
+            name: user.name || '',
+            gender: user.gender || 'male',
+            age: user.age || '',
+            weight: user.weight || '',
+            height: user.height || '',
+            activityLevel: user.activityLevel || 'moderate',
+        });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSaving(true);
@@ -253,7 +265,7 @@ const Profile = () => {
                                 </select>
                             </div>
                             <div className="flex gap-3 justify-end pt-2">
-                                <button type="button" onClick={() => { setEditMode(false); setFormData({ name: user.name || '', gender: user.gender || 'male', age: user.age || '', weight: user.weight || '', height: user.height || '', activityLevel: user.activityLevel || 'moderate' }); }} className="btn-secondary">Отмена</button>
+                                <button type="button" onClick={handleCancelEdit} className="btn-secondary">Отмена</button>
                                 <button type="submit" disabled={saving} className="btn-primary">
                                     {saving ? 'Сохранение...' : 'Сохранить'}
                                 </button>

@@ -180,7 +180,7 @@ router.get('/user', auth, async (req, res) => {
 // Rate limiter for forgot-password (prevent spam)
 const forgotLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 3,
+    max: 5,
     message: 'Слишком много запросов. Попробуйте позже.',
     standardHeaders: true,
     legacyHeaders: false,
@@ -203,7 +203,8 @@ router.post(
         }
 
         try {
-            const user = await User.findOne({ email: req.body.email });
+            const emailQuery = String(req.body.email).toLowerCase();
+            const user = await User.findOne({ email: emailQuery });
 
             // Always respond with 200 to avoid leaking whether email exists
             if (!user) {
@@ -242,11 +243,21 @@ router.post(
     }
 );
 
+// Rate limiter for reset-password (prevent brute-force token guessing)
+const resetLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: 'Слишком много попыток. Попробуйте позже.',
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
 // @route   POST api/auth/reset-password/:token
 // @desc    Reset password using the token received via forgot-password
 // @access  Public
 router.post(
     '/reset-password/:token',
+    resetLimiter,
     [check('password', 'Пароль должен содержать не менее 6 символов').isLength({ min: 6 })],
     async (req, res) => {
         const errors = validationResult(req);
@@ -254,9 +265,15 @@ router.post(
             return res.status(400).json({ errors: errors.array() });
         }
 
+        // Validate token format to prevent NoSQL injection
+        const tokenParam = req.params.token;
+        if (!/^[a-f0-9]{64}$/.test(tokenParam)) {
+            return res.status(400).json({ message: 'Ссылка для сброса пароля недействительна или истекла.' });
+        }
+
         try {
             const user = await User.findOne({
-                resetPasswordToken: req.params.token,
+                resetPasswordToken: tokenParam,
                 resetPasswordExpires: { $gt: new Date() }
             });
 

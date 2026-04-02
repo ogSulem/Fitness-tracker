@@ -37,7 +37,8 @@ const Register = () => {
         return null;
     };
 
-    const handleNext = () => {
+    const handleNext = (e) => {
+        if (e) e.preventDefault();
         const err = validateStep0();
         if (err) { setError(err); return; }
         setError('');
@@ -136,7 +137,7 @@ const Register = () => {
                     )}
 
                     {step === 0 && (
-                        <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); handleNext(); }}>
+                        <form className="space-y-5" onSubmit={handleNext}>
                             <div>
                                 <label className="label">Имя *</label>
                                 <input

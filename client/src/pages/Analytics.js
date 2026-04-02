@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
@@ -16,6 +16,7 @@ import {
     Filler,
 } from 'chart.js';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
+import { ThemeContext } from '../context/ThemeContext';
 
 ChartJS.register(
     CategoryScale, LinearScale, PointElement, LineElement,
@@ -41,6 +42,7 @@ const Analytics = () => {
     const [nutritionSummary, setNutritionSummary] = useState([]);
     const [period, setPeriod]           = useState('week');
     const [loading, setLoading]         = useState(true);
+    const { isDark } = useContext(ThemeContext);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -107,12 +109,15 @@ const Analytics = () => {
     const totalDuration = filteredWorkouts.reduce((s, w) => s + (w.duration || 0), 0);
     const avgCalories = filteredWorkouts.length > 0 ? Math.round(totalCaloriesBurned / filteredWorkouts.length) : 0;
 
+    const tickColor  = isDark ? '#94a3b8' : '#6b7280';
+    const gridColor  = isDark ? '#334155' : '#f1f5f9';
+
     const chartOptions = {
         responsive: true,
         plugins: { legend: { display: false } },
         scales: {
-            x: { grid: { display: false }, ticks: { font: { size: 11 } } },
-            y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } },
+            x: { grid: { display: false }, ticks: { font: { size: 11 }, color: tickColor } },
+            y: { grid: { color: gridColor }, ticks: { font: { size: 11 }, color: tickColor } },
         },
     };
 
@@ -155,7 +160,10 @@ const Analytics = () => {
     const doughnutOptions = {
         responsive: true,
         plugins: {
-            legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 16 } },
+            legend: {
+                position: 'bottom',
+                labels: { font: { size: 12 }, padding: 16, color: isDark ? '#94a3b8' : '#374151' },
+            },
         },
         cutout: '65%',
     };

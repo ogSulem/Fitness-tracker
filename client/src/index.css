@@ -33,6 +33,13 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Subtle purple-tinted mesh gradient in dark mode (like Linear / Vercel) */
+.dark body {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(124, 58, 237, 0.08) 0%, transparent 60%),
+    var(--color-bg);
+}
+
 /* ─── View Transitions: theme ripple ───────────────────────────────────────
    When startViewTransition fires, the browser captures a snapshot of the
    "old" page and cross-fades it with the "new" page.  We replace that plain
@@ -66,13 +73,19 @@ body {
 
 @layer components {
   .card {
-    @apply bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6 transition-colors duration-200;
+    @apply bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-slate-700/60 p-6 transition-all duration-200;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
   }
   .card-hover {
-    @apply card hover:shadow-md transition-all duration-200;
+    @apply card;
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06);
   }
   .btn-primary {
     @apply bg-violet-600 hover:bg-violet-700 text-white font-semibold px-6 py-2.5 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2;
+    box-shadow: 0 1px 3px rgba(124,58,237,0.25);
   }
   .btn-secondary {
     @apply bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-200 font-semibold px-6 py-2.5 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-slate-500 inline-flex items-center gap-2;
@@ -104,6 +117,32 @@ body {
   .progress-fill {
     @apply h-full rounded-full transition-all duration-500;
   }
+  /* Gradient text — works in both light and dark */
+  .gradient-text {
+    @apply inline-block;
+    background: linear-gradient(135deg, #7c3aed, #a855f7, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* ─── Elevation: dark-mode shadow overrides ─────────────────────────────── */
+.dark .card {
+  box-shadow: 0 1px 4px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+}
+.dark .card-hover:hover {
+  box-shadow: 0 8px 28px rgba(0,0,0,0.55), 0 0 0 1px rgba(124,58,237,0.22);
+}
+
+/* Button glow on hover */
+.btn-primary:hover:not(:disabled) {
+  box-shadow: 0 4px 18px rgba(124,58,237,0.45), 0 1px 4px rgba(124,58,237,0.2);
+  transform: translateY(-1px);
+}
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(124,58,237,0.25);
 }
 
 /* ─── Scrollbar ─────────────────────────────────────────────────────────── */
@@ -140,6 +179,29 @@ body {
 .animate-scaleIn { animation: scaleIn 0.3s ease both; }
 .animate-bounceIn { animation: bounceIn 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
 .animate-float   { animation: float 3s ease-in-out infinite; }
+
+/* ─── Notification toast animations ─────────────────────────────────────── */
+@keyframes slideInRight {
+  from { transform: translateX(110%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes slideOutRight {
+  from { transform: translateX(0);    opacity: 1; }
+  to   { transform: translateX(110%); opacity: 0; }
+}
+@keyframes notifTimer {
+  from { width: 100%; }
+  to   { width: 0%;   }
+}
+.animate-slideInRight  { animation: slideInRight 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-slideOutRight { animation: slideOutRight 0.25s ease-in both; }
+
+.dark .gradient-text {
+  background: linear-gradient(135deg, #a78bfa, #c084fc, #f472b6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
 
 /* ─── Skeleton / shimmer ─────────────────────────────────────────────────── */
 .skeleton {

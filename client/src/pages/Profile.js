@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { NotificationContext } from '../context/NotificationContext';
+import { ThemeContext } from '../context/ThemeContext';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
@@ -30,6 +31,7 @@ const StatPill = ({ label, value }) => (
 
 const Profile = () => {
     const { user, updateUser } = useContext(AuthContext);
+    const { isDark } = useContext(ThemeContext);
     const { showNotification } = useContext(NotificationContext);
     const [activeTab, setActiveTab] = useState('profile');
     const [workouts, setWorkouts] = useState([]);
@@ -138,8 +140,8 @@ const Profile = () => {
         responsive: true,
         plugins: { legend: { display: false } },
         scales: {
-            x: { grid: { display: false }, ticks: { font: { size: 11 } } },
-            y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } },
+            x: { grid: { display: false }, ticks: { font: { size: 11 }, color: isDark ? '#94a3b8' : '#6b7280' } },
+            y: { grid: { color: isDark ? '#334155' : '#f1f5f9' }, ticks: { font: { size: 11 }, color: isDark ? '#94a3b8' : '#6b7280' } },
         },
     };
 

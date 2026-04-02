@@ -248,12 +248,12 @@ const Nutrition = () => {
             {/* Daily summary */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                 {[
-                    { label: 'Калории', value: Math.round(dailyTotals.calories || 0), unit: 'ккал', bg: 'from-violet-50 to-purple-50', text: 'text-violet-700', icon: '🔥' },
-                    { label: 'Белки',   value: Math.round(dailyTotals.protein || 0),  unit: 'г',    bg: 'from-blue-50 to-sky-50',      text: 'text-blue-700',   icon: '💪' },
-                    { label: 'Жиры',    value: Math.round(dailyTotals.fat || 0),      unit: 'г',    bg: 'from-amber-50 to-yellow-50',   text: 'text-amber-700',  icon: '🧈' },
-                    { label: 'Углеводы',value: Math.round(dailyTotals.carbs || 0),    unit: 'г',    bg: 'from-green-50 to-emerald-50',  text: 'text-green-700',  icon: '🌾' },
+                    { label: 'Калории', value: Math.round(dailyTotals.calories || 0), unit: 'ккал', bg: 'from-violet-50 to-purple-50 dark:from-violet-950/60 dark:to-purple-950/40', text: 'text-violet-700 dark:text-violet-300', icon: '🔥' },
+                    { label: 'Белки',   value: Math.round(dailyTotals.protein || 0),  unit: 'г',    bg: 'from-blue-50 to-sky-50 dark:from-blue-950/60 dark:to-sky-950/40',        text: 'text-blue-700 dark:text-blue-300',   icon: '💪' },
+                    { label: 'Жиры',    value: Math.round(dailyTotals.fat || 0),      unit: 'г',    bg: 'from-amber-50 to-yellow-50 dark:from-amber-950/60 dark:to-yellow-950/40', text: 'text-amber-700 dark:text-amber-300',  icon: '🧈' },
+                    { label: 'Углеводы',value: Math.round(dailyTotals.carbs || 0),    unit: 'г',    bg: 'from-green-50 to-emerald-50 dark:from-green-950/60 dark:to-emerald-950/40', text: 'text-green-700 dark:text-green-300',  icon: '🌾' },
                 ].map(stat => (
-                    <div key={stat.label} className={`bg-gradient-to-br ${stat.bg} rounded-2xl p-4 border border-white`}>
+                    <div key={stat.label} className={`bg-gradient-to-br ${stat.bg} rounded-2xl p-4 border border-white dark:border-slate-700/60`}>
                         <div className="text-xl mb-1">{stat.icon}</div>
                         <p className={`text-xl font-bold ${stat.text}`}>{stat.value}<span className="text-sm font-normal ml-1">{stat.unit}</span></p>
                         <p className="text-xs text-gray-500 mt-0.5">{stat.label}</p>

@@ -100,7 +100,7 @@ const Home = () => {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div>
                         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-                            Привет, {user?.name?.split(' ')[0] || 'Пользователь'}! 👋
+                            Привет, <span className="gradient-text">{user?.name?.split(' ')[0] || 'Пользователь'}</span>! 👋
                         </h1>
                         <p className="text-gray-400 dark:text-slate-500 mt-1 capitalize">{capitalToday}</p>
                     </div>

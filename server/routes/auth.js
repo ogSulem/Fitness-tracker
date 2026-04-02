@@ -13,11 +13,18 @@ const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 минут
     max: 5, // 5 попыток
     message: 'Слишком много попыток входа. Попробуйте позже.',
-    standardHeaders: true, // возвращать стандартные заголовки rate limit 
-    legacyHeaders: false, // отключить устаревшие заголовки X-RateLimit-*
-    // Настройка для решения проблемы с X-Forwarded-For
+    standardHeaders: true,
+    legacyHeaders: false,
     skipFailedRequests: false,
     skipSuccessfulRequests: false
+});
+
+const registerLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 10, // 10 registrations per hour per IP
+    message: 'Слишком много попыток регистрации. Попробуйте позже.',
+    standardHeaders: true,
+    legacyHeaders: false,
 });
 
 // @route   POST api/auth/register
@@ -25,6 +32,7 @@ const loginLimiter = rateLimit({
 // @access  Public
 router.post(
     '/register',
+    registerLimiter,
     [
         check('name', 'Имя обязательно').not().isEmpty(),
         check('email', 'Введите корректный email').isEmail(),
@@ -42,15 +50,16 @@ router.post(
             }
 
             const { name, email, password, gender, age, weight, height } = req.body;
+            const normalizedEmail = email.toLowerCase().trim();
 
-            let user = await User.findOne({ email });
+            let user = await User.findOne({ email: normalizedEmail });
             if (user) {
                 return res.status(400).json({ message: 'Пользователь с таким email уже существует' });
             }
 
             user = new User({
                 name,
-                email,
+                email: normalizedEmail,
                 password,
                 gender,
                 age,
@@ -94,7 +103,7 @@ router.post(
             );
         } catch (err) {
             console.error(err.message);
-            res.status(500).send('Ошибка сервера');
+            res.status(500).json({ message: 'Ошибка сервера' });
         }
     }
 );
@@ -117,8 +126,9 @@ router.post(
             }
 
             const { email, password } = req.body;
+            const normalizedEmail = email.toLowerCase().trim();
 
-            let user = await User.findOne({ email });
+            let user = await User.findOne({ email: normalizedEmail });
             if (!user) {
                 return res.status(400).json({ message: 'Неверные учетные данные' });
             }
@@ -156,7 +166,7 @@ router.post(
             );
         } catch (err) {
             console.error(err.message);
-            res.status(500).send('Ошибка сервера');
+            res.status(500).json({ message: 'Ошибка сервера' });
         }
     }
 );
@@ -173,7 +183,7 @@ router.get('/user', auth, async (req, res) => {
         res.json(user);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Ошибка сервера');
+        res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
 
@@ -238,7 +248,7 @@ router.post(
             res.json({ message: 'Ссылка для сброса пароля отправлена на ваш email.' });
         } catch (err) {
             console.error(err.message);
-            res.status(500).send('Ошибка сервера');
+            res.status(500).json({ message: 'Ошибка сервера' });
         }
     }
 );
@@ -290,7 +300,7 @@ router.post(
             res.json({ message: 'Пароль успешно изменён. Теперь вы можете войти.' });
         } catch (err) {
             console.error(err.message);
-            res.status(500).send('Ошибка сервера');
+            res.status(500).json({ message: 'Ошибка сервера' });
         }
     }
 );

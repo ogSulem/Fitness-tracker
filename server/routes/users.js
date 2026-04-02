@@ -64,7 +64,7 @@ router.put(
             res.json(updatedUser);
         } catch (err) {
             console.error(err.message);
-            res.status(500).send('Ошибка сервера');
+            res.status(500).json({ message: 'Ошибка сервера' });
         }
     }
 );
@@ -83,7 +83,7 @@ router.get('/weight-history', auth, async (req, res) => {
         res.json(history);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Ошибка сервера');
+        res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
 
@@ -124,7 +124,7 @@ router.post(
             res.json(user.goals);
         } catch (err) {
             console.error(err.message);
-            res.status(500).send('Ошибка сервера');
+            res.status(500).json({ message: 'Ошибка сервера' });
         }
     }
 );
@@ -142,7 +142,7 @@ router.get('/goals', auth, async (req, res) => {
         res.json(user.goals);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Ошибка сервера');
+        res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
 
@@ -185,7 +185,7 @@ router.post(
             res.json(user.workouts);
         } catch (err) {
             console.error(err.message);
-            res.status(500).send('Ошибка сервера');
+            res.status(500).json({ message: 'Ошибка сервера' });
         }
     }
 );
@@ -203,7 +203,7 @@ router.get('/workouts', auth, async (req, res) => {
         res.json(user.workouts);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Ошибка сервера');
+        res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
 

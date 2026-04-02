@@ -22,7 +22,7 @@ router.get('/', workoutsLimiter, auth, async (req, res) => {
         res.json(workouts);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Ошибка сервера');
+        res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
 
@@ -48,7 +48,7 @@ router.get('/:id', workoutsLimiter, auth, async (req, res) => {
         if (err.kind === 'ObjectId') {
             return res.status(404).json({ message: 'Тренировка не найдена' });
         }
-        res.status(500).send('Ошибка сервера');
+        res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
 
@@ -72,7 +72,7 @@ router.get('/date/:date', workoutsLimiter, auth, async (req, res) => {
         res.json(workouts);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Ошибка сервера');
+        res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
 
@@ -96,7 +96,7 @@ router.get('/range/:start/:end', workoutsLimiter, auth, async (req, res) => {
         res.json(workouts);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Ошибка сервера');
+        res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
 
@@ -142,7 +142,7 @@ router.post(
             res.json(workout);
         } catch (err) {
             console.error(err.message);
-            res.status(500).send('Ошибка сервера');
+            res.status(500).json({ message: 'Ошибка сервера' });
         }
     }
 );
@@ -202,7 +202,7 @@ router.put(
             if (err.kind === 'ObjectId') {
                 return res.status(404).json({ message: 'Тренировка не найдена' });
             }
-            res.status(500).send('Ошибка сервера');
+            res.status(500).json({ message: 'Ошибка сервера' });
         }
     }
 );
@@ -233,7 +233,7 @@ router.delete('/:id', workoutsLimiter, auth, async (req, res) => {
         if (err.kind === 'ObjectId') {
             return res.status(404).json({ message: 'Тренировка не найдена' });
         }
-        res.status(500).send('Ошибка сервера');
+        res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
 

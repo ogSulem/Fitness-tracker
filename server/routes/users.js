@@ -1,21 +1,32 @@
 const express = require('express');
 const router = express.Router();
 const { check, validationResult } = require('express-validator');
+const rateLimit = require('express-rate-limit');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+
+const profileLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 30,
+    message: 'Слишком много запросов. Попробуйте позже.',
+    standardHeaders: true,
+    legacyHeaders: false
+});
 
 // @route   PUT api/users/profile
 // @desc    Обновление профиля пользователя
 // @access  Private
 router.put(
     '/profile',
+    profileLimiter,
     auth,
     [
         check('name', 'Имя обязательно').not().isEmpty(),
         check('gender', 'Пол обязателен').isIn(['male', 'female']),
         check('age', 'Возраст должен быть от 15 до 100').isInt({ min: 15, max: 100 }),
         check('weight', 'Вес должен быть от 30 до 200 кг').isFloat({ min: 30, max: 200 }),
-        check('height', 'Рост должен быть от 100 до 250 см').isFloat({ min: 100, max: 250 })
+        check('height', 'Рост должен быть от 100 до 250 см').isFloat({ min: 100, max: 250 }),
+        check('activityLevel').optional().isIn(['sedentary', 'light', 'moderate', 'active', 'veryActive'])
     ],
     async (req, res) => {
         try {
@@ -24,7 +35,7 @@ router.put(
                 return res.status(400).json({ errors: errors.array() });
             }
 
-            const { name, gender, age, weight, height } = req.body;
+            const { name, gender, age, weight, height, activityLevel } = req.body;
 
             let user = await User.findById(req.user.id);
             if (!user) {
@@ -34,6 +45,8 @@ router.put(
             user.name = name;
             user.gender = gender;
             user.age = age;
+
+            if (activityLevel) user.activityLevel = activityLevel;
 
             if (weight !== undefined && weight !== user.weight) {
                 user.weight = weight;

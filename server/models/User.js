@@ -37,6 +37,11 @@ const UserSchema = new mongoose.Schema({
         min: 100,
         max: 250
     },
+    activityLevel: {
+        type: String,
+        enum: ['sedentary', 'light', 'moderate', 'active', 'veryActive'],
+        default: 'moderate'
+    },
     weightHistory: [{
         weight: Number,
         date: {

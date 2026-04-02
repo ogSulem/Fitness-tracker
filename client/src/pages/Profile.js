@@ -38,7 +38,7 @@ const Profile = () => {
     const [editMode, setEditMode] = useState(false);
     const [saving, setSaving] = useState(false);
     const [formData, setFormData] = useState({
-        name: '', gender: '', age: '', weight: '', height: '',
+        name: '', gender: '', age: '', weight: '', height: '', activityLevel: 'moderate',
     });
 
     useEffect(() => {
@@ -49,6 +49,7 @@ const Profile = () => {
                 age: user.age || '',
                 weight: user.weight || '',
                 height: user.height || '',
+                activityLevel: user.activityLevel || 'moderate',
             });
         }
     }, [user]);
@@ -241,8 +242,18 @@ const Profile = () => {
                                     <input type="number" name="height" value={formData.height} onChange={handleChange} className="input" min="100" max="250" required />
                                 </div>
                             </div>
+                            <div>
+                                <label className="label">Уровень активности</label>
+                                <select name="activityLevel" value={formData.activityLevel} onChange={handleChange} className="input">
+                                    <option value="sedentary">🪑 Сидячий образ жизни</option>
+                                    <option value="light">🚶 Лёгкая активность (1–2 раза/нед)</option>
+                                    <option value="moderate">🏃 Умеренная активность (3–5 раз/нед)</option>
+                                    <option value="active">💪 Высокая активность (6–7 раз/нед)</option>
+                                    <option value="veryActive">🔥 Очень высокая (спорт + физ. работа)</option>
+                                </select>
+                            </div>
                             <div className="flex gap-3 justify-end pt-2">
-                                <button type="button" onClick={() => { setEditMode(false); }} className="btn-secondary">Отмена</button>
+                                <button type="button" onClick={() => { setEditMode(false); setFormData({ name: user.name || '', gender: user.gender || 'male', age: user.age || '', weight: user.weight || '', height: user.height || '', activityLevel: user.activityLevel || 'moderate' }); }} className="btn-secondary">Отмена</button>
                                 <button type="submit" disabled={saving} className="btn-primary">
                                     {saving ? 'Сохранение...' : 'Сохранить'}
                                 </button>
@@ -257,6 +268,7 @@ const Profile = () => {
                                 { label: 'Возраст', value: `${user?.age} лет` },
                                 { label: 'Вес', value: `${user?.weight} кг` },
                                 { label: 'Рост', value: `${user?.height} см` },
+                                { label: 'Активность', value: { sedentary: 'Сидячий', light: 'Лёгкая', moderate: 'Умеренная', active: 'Высокая', veryActive: 'Очень высокая' }[user?.activityLevel] || 'Умеренная' },
                             ].map(item => (
                                 <div key={item.label} className="bg-gray-50 dark:bg-slate-700 rounded-xl p-4">
                                     <p className="text-xs text-gray-400 dark:text-slate-400 font-medium mb-1">{item.label}</p>
@@ -403,10 +415,10 @@ const NotificationsWidget = () => {
     const [permission, setPermission] = useState(() =>
         'Notification' in window ? Notification.permission : 'unsupported'
     );
-    const [mealTime, setMealTime] = useState('08:00');
-    const [workoutTime, setWorkoutTime] = useState('18:00');
-    const [mealEnabled, setMealEnabled] = useState(false);
-    const [workoutEnabled, setWorkoutEnabled] = useState(false);
+    const [mealTime, setMealTime] = useState(() => localStorage.getItem('notif_mealTime') || '08:00');
+    const [workoutTime, setWorkoutTime] = useState(() => localStorage.getItem('notif_workoutTime') || '18:00');
+    const [mealEnabled, setMealEnabled] = useState(() => localStorage.getItem('notif_mealEnabled') === 'true');
+    const [workoutEnabled, setWorkoutEnabled] = useState(() => localStorage.getItem('notif_workoutEnabled') === 'true');
 
     const requestPermission = async () => {
         if (!('Notification' in window)) return;
@@ -431,6 +443,10 @@ const NotificationsWidget = () => {
 
     const save = () => {
         if (permission !== 'granted') return;
+        localStorage.setItem('notif_mealEnabled', mealEnabled);
+        localStorage.setItem('notif_workoutEnabled', workoutEnabled);
+        localStorage.setItem('notif_mealTime', mealTime);
+        localStorage.setItem('notif_workoutTime', workoutTime);
         if (mealEnabled) {
             scheduleNotification('🥗 Время поесть!', `Не забудьте записать приём пищи в FitTrack`, mealTime);
         }

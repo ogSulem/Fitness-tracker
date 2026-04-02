@@ -85,7 +85,9 @@ const Home = () => {
         } else {
             bmr = 447.593 + (9.247 * (user.weight || 60)) + (3.098 * (user.height || 165)) - (4.330 * (user.age || 25));
         }
-        return Math.round(bmr * 1.55);
+        const activityMultipliers = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, veryActive: 1.9 };
+        const multiplier = activityMultipliers[user.activityLevel] || 1.55;
+        return Math.round(bmr * multiplier);
     })();
 
     const today = dayjs().format('dddd, D MMMM YYYY');

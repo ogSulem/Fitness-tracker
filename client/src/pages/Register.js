@@ -136,7 +136,7 @@ const Register = () => {
                     )}
 
                     {step === 0 && (
-                        <div className="space-y-5">
+                        <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); handleNext(); }}>
                             <div>
                                 <label className="label">Имя *</label>
                                 <input
@@ -195,13 +195,12 @@ const Register = () => {
                                 />
                             </div>
                             <button
-                                type="button"
-                                onClick={handleNext}
+                                type="submit"
                                 className="btn-primary w-full justify-center"
                             >
                                 Далее →
                             </button>
-                        </div>
+                        </form>
                     )}
 
                     {step === 1 && (

@@ -16,7 +16,7 @@ const workoutsLimiter = rateLimit({
 // @route   GET api/workouts
 // @desc    Получение всех тренировок пользователя
 // @access  Private
-router.get('/', auth, async (req, res) => {
+router.get('/', workoutsLimiter, auth, async (req, res) => {
     try {
         const workouts = await Workout.find({ user: req.user.id }).sort({ date: -1 });
         res.json(workouts);
@@ -29,7 +29,7 @@ router.get('/', auth, async (req, res) => {
 // @route   GET api/workouts/:id
 // @desc    Получение тренировки по ID
 // @access  Private
-router.get('/:id', auth, async (req, res) => {
+router.get('/:id', workoutsLimiter, auth, async (req, res) => {
     try {
         const workout = await Workout.findById(req.params.id);
 
@@ -55,7 +55,7 @@ router.get('/:id', auth, async (req, res) => {
 // @route   GET api/workouts/date/:date
 // @desc    Получение тренировок на определенную дату
 // @access  Private
-router.get('/date/:date', auth, async (req, res) => {
+router.get('/date/:date', workoutsLimiter, auth, async (req, res) => {
     try {
         const date = new Date(req.params.date);
         const nextDay = new Date(date);
@@ -79,7 +79,7 @@ router.get('/date/:date', auth, async (req, res) => {
 // @route   GET api/workouts/range/:start/:end
 // @desc    Получение тренировок в диапазоне дат
 // @access  Private
-router.get('/range/:start/:end', auth, async (req, res) => {
+router.get('/range/:start/:end', workoutsLimiter, auth, async (req, res) => {
     try {
         const startDate = new Date(req.params.start);
         const endDate = new Date(req.params.end);
@@ -106,6 +106,7 @@ router.get('/range/:start/:end', auth, async (req, res) => {
 router.post(
     '/',
     [
+        workoutsLimiter,
         auth,
         [
             check('type', 'Тип тренировки обязателен').not().isEmpty(),
@@ -152,6 +153,7 @@ router.post(
 router.put(
     '/:id',
     [
+        workoutsLimiter,
         auth,
         [
             check('type', 'Тип тренировки обязателен').not().isEmpty(),

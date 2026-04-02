@@ -93,15 +93,6 @@ export const AuthProvider = ({ children }) => {
             const response = await axios.put('/api/users/profile', userData);
             const updatedUser = response.data;
             setUser(updatedUser);
-            
-            // Обновляем данные для отображения динамики веса
-            try {
-                const weightHistoryRes = await axios.get('/api/users/weight-history');
-                console.log('Обновлена история веса после изменения профиля', weightHistoryRes.data);
-            } catch (historyErr) {
-                console.error('Ошибка при обновлении истории веса:', historyErr);
-            }
-            
             return updatedUser;
         } catch (err) {
             setError(err.response?.data?.message || 'Ошибка при обновлении профиля');

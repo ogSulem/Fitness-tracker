@@ -77,23 +77,25 @@ const Analytics = () => {
 
     const labels = generateLabels();
 
-    const getWorkoutsForDay = (label) => {
-        return filteredWorkouts.filter(w => {
-            const dayIndex = labels.indexOf(label);
-            const targetDate = dayjs().subtract(getDaysBack() - 1 - dayIndex, 'day').format('YYYY-MM-DD');
-            return dayjs(w.date).format('YYYY-MM-DD') === targetDate;
-        });
-    };
+    // Precompute label→date and date→workouts to avoid O(n²) per render
+    const labelDates = labels.map((_, i) =>
+        dayjs().subtract(getDaysBack() - 1 - i, 'day').format('YYYY-MM-DD')
+    );
 
-    const caloriesData = labels.map(l => {
-        const dayWorkouts = getWorkoutsForDay(l);
-        return dayWorkouts.reduce((sum, w) => sum + (w.caloriesBurned || 0), 0);
-    });
+    const workoutsByDate = filteredWorkouts.reduce((acc, w) => {
+        const d = dayjs(w.date).format('YYYY-MM-DD');
+        if (!acc[d]) acc[d] = [];
+        acc[d].push(w);
+        return acc;
+    }, {});
 
-    const durationData = labels.map(l => {
-        const dayWorkouts = getWorkoutsForDay(l);
-        return dayWorkouts.reduce((sum, w) => sum + (w.duration || 0), 0);
-    });
+    const caloriesData = labelDates.map(d =>
+        (workoutsByDate[d] || []).reduce((sum, w) => sum + (w.caloriesBurned || 0), 0)
+    );
+
+    const durationData = labelDates.map(d =>
+        (workoutsByDate[d] || []).reduce((sum, w) => sum + (w.duration || 0), 0)
+    );
 
     const workoutTypes = filteredWorkouts.reduce((acc, w) => {
         const type = w.type || 'Другое';
@@ -162,10 +164,14 @@ const Analytics = () => {
     const filteredNutrition = nutritionSummary.filter(n =>
         dayjs(n.date).isAfter(dayjs().subtract(getDaysBack(), 'day'))
     );
-    const nutritionCaloriesData = labels.map(l => {
-        const dayIndex = labels.indexOf(l);
-        const targetDate = dayjs().subtract(getDaysBack() - 1 - dayIndex, 'day').format('YYYY-MM-DD');
-        const entry = filteredNutrition.find(n => n.date === targetDate);
+
+    const nutritionByDate = filteredNutrition.reduce((acc, n) => {
+        acc[n.date] = n;
+        return acc;
+    }, {});
+
+    const nutritionCaloriesData = labelDates.map(d => {
+        const entry = nutritionByDate[d];
         return entry ? Math.round(entry.calories) : 0;
     });
 

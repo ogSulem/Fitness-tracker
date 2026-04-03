@@ -34,15 +34,37 @@ app.use(helmet({
 app.use(compression());
 
 // ─── CORS ─────────────────────────────────────────────────────────────────────
-const allowedOrigins = process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
-    : ['http://localhost:3000', 'http://localhost:3001'];
+// Strip trailing slash so both http://host and http://host/ match the same entry
+const stripSlash = (o) => (o ? o.replace(/\/$/, '') : o);
+
+const buildAllowedOrigins = () => {
+    const list = process.env.ALLOWED_ORIGINS
+        ? process.env.ALLOWED_ORIGINS.split(',').map((o) => stripSlash(o.trim()))
+        : ['http://localhost:3000', 'http://localhost:3001'];
+
+    // Always allow the server's own origin (covers production same-domain deploy
+    // and the common local case where the user opens http://localhost:5001)
+    const port = process.env.PORT || 5001;
+    const selfOrigins = [
+        `http://localhost:${port}`,
+        `http://127.0.0.1:${port}`,
+    ];
+    if (process.env.CLIENT_URL) selfOrigins.push(stripSlash(process.env.CLIENT_URL));
+
+    selfOrigins.forEach((o) => {
+        if (!list.includes(o)) list.push(o);
+    });
+
+    return list;
+};
+
+const allowedOrigins = buildAllowedOrigins();
 
 app.use(cors({
     origin: (origin, callback) => {
         // Allow requests with no origin (e.g. mobile apps, Postman, SSR)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) return callback(null, true);
+        if (allowedOrigins.includes(stripSlash(origin))) return callback(null, true);
         callback(new Error(`CORS: origin '${origin}' not allowed`));
     },
     credentials: true,

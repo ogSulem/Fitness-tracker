@@ -3,97 +3,182 @@
   <img src="https://img.shields.io/badge/Node.js-18+-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" />
   <img src="https://img.shields.io/badge/MongoDB-7-47A248?style=for-the-badge&logo=mongodb&logoColor=white" />
   <img src="https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" />
-  <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Docker-ready-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
 </p>
 
 <h1 align="center">⚡ FitTrack — Фитнес-трекер</h1>
 
 <p align="center">
-  Полнофункциональная платформа для отслеживания тренировок, питания и достижения фитнес-целей.<br/>
-  Современный дизайн с поддержкой <strong>тёмной и светлой темы</strong>.
+  Полнофункциональная платформа для отслеживания тренировок, питания и фитнес-целей.<br/>
+  Тёмная и светлая тема · JWT-аутентификация · Docker-ready
 </p>
 
 ---
 
-## ✨ Возможности
+## 🚀 Быстрый старт — VPS + Docker (рекомендуется)
 
-| 🏋️ Тренировки | 🥗 Питание | 📊 Аналитика | 👤 Профиль |
-|---|---|---|---|
-| Календарь тренировок | Дневник питания по приёмам | Графики за 7/30/365 дней | Личные данные |
-| Добавление активностей | Поиск продуктов из базы | Сожжённые калории | Динамика веса |
-| Расход калорий и длительность | Белки / Жиры / Углеводы | Типы тренировок (Doughnut) | История тренировок |
-| Рекомендации тренировок | Навигация по датам | Питание vs. активность | Цели и прогресс |
-| Цели с прогресс-баром | Удаление записей | — | Редактирование профиля |
-
-### 🌙 Тёмная / Светлая тема
-- Автоматическое определение предпочтения системы
-- Сохранение выбора в `localStorage`
-- Мгновенное переключение кнопкой в шапке
-
-### 🔐 Аутентификация
-- JWT-токены
-- Защищённые маршруты (`PrivateRoute`)
-- Rate limiting на входе и регистрации
-
----
-
-## 🚀 Локальный запуск
+Самый простой и надёжный способ. Один домен — нет проблем с CORS.
 
 ### Требования
-- Node.js 18+
-- MongoDB (локально или [Atlas](https://atlas.mongodb.com))
-
-### 1. Клонирование
+- VPS с Linux (Ubuntu 22.04 / Debian 12)
+- Docker Engine 24+ и Docker Compose v2
 
 ```bash
-git clone -b copilot/add-user-registration-authentication \
-  https://github.com/ogSulem/Fitness-tracker.git
+# Установка Docker одной командой (если ещё не установлен)
+curl -fsSL https://get.docker.com | sh
+```
+
+### 1. Клонировать репозиторий
+
+```bash
+git clone https://github.com/ogSulem/Fitness-tracker.git
 cd Fitness-tracker
 ```
 
-> Хотите основную ветку — уберите `-b copilot/...`
-
-### 2. Установка зависимостей
+### 2. Создать файл переменных окружения
 
 ```bash
-# Backend
-cd server && npm install
+cp server/.env.example .env
+```
 
-# Frontend
+Откройте `.env` и заполните **обязательные** поля:
+
+```env
+JWT_SECRET=сгенерируйте_минимум_32_случайных_символа
+CLIENT_URL=https://ваш-домен.com
+```
+
+> 💡 Быстрая генерация секрета: `openssl rand -hex 32`
+
+### 3. Запустить
+
+```bash
+docker compose up -d --build
+```
+
+Приложение доступно на **http://IP:5001** (или по домену, если настроен Nginx-прокси).
+
+### Управление
+
+```bash
+docker compose logs -f          # логи в реальном времени
+docker compose ps               # статус контейнеров
+docker compose down             # остановить
+docker compose down -v          # остановить + удалить данные MongoDB
+docker compose pull && \
+  docker compose up -d --build  # обновить до последней версии
+```
+
+---
+
+## 🌐 HTTPS + Nginx (production)
+
+Для работы по HTTPS поставьте Nginx как reverse proxy.
+
+```nginx
+# /etc/nginx/sites-available/fittrack
+server {
+    listen 80;
+    server_name ваш-домен.com www.ваш-домен.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name ваш-домен.com www.ваш-домен.com;
+
+    ssl_certificate     /etc/letsencrypt/live/ваш-домен.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/ваш-домен.com/privkey.pem;
+
+    location / {
+        proxy_pass         http://localhost:5001;
+        proxy_http_version 1.1;
+        proxy_set_header   Upgrade $http_upgrade;
+        proxy_set_header   Connection 'upgrade';
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+```bash
+# Получить SSL-сертификат Let's Encrypt
+sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx -d ваш-домен.com
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+После настройки Nginx обновите `.env`:
+```env
+CLIENT_URL=https://ваш-домен.com
+```
+И пересоберите: `docker compose up -d --build`
+
+---
+
+## 🔑 Переменные окружения
+
+Файл `.env` лежит в **корне проекта** (рядом с `docker-compose.yml`).  
+Шаблон: `server/.env.example`.
+
+| Переменная | Обязательна | По умолчанию | Описание |
+|---|---|---|---|
+| `JWT_SECRET` | ✅ | — | Секрет для подписи JWT, ≥ 32 символа |
+| `MONGO_URI` | — | `mongodb://mongo:27017/fittrack` | Строка подключения MongoDB |
+| `CLIENT_URL` | — | `http://localhost:5001` | URL сайта (нужен для ссылки сброса пароля) |
+| `PORT` | — | `5001` | Порт сервера |
+| `NODE_ENV` | — | `production` (в Docker) | Окружение |
+| `ALLOWED_ORIGINS` | только split | — | URL фронтенда при раздельном деплое |
+
+---
+
+## 💻 Локальный запуск (разработка)
+
+### Требования
+- Node.js 18+
+- MongoDB (локально или Atlas)
+
+### 1. Установить зависимости
+
+```bash
+git clone https://github.com/ogSulem/Fitness-tracker.git
+cd Fitness-tracker
+
+cd server && npm install
 cd ../client && npm install
 ```
 
-### 3. Переменные окружения
+### 2. Настроить окружение
 
 ```bash
 cp server/.env.example server/.env
 ```
 
-Откройте `server/.env` и заполните:
+Минимальный `server/.env` для локальной разработки:
 
 ```env
 PORT=5001
 MONGO_URI=mongodb://localhost:27017/fittrack
-JWT_SECRET=придумайте_длинную_строку
+JWT_SECRET=local_dev_secret_key_12345678
 NODE_ENV=development
+CLIENT_URL=http://localhost:3000
 ```
 
-> `ALLOWED_ORIGINS` в development оставьте пустым — по умолчанию разрешены `localhost:3000` и `localhost:3001`.
-
-### 4. Запуск
+### 3. Запустить
 
 ```bash
-# Терминал 1 — Backend
-cd server && npm run dev     # nodemon (с авто-перезапуском)
-# или: npm start             # node (без авто-перезапуска)
+# Терминал 1 — Backend (с авто-перезапуском)
+cd server && npm run dev
 
 # Терминал 2 — Frontend
 cd client && npm start
 ```
 
-Приложение: **http://localhost:3000** → проксируется на сервер `http://localhost:5001`.
+Приложение откроется на **http://localhost:3000**.  
+Frontend проксирует `/api/*` на `localhost:5001` через `"proxy"` в `client/package.json`.
 
-### 5. (Опционально) Заполнить базу рекомендациями тренировок
+### 4. Заполнить базу рекомендациями тренировок
 
 ```bash
 cd server && npm run init-recommendations
@@ -101,209 +186,54 @@ cd server && npm run init-recommendations
 
 ---
 
-## 🌐 Деплой в production
+## ✨ Возможности
 
-Есть **два варианта**. Выбирайте тот, что удобнее.
+| 🏋️ Тренировки | 🥗 Питание | 📊 Аналитика | 👤 Профиль |
+|---|---|---|---|
+| Календарь тренировок | Дневник по приёмам | Графики за 7/30/365 дней | Личные данные |
+| Добавление активностей | Поиск продуктов из базы | Калории и длительность | Динамика веса |
+| Расход калорий | Б/Ж/У | Doughnut по типам | История тренировок |
+| Рекомендации | Навигация по датам | Питание vs. активность | Редактирование |
+| Цели + прогресс-бар | Удаление записей | Список тренировок | Цели |
 
----
-
-### Вариант A — единый сервер (Railway) ✅ Рекомендуется
-
-Сервер сам отдаёт собранный React. CORS вообще не нужен — всё на одном домене.
-
-```
-Railway
- └─ Node.js сервер (Express)
-     ├─ /api/*  — REST API
-     └─ /*      — отдаёт client/build/index.html
-```
-
-**Шаги:**
-
-1. **Создайте проект на [Railway](https://railway.app)**
-   - «New Project» → «Deploy from GitHub repo»
-   - Выберите репозиторий
-
-2. **Укажите корневую директорию: `server`**
-   - Settings → Source → Root Directory: `server`
-
-3. **Добавьте переменные окружения на Railway:**
-
-   | Переменная | Значение |
-   |---|---|
-   | `PORT` | Railway подставит сам |
-   | `MONGO_URI` | строка подключения Atlas (см. ниже) |
-   | `JWT_SECRET` | длинная случайная строка |
-   | `NODE_ENV` | `production` |
-
-4. **Сборка фронтенда перед деплоем** — добавьте в Railway команду сборки:
-   - Build Command: `cd ../client && npm install && npm run build`
-   - Start Command: `node server.js`
-   
-   Или добавьте в `server/package.json`:
-   ```json
-   "scripts": {
-       "build": "cd ../client && npm install && npm run build",
-       "start": "node server.js"
-   }
-   ```
-
-5. **MongoDB Atlas:**
-   - [atlas.mongodb.com](https://atlas.mongodb.com) → создайте кластер M0 (бесплатно)
-   - Database Access → добавьте пользователя
-   - Network Access → `0.0.0.0/0` (разрешить откуда угодно)
-   - Connect → Drivers → скопируйте строку вида:
-     `mongodb+srv://user:pass@cluster0.xxxxx.mongodb.net/fittrack?retryWrites=true&w=majority`
-   - Вставьте в `MONGO_URI` на Railway
-
-**Результат:** одна ссылка вида `https://fitness-tracker-xxxx.up.railway.app` — и фронт, и апи.
+**🌙 Тёмная/Светлая тема** — автоопределение системы, сохранение в localStorage.  
+**🔐 Аутентификация** — JWT, rate limiting, восстановление пароля по токену.
 
 ---
 
-### Вариант B — раздельный деплой (Vercel + Railway)
-
-```
-Vercel              Railway
- └─ React SPA  →   └─ Express API (/api/*)
-```
-
-Здесь CORS **нужен**: браузер делает запросы с домена Vercel на Railway.
-
-**Backend (Railway)** — то же, что в варианте A, но без сборки фронтенда. Добавьте одну дополнительную переменную:
-
-| Переменная | Значение |
-|---|---|
-| `ALLOWED_ORIGINS` | `https://ваш-проект.vercel.app` |
-
-> Несколько доменов через запятую: `https://fittrack.vercel.app,https://www.fittrack.vercel.app`
-
-**Frontend (Vercel):**
-
-1. «New Project» → импортируйте репо, укажите **Root Directory: `client`**
-2. Добавьте переменную окружения в настройках Vercel:
-
-   | Переменная | Значение |
-   |---|---|
-   | `REACT_APP_API_URL` | `https://ваш-бэкенд.up.railway.app` |
-
-3. Deploy. Vercel автоматически запустит `npm run build`.
-
-> **Почему нужен `REACT_APP_API_URL`?** В production-сборке React нет dev-прокси (`"proxy"` в `package.json` работает только в `npm start`). Без базового URL все запросы `/api/...` уйдут на сам Vercel и получат 404. Переменная задаётся до сборки, поэтому пересобирать при смене URL обязательно.
-
----
-
-## 🔑 Переменные окружения — шпаргалка
-
-### `server/.env`
-
-| Переменная | Обязательна | Описание |
-|---|---|---|
-| `MONGO_URI` | ✅ | Строка подключения MongoDB |
-| `JWT_SECRET` | ✅ | Секрет для JWT, минимум 32 символа |
-| `PORT` | — | По умолчанию `5001` |
-| `NODE_ENV` | — | `development` / `production` |
-| `ALLOWED_ORIGINS` | только вариант B | URL(ы) фронтенда через запятую |
-
-### `client/.env` (только вариант B)
-
-| Переменная | Описание |
-|---|---|
-| `REACT_APP_API_URL` | Полный URL Railway-бэкенда без слеша в конце |
-
----
-
-## 🏗️ Структура проекта
+## 🏗️ Архитектура
 
 ```
 Fitness-tracker/
-├── client/                        # React 18 (CRA)
-│   ├── .env.example
-│   ├── public/
-│   └── src/
-│       ├── components/
-│       │   ├── Calendar.js        # Календарь тренировок
-│       │   ├── CalorieCalculator.js
-│       │   ├── DailyStats.js      # Суточная статистика
-│       │   ├── Footer.js
-│       │   ├── GoalForm.js
-│       │   ├── Header.js          # Навигация + переключатель темы
-│       │   ├── Modal.js
-│       │   ├── Notification.js
-│       │   ├── ScrollProgress.js
-│       │   ├── WorkoutForm.js
-│       │   └── WorkoutRecommendations.js
-│       ├── context/
-│       │   ├── AuthContext.js     # JWT-аутентификация
-│       │   ├── NotificationContext.js
-│       │   └── ThemeContext.js    # Тёмная / светлая тема
-│       ├── hooks/
-│       │   ├── useAuth.js
-│       │   ├── useAxiosInterceptor.js  # Глобальные перехватчики axios
-│       │   └── useCountUp.js
-│       ├── pages/
-│       │   ├── Analytics.js
-│       │   ├── ForgotPassword.js
-│       │   ├── Home.js            # Дашборд
-│       │   ├── Login.js
-│       │   ├── NotFound.js
-│       │   ├── Nutrition.js
-│       │   ├── Profile.js
-│       │   ├── Register.js
-│       │   └── ResetPassword.js
-│       └── services/
-│           └── localStorageService.js
+├── Dockerfile               # Multi-stage: сборка React → Node.js сервер
+├── docker-compose.yml       # app + MongoDB
+├── .dockerignore
 │
-└── server/                        # Node.js + Express
+├── client/                  # React 18 (CRA)
+│   ├── .env.example         # только для раздельного деплоя
+│   └── src/
+│       ├── components/      # Header, Calendar, DailyStats, WorkoutForm…
+│       ├── context/         # AuthContext, ThemeContext, NotificationContext
+│       ├── hooks/           # useAxiosInterceptor, useAuth, useCountUp
+│       ├── pages/           # Home, Nutrition, Analytics, Profile, Login…
+│       └── services/
+│
+└── server/                  # Node.js + Express
     ├── .env.example
+    ├── server.js            # Точка входа (CORS, helmet, MongoDB, маршруты)
     ├── middleware/
-    │   └── auth.js                # JWT middleware
-    ├── models/
-    │   ├── FoodEntry.js
-    │   ├── Goal.js
-    │   ├── User.js
-    │   ├── Workout.js
-    │   └── WorkoutRecommendation.js
-    ├── routes/
-    │   ├── auth.js                # /api/auth/*
-    │   ├── goals.js               # /api/goals/*
-    │   ├── nutrition.js           # /api/nutrition/*
-    │   ├── users.js               # /api/users/*
-    │   ├── workoutRecommendations.js  # /api/recommendations/*
-    │   └── workouts.js            # /api/workouts/*
-    ├── scripts/
-    │   └── initRecommendations.js
-    └── server.js                  # Точка входа
+    │   └── auth.js          # JWT middleware
+    ├── models/              # User, Workout, FoodEntry, Goal, Recommendation
+    ├── routes/              # auth, users, workouts, goals, nutrition, recommendations
+    └── scripts/
+        └── initRecommendations.js
 ```
 
----
-
-## 🛠️ Технологический стек
-
-### Frontend
-| Библиотека | Версия | Назначение |
-|---|---|---|
-| React | 18 | UI |
-| Tailwind CSS | 3 | Стилизация (`darkMode: 'class'`) |
-| Chart.js + react-chartjs-2 | 4 / 5 | Графики |
-| React Router | v6 | Маршрутизация |
-| Axios | 1.x | HTTP-клиент |
-| Day.js | 1.x | Работа с датами |
-
-### Backend
-| Библиотека | Назначение |
-|---|---|
-| Express | REST API |
-| Mongoose | ODM для MongoDB |
-| jsonwebtoken | JWT |
-| bcryptjs | Хэширование паролей |
-| express-rate-limit | Защита от брутфорса |
-| helmet | Security headers |
-| compression | GZIP |
-| cors | CORS (читает `ALLOWED_ORIGINS` из `.env`) |
+В production `NODE_ENV=production` сервер сам отдаёт `client/build` — один домен, CORS не нужен.
 
 ---
 
-## 📡 API — эндпоинты
+## 📡 API
 
 | Метод | URL | Описание | Auth |
 |---|---|---|---|
@@ -313,14 +243,35 @@ Fitness-tracker/
 | `POST` | `/api/auth/forgot-password` | Запрос сброса пароля | — |
 | `POST` | `/api/auth/reset-password/:token` | Сброс пароля | — |
 | `PUT` | `/api/users/profile` | Обновление профиля | ✅ |
-| `GET` | `/api/workouts` | Список тренировок | ✅ |
-| `POST` | `/api/workouts` | Добавить тренировку | ✅ |
+| `GET/POST` | `/api/workouts` | Тренировки | ✅ |
 | `DELETE` | `/api/workouts/:id` | Удалить тренировку | ✅ |
-| `GET` | `/api/nutrition/entries` | Записи питания | ✅ |
-| `GET` | `/api/goals` | Цели | ✅ |
-| `POST` | `/api/goals` | Добавить цель | ✅ |
-| `GET` | `/api/recommendations/:goal/:level` | Рекомендации тренировок | ✅ |
+| `GET` | `/api/workouts/date/:date` | Тренировки за дату | ✅ |
+| `GET/POST` | `/api/nutrition/entries` | Питание | ✅ |
+| `DELETE` | `/api/nutrition/entries/:id` | Удалить запись | ✅ |
+| `GET/POST` | `/api/goals` | Цели | ✅ |
+| `GET` | `/api/recommendations/:goal/:level` | Рекомендации | ✅ |
 | `GET` | `/api/health` | Health check | — |
+
+---
+
+## 🛠️ Стек
+
+| | Технология | Версия |
+|---|---|---|
+| **Frontend** | React | 18 |
+| | Tailwind CSS | 3 |
+| | Chart.js + react-chartjs-2 | 4 / 5 |
+| | React Router | v6 |
+| | Axios | 1.x |
+| | Day.js | 1.x |
+| **Backend** | Node.js + Express | 18 / 4.x |
+| | MongoDB + Mongoose | 7 |
+| | jsonwebtoken | 9.x |
+| | bcryptjs | 2.x |
+| | express-rate-limit | 7.x |
+| | helmet | 7.x |
+| | compression | 1.x |
+| **Infra** | Docker + Compose | v2 |
 
 ---
 
@@ -328,9 +279,9 @@ Fitness-tracker/
 
 ```bash
 git checkout -b feature/my-feature
-git commit -m 'feat: add my feature'
+git commit -m 'feat: my feature'
 git push origin feature/my-feature
-# → создайте Pull Request
+# → открыть Pull Request
 ```
 
 ---

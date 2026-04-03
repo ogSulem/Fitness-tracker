@@ -9,7 +9,7 @@
 <h1 align="center">⚡ FitTrack — Фитнес-трекер</h1>
 
 <p align="center">
-  Полнофункциональная платформа для отслеживания тренировок, питания и достижения фитнес-целей. <br/>
+  Полнофункциональная платформа для отслеживания тренировок, питания и достижения фитнес-целей.<br/>
   Современный дизайн с поддержкой <strong>тёмной и светлой темы</strong>.
 </p>
 
@@ -21,34 +21,41 @@
 |---|---|---|---|
 | Календарь тренировок | Дневник питания по приёмам | Графики за 7/30/365 дней | Личные данные |
 | Добавление активностей | Поиск продуктов из базы | Сожжённые калории | Динамика веса |
-| Сжигание калорий и длительность | Белки / Жиры / Углеводы | Типы тренировок (Doughnut) | История тренировок |
+| Расход калорий и длительность | Белки / Жиры / Углеводы | Типы тренировок (Doughnut) | История тренировок |
 | Рекомендации тренировок | Навигация по датам | Питание vs. активность | Цели и прогресс |
 | Цели с прогресс-баром | Удаление записей | — | Редактирование профиля |
 
 ### 🌙 Тёмная / Светлая тема
 - Автоматическое определение предпочтения системы
 - Сохранение выбора в `localStorage`
-- Мгновенное переключение по кнопке в шапке
+- Мгновенное переключение кнопкой в шапке
 
 ### 🔐 Аутентификация
-- JWT-токены (access + refresh)
-- Защищённые маршруты
-- Rate limiting на API
+- JWT-токены
+- Защищённые маршруты (`PrivateRoute`)
+- Rate limiting на входе и регистрации
 
 ---
 
-## 🚀 Быстрый старт (локально)
+## 🚀 Локальный запуск
 
 ### Требования
 - Node.js 18+
-- MongoDB (локально или Atlas)
+- MongoDB (локально или [Atlas](https://atlas.mongodb.com))
 
-### 1. Клонирование и установка зависимостей
+### 1. Клонирование
 
 ```bash
-git clone https://github.com/ogSulem/Fitness-tracker.git
+git clone -b copilot/add-user-registration-authentication \
+  https://github.com/ogSulem/Fitness-tracker.git
 cd Fitness-tracker
+```
 
+> Хотите основную ветку — уберите `-b copilot/...`
+
+### 2. Установка зависимостей
+
+```bash
 # Backend
 cd server && npm install
 
@@ -56,113 +63,216 @@ cd server && npm install
 cd ../client && npm install
 ```
 
-### 2. Настройка окружения
+### 3. Переменные окружения
 
-Создайте файл `server/.env`:
+```bash
+cp server/.env.example server/.env
+```
+
+Откройте `server/.env` и заполните:
 
 ```env
 PORT=5001
 MONGO_URI=mongodb://localhost:27017/fittrack
-JWT_SECRET=your_super_secret_key_here
+JWT_SECRET=придумайте_длинную_строку
 NODE_ENV=development
 ```
 
-### 3. Запуск
+> `ALLOWED_ORIGINS` в development оставьте пустым — по умолчанию разрешены `localhost:3000` и `localhost:3001`.
+
+### 4. Запуск
 
 ```bash
 # Терминал 1 — Backend
-cd server && npm start
+cd server && npm run dev     # nodemon (с авто-перезапуском)
+# или: npm start             # node (без авто-перезапуска)
 
 # Терминал 2 — Frontend
 cd client && npm start
 ```
 
-Приложение откроется по адресу: **http://localhost:3000**
+Приложение: **http://localhost:3000** → проксируется на сервер `http://localhost:5001`.
 
----
+### 5. (Опционально) Заполнить базу рекомендациями тренировок
 
-## 🌐 Деплой (бесплатно, без VPS)
-
-### Вариант 1: Vercel + Railway + MongoDB Atlas
-
-| Сервис | Что деплоим | Ссылка |
-|--------|-------------|--------|
-| **Vercel** | React Frontend | https://vercel.com |
-| **Railway** | Node.js Backend | https://railway.app |
-| **MongoDB Atlas** | База данных | https://atlas.mongodb.com |
-
-**Frontend (Vercel):**
 ```bash
-# В директории client/
-npm run build
-# Загружаем папку build/ на Vercel через UI или CLI
+cd server && npm run init-recommendations
 ```
 
-**Backend (Railway):**
-1. Создайте проект на Railway
-2. Подключите GitHub репозиторий
-3. Укажите корневую директорию: `server/`
-4. Добавьте переменные окружения (MONGO_URI, JWT_SECRET)
+---
 
-**MongoDB Atlas:**
-1. Создайте кластер (M0 Free)
-2. Получите строку подключения
-3. Вставьте в `MONGO_URI` на Railway
+## 🌐 Деплой в production
 
-> 💡 **Можно ли запустить прямо здесь (GitHub)?** — Нет. GitHub — хранилище кода, а не сервер для запуска приложений. Нужен хостинг (Vercel/Railway — бесплатно и быстро).
+Есть **два варианта**. Выбирайте тот, что удобнее.
 
 ---
 
-## 🏗️ Архитектура
+### Вариант A — единый сервер (Railway) ✅ Рекомендуется
+
+Сервер сам отдаёт собранный React. CORS вообще не нужен — всё на одном домене.
+
+```
+Railway
+ └─ Node.js сервер (Express)
+     ├─ /api/*  — REST API
+     └─ /*      — отдаёт client/build/index.html
+```
+
+**Шаги:**
+
+1. **Создайте проект на [Railway](https://railway.app)**
+   - «New Project» → «Deploy from GitHub repo»
+   - Выберите репозиторий
+
+2. **Укажите корневую директорию: `server`**
+   - Settings → Source → Root Directory: `server`
+
+3. **Добавьте переменные окружения на Railway:**
+
+   | Переменная | Значение |
+   |---|---|
+   | `PORT` | Railway подставит сам |
+   | `MONGO_URI` | строка подключения Atlas (см. ниже) |
+   | `JWT_SECRET` | длинная случайная строка |
+   | `NODE_ENV` | `production` |
+
+4. **Сборка фронтенда перед деплоем** — добавьте в Railway команду сборки:
+   - Build Command: `cd ../client && npm install && npm run build`
+   - Start Command: `node server.js`
+   
+   Или добавьте в `server/package.json`:
+   ```json
+   "scripts": {
+       "build": "cd ../client && npm install && npm run build",
+       "start": "node server.js"
+   }
+   ```
+
+5. **MongoDB Atlas:**
+   - [atlas.mongodb.com](https://atlas.mongodb.com) → создайте кластер M0 (бесплатно)
+   - Database Access → добавьте пользователя
+   - Network Access → `0.0.0.0/0` (разрешить откуда угодно)
+   - Connect → Drivers → скопируйте строку вида:
+     `mongodb+srv://user:pass@cluster0.xxxxx.mongodb.net/fittrack?retryWrites=true&w=majority`
+   - Вставьте в `MONGO_URI` на Railway
+
+**Результат:** одна ссылка вида `https://fitness-tracker-xxxx.up.railway.app` — и фронт, и апи.
+
+---
+
+### Вариант B — раздельный деплой (Vercel + Railway)
+
+```
+Vercel              Railway
+ └─ React SPA  →   └─ Express API (/api/*)
+```
+
+Здесь CORS **нужен**: браузер делает запросы с домена Vercel на Railway.
+
+**Backend (Railway)** — то же, что в варианте A, но без сборки фронтенда. Добавьте одну дополнительную переменную:
+
+| Переменная | Значение |
+|---|---|
+| `ALLOWED_ORIGINS` | `https://ваш-проект.vercel.app` |
+
+> Несколько доменов через запятую: `https://fittrack.vercel.app,https://www.fittrack.vercel.app`
+
+**Frontend (Vercel):**
+
+1. «New Project» → импортируйте репо, укажите **Root Directory: `client`**
+2. Добавьте переменную окружения в настройках Vercel:
+
+   | Переменная | Значение |
+   |---|---|
+   | `REACT_APP_API_URL` | `https://ваш-бэкенд.up.railway.app` |
+
+3. Deploy. Vercel автоматически запустит `npm run build`.
+
+> **Почему нужен `REACT_APP_API_URL`?** В production-сборке React нет dev-прокси (`"proxy"` в `package.json` работает только в `npm start`). Без базового URL все запросы `/api/...` уйдут на сам Vercel и получат 404. Переменная задаётся до сборки, поэтому пересобирать при смене URL обязательно.
+
+---
+
+## 🔑 Переменные окружения — шпаргалка
+
+### `server/.env`
+
+| Переменная | Обязательна | Описание |
+|---|---|---|
+| `MONGO_URI` | ✅ | Строка подключения MongoDB |
+| `JWT_SECRET` | ✅ | Секрет для JWT, минимум 32 символа |
+| `PORT` | — | По умолчанию `5001` |
+| `NODE_ENV` | — | `development` / `production` |
+| `ALLOWED_ORIGINS` | только вариант B | URL(ы) фронтенда через запятую |
+
+### `client/.env` (только вариант B)
+
+| Переменная | Описание |
+|---|---|
+| `REACT_APP_API_URL` | Полный URL Railway-бэкенда без слеша в конце |
+
+---
+
+## 🏗️ Структура проекта
 
 ```
 Fitness-tracker/
-├── client/                   # React Frontend
-│   ├── src/
-│   │   ├── components/       # Переиспользуемые компоненты
-│   │   │   ├── Header.js     # Навигация + тема-переключатель
-│   │   │   ├── Footer.js
-│   │   │   ├── Calendar.js   # Календарь тренировок
-│   │   │   ├── DailyStats.js # Суточная статистика
-│   │   │   ├── CalorieCalculator.js
-│   │   │   ├── WorkoutForm.js
-│   │   │   ├── GoalForm.js
-│   │   │   ├── WorkoutRecommendations.js
-│   │   │   ├── Modal.js
-│   │   │   └── Notification.js
-│   │   ├── context/
-│   │   │   ├── AuthContext.js      # JWT аутентификация
-│   │   │   ├── ThemeContext.js     # 🌙 Тёмная/Светлая тема
-│   │   │   └── NotificationContext.js
-│   │   ├── hooks/
-│   │   │   └── useAxiosInterceptor.js
-│   │   ├── pages/
-│   │   │   ├── Home.js       # Дашборд
-│   │   │   ├── Nutrition.js  # Дневник питания
-│   │   │   ├── Analytics.js  # Графики и статистика
-│   │   │   ├── Profile.js    # Профиль пользователя
-│   │   │   ├── Login.js
-│   │   │   ├── Register.js
-│   │   │   └── NotFound.js
-│   │   └── services/
-│   └── tailwind.config.js
+├── client/                        # React 18 (CRA)
+│   ├── .env.example
+│   ├── public/
+│   └── src/
+│       ├── components/
+│       │   ├── Calendar.js        # Календарь тренировок
+│       │   ├── CalorieCalculator.js
+│       │   ├── DailyStats.js      # Суточная статистика
+│       │   ├── Footer.js
+│       │   ├── GoalForm.js
+│       │   ├── Header.js          # Навигация + переключатель темы
+│       │   ├── Modal.js
+│       │   ├── Notification.js
+│       │   ├── ScrollProgress.js
+│       │   ├── WorkoutForm.js
+│       │   └── WorkoutRecommendations.js
+│       ├── context/
+│       │   ├── AuthContext.js     # JWT-аутентификация
+│       │   ├── NotificationContext.js
+│       │   └── ThemeContext.js    # Тёмная / светлая тема
+│       ├── hooks/
+│       │   ├── useAuth.js
+│       │   ├── useAxiosInterceptor.js  # Глобальные перехватчики axios
+│       │   └── useCountUp.js
+│       ├── pages/
+│       │   ├── Analytics.js
+│       │   ├── ForgotPassword.js
+│       │   ├── Home.js            # Дашборд
+│       │   ├── Login.js
+│       │   ├── NotFound.js
+│       │   ├── Nutrition.js
+│       │   ├── Profile.js
+│       │   ├── Register.js
+│       │   └── ResetPassword.js
+│       └── services/
+│           └── localStorageService.js
 │
-└── server/                   # Express Backend
+└── server/                        # Node.js + Express
+    ├── .env.example
     ├── middleware/
-    │   ├── auth.js           # JWT middleware
-    │   └── rateLimit.js
+    │   └── auth.js                # JWT middleware
     ├── models/
+    │   ├── FoodEntry.js
+    │   ├── Goal.js
     │   ├── User.js
     │   ├── Workout.js
-    │   ├── Goal.js
-    │   └── NutritionEntry.js
+    │   └── WorkoutRecommendation.js
     ├── routes/
-    │   ├── auth.js
-    │   ├── users.js
-    │   ├── workouts.js
-    │   ├── goals.js
-    │   └── nutrition.js
-    └── index.js
+    │   ├── auth.js                # /api/auth/*
+    │   ├── goals.js               # /api/goals/*
+    │   ├── nutrition.js           # /api/nutrition/*
+    │   ├── users.js               # /api/users/*
+    │   ├── workoutRecommendations.js  # /api/recommendations/*
+    │   └── workouts.js            # /api/workouts/*
+    ├── scripts/
+    │   └── initRecommendations.js
+    └── server.js                  # Точка входа
 ```
 
 ---
@@ -170,71 +280,65 @@ Fitness-tracker/
 ## 🛠️ Технологический стек
 
 ### Frontend
-- **React 18** — UI библиотека
-- **Tailwind CSS 3** — utility-first стилизация с `darkMode: 'class'`
-- **Chart.js + react-chartjs-2** — интерактивные графики
-- **React Router v6** — маршрутизация
-- **Axios** — HTTP клиент
-- **dayjs** — работа с датами
+| Библиотека | Версия | Назначение |
+|---|---|---|
+| React | 18 | UI |
+| Tailwind CSS | 3 | Стилизация (`darkMode: 'class'`) |
+| Chart.js + react-chartjs-2 | 4 / 5 | Графики |
+| React Router | v6 | Маршрутизация |
+| Axios | 1.x | HTTP-клиент |
+| Day.js | 1.x | Работа с датами |
 
 ### Backend
-- **Node.js + Express** — REST API
-- **MongoDB + Mongoose** — база данных
-- **JWT** — аутентификация
-- **bcryptjs** — хэширование паролей
-- **express-rate-limit** — защита от DDoS
+| Библиотека | Назначение |
+|---|---|
+| Express | REST API |
+| Mongoose | ODM для MongoDB |
+| jsonwebtoken | JWT |
+| bcryptjs | Хэширование паролей |
+| express-rate-limit | Защита от брутфорса |
+| helmet | Security headers |
+| compression | GZIP |
+| cors | CORS (читает `ALLOWED_ORIGINS` из `.env`) |
 
 ---
 
-## 📱 Страницы
+## 📡 API — эндпоинты
 
-### 🏠 Главная (Dashboard)
-- Приветствие с именем пользователя и датой
-- Суточная статистика (калории, тренировки, вода)
-- Календарь тренировок с интерактивными днями
-- Быстрые действия
-- Калькулятор калорий (BMR + TDEE)
-- Рекомендации тренировок
-
-### 🥗 Питание
-- Навигация по датам
-- Разбивка по приёмам пищи (завтрак/обед/ужин/перекус)
-- Поиск продуктов из базы данных
-- Макронутриенты: Белки / Жиры / Углеводы
-- Суточные итоги с карточками
-
-### 📊 Аналитика
-- Период: 7 дней / 30 дней / Год
-- График сожжённых калорий (тренировки)
-- График длительности тренировок
-- Doughnut-диаграмма типов тренировок
-- График потреблённых калорий (питание)
-- Список последних 10 тренировок
-
-### 👤 Профиль
-- Hero-карточка с аватаром и статистикой
-- Вкладки: Профиль / Динамика веса / Цели / Тренировки
-- График изменения веса со временем
-- Прогресс-бары для каждой цели
+| Метод | URL | Описание | Auth |
+|---|---|---|---|
+| `POST` | `/api/auth/register` | Регистрация | — |
+| `POST` | `/api/auth/login` | Вход | — |
+| `GET` | `/api/auth/user` | Текущий пользователь | ✅ |
+| `POST` | `/api/auth/forgot-password` | Запрос сброса пароля | — |
+| `POST` | `/api/auth/reset-password/:token` | Сброс пароля | — |
+| `PUT` | `/api/users/profile` | Обновление профиля | ✅ |
+| `GET` | `/api/workouts` | Список тренировок | ✅ |
+| `POST` | `/api/workouts` | Добавить тренировку | ✅ |
+| `DELETE` | `/api/workouts/:id` | Удалить тренировку | ✅ |
+| `GET` | `/api/nutrition/entries` | Записи питания | ✅ |
+| `GET` | `/api/goals` | Цели | ✅ |
+| `POST` | `/api/goals` | Добавить цель | ✅ |
+| `GET` | `/api/recommendations/:goal/:level` | Рекомендации тренировок | ✅ |
+| `GET` | `/api/health` | Health check | — |
 
 ---
 
 ## 🤝 Вклад в проект
 
-1. Fork репозитория
-2. Создайте ветку: `git checkout -b feature/amazing-feature`
-3. Commit: `git commit -m 'Add amazing feature'`
-4. Push: `git push origin feature/amazing-feature`
-5. Создайте Pull Request
+```bash
+git checkout -b feature/my-feature
+git commit -m 'feat: add my feature'
+git push origin feature/my-feature
+# → создайте Pull Request
+```
 
 ---
 
 ## 📄 Лицензия
 
-MIT License — см. [LICENSE](LICENSE)
+MIT — см. [LICENSE](LICENSE)
 
 ---
 
-<p align="center">
-  Сделано с ❤️ для достижения фитнес-целей
-</p>
+<p align="center">Сделано с ❤️ для достижения фитнес-целей</p>

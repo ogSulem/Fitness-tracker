@@ -26,35 +26,11 @@ router.get('/', workoutsLimiter, auth, async (req, res) => {
     }
 });
 
-// @route   GET api/workouts/:id
-// @desc    Получение тренировки по ID
-// @access  Private
-router.get('/:id', workoutsLimiter, auth, async (req, res) => {
-    try {
-        const workout = await Workout.findById(req.params.id);
-
-        if (!workout) {
-            return res.status(404).json({ message: 'Тренировка не найдена' });
-        }
-
-        // Проверка принадлежности тренировки пользователю
-        if (workout.user.toString() !== req.user.id) {
-            return res.status(401).json({ message: 'Нет прав доступа' });
-        }
-
-        res.json(workout);
-    } catch (err) {
-        console.error(err.message);
-        if (err.kind === 'ObjectId') {
-            return res.status(404).json({ message: 'Тренировка не найдена' });
-        }
-        res.status(500).json({ message: 'Ошибка сервера' });
-    }
-});
-
 // @route   GET api/workouts/date/:date
 // @desc    Получение тренировок на определенную дату
 // @access  Private
+// NOTE: This route MUST be declared before /:id to prevent Express from
+//       treating the literal string "date" as a MongoDB ObjectId.
 router.get('/date/:date', workoutsLimiter, auth, async (req, res) => {
     try {
         const date = new Date(req.params.date);
@@ -96,6 +72,34 @@ router.get('/range/:start/:end', workoutsLimiter, auth, async (req, res) => {
         res.json(workouts);
     } catch (err) {
         console.error(err.message);
+        res.status(500).json({ message: 'Ошибка сервера' });
+    }
+});
+
+// @route   GET api/workouts/:id
+// @desc    Получение тренировки по ID
+// @access  Private
+// NOTE: This route is declared AFTER all specific named routes (/date/:date,
+//       /range/:start/:end) so it does not shadow them.
+router.get('/:id', workoutsLimiter, auth, async (req, res) => {
+    try {
+        const workout = await Workout.findById(req.params.id);
+
+        if (!workout) {
+            return res.status(404).json({ message: 'Тренировка не найдена' });
+        }
+
+        // Проверка принадлежности тренировки пользователю
+        if (workout.user.toString() !== req.user.id) {
+            return res.status(401).json({ message: 'Нет прав доступа' });
+        }
+
+        res.json(workout);
+    } catch (err) {
+        console.error(err.message);
+        if (err.kind === 'ObjectId') {
+            return res.status(404).json({ message: 'Тренировка не найдена' });
+        }
         res.status(500).json({ message: 'Ошибка сервера' });
     }
 });

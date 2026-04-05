@@ -503,32 +503,39 @@ flowchart LR
 ```json
 {
   "_id": "ObjectId",
-  "userId": "ObjectId (ref: User)",
+  "user": "ObjectId (ref: User)",
   "type": "String (тип тренировки)",
-  "date": "String (YYYY-MM-DD)",
+  "date": "Date",
   "time": "String (HH:mm)",
   "duration": "Number (минуты)",
   "caloriesBurned": "Number",
   "intensity": "Enum ['low', 'medium', 'high']",
-  "notes": "String",
+  "comment": "String",
   "createdAt": "Date"
 }
 ```
 
 #### 2.3.3. Коллекция nutritionentries
 
+Каждая запись `FoodEntry` соответствует одному приёму пищи в рамках одной даты и содержит вложенный массив продуктов.
+
 ```json
 {
   "_id": "ObjectId",
-  "userId": "ObjectId (ref: User)",
-  "date": "String (YYYY-MM-DD)",
+  "user": "ObjectId (ref: User)",
+  "date": "Date (YYYY-MM-DDT00:00:00.000Z)",
   "mealType": "Enum ['breakfast', 'lunch', 'dinner', 'snack']",
-  "productName": "String",
-  "amount": "Number (граммы)",
-  "calories": "Number",
-  "protein": "Number",
-  "fat": "Number",
-  "carbs": "Number",
+  "products": [
+    {
+      "_id": "ObjectId",
+      "name": "String",
+      "portion": "Number (граммы)",
+      "calories": "Number",
+      "protein": "Number",
+      "fat": "Number",
+      "carbs": "Number"
+    }
+  ],
   "createdAt": "Date"
 }
 ```
@@ -538,12 +545,16 @@ flowchart LR
 ```json
 {
   "_id": "ObjectId",
-  "userId": "ObjectId (ref: User)",
-  "type": "Enum ['weightLoss', 'maintenance', 'muscleGain']",
-  "targetWeight": "Number",
-  "targetDate": "Date",
-  "targetCalories": "Number",
-  "notes": "String",
+  "user": "ObjectId (ref: User)",
+  "title": "String",
+  "type": "String (тип цели)",
+  "startValue": "Number",
+  "currentValue": "Number",
+  "targetValue": "Number",
+  "unit": "String (по умолчанию 'кг')",
+  "deadline": "Date",
+  "description": "String",
+  "completed": "Boolean",
   "createdAt": "Date"
 }
 ```
@@ -562,53 +573,52 @@ erDiagram
         Number   weight
         Number   height
         Array    weightHistory
+        String   activityLevel
         String   resetPasswordToken
         Date     resetPasswordExpires
         Date     createdAt
     }
     WORKOUTS {
         ObjectId _id PK
-        ObjectId userId FK
+        ObjectId user  FK
         String   type
-        String   date
+        Date     date
         String   time
         Number   duration
         Number   caloriesBurned
         String   intensity
-        String   notes
+        String   comment
         Date     createdAt
     }
     NUTRITION_ENTRIES {
-        ObjectId _id PK
-        ObjectId userId FK
-        String   date
+        ObjectId _id      PK
+        ObjectId user     FK
+        Date     date
         String   mealType
-        String   productName
-        Number   amount
-        Number   calories
-        Number   protein
-        Number   fat
-        Number   carbs
+        Array    products
         Date     createdAt
     }
     GOALS {
-        ObjectId _id PK
-        ObjectId userId FK
+        ObjectId _id          PK
+        ObjectId user         FK
+        String   title
         String   type
-        Number   targetWeight
-        Date     targetDate
-        Number   targetCalories
-        String   notes
+        Number   startValue
+        Number   currentValue
+        Number   targetValue
+        String   unit
+        Date     deadline
+        Boolean  completed
         Date     createdAt
     }
     RECOMMENDATIONS {
-        ObjectId _id PK
-        String   goalType
+        ObjectId _id       PK
+        String   goal
         String   level
-        String   title
-        String   description
-        Number   duration
-        String   intensity
+        String   frequency
+        String   duration
+        Array    types
+        Array    tips
     }
 
     USERS ||--o{ WORKOUTS          : "имеет"
@@ -1085,13 +1095,19 @@ const exportCSV = () => {
 
 В процессе тестирования выявлены и исправлены следующие проблемы:
 
-1. Дублирование компонентов в DailyStats.js — при редактировании файла методом prepend произошло дублирование деклараций `CircleProgress` и `MacroBar`. Исправлено: дубликаты удалены, компонент проходит сборку без ошибок.
+1. **Дублирование компонентов в DailyStats.js** — при редактировании файла методом prepend произошло дублирование деклараций `CircleProgress` и `MacroBar`. Исправлено: дубликаты удалены, компонент проходит сборку без ошибок.
 
-2. Неиспользуемый импорт `useEffect` в `Home.js` — ESLint в режиме CI выдавал ошибку (warnings as errors). Исправлено: избыточный импорт удален.
+2. **Неиспользуемый импорт `useEffect` в `Home.js`** — ESLint в режиме CI выдавал ошибку (warnings as errors). Исправлено: избыточный импорт удален.
 
-3. Корректность отображения баланса калорий при отрицательных значениях — компонент `DailyStats` некорректно показывал знак «+» при дефиците калорий. Исправлено: логика определения знака скорректирована.
+3. **Корректность отображения баланса калорий при отрицательных значениях** — компонент `DailyStats` некорректно показывал знак «+» при дефиците калорий. Исправлено: логика определения знака скорректирована.
 
-4. Кодировка CSV при экспорте — кириллические символы отображались некорректно в Microsoft Excel. Исправлено: добавлен BOM (Byte Order Mark) `\uFEFF` в начало файла.
+4. **Кодировка CSV при экспорте** — кириллические символы отображались некорректно в Microsoft Excel. Исправлено: добавлен BOM (Byte Order Mark) `\uFEFF` в начало файла.
+
+5. **Неправильный порядок маршрутов в `server/routes/workouts.js` (критическая ошибка)** — маршрут `GET /:id` был объявлен раньше специфичных маршрутов `GET /date/:date` и `GET /range/:start/:end`. Вследствие этого Express сопоставлял строку `"date"` с параметром `:id`, возвращал ошибку MongoDB CastError и статус 404, не передавая управление правильному обработчику. Оба маршрута по дате оказывались полностью недостижимыми. Исправлено: маршруты `/date/:date` и `/range/:start/:end` перемещены выше маршрута `/:id`, чтобы Express сначала проверял конкретные пути. Аналогичное правило применяется во всех роутерах Express: специфичные маршруты всегда регистрируются до параметрических.
+
+6. **Отсутствие аутентификации на маршруте POST `/api/recommendations`** — эндпоинт для создания рекомендаций тренировок не был защищён JWT-middleware, что позволяло любому желающему без авторизации добавлять или перезаписывать данные. Исправлено: `auth` middleware добавлен ко всем трём маршрутам роутера (`GET /`, `GET /:goal/:level`, `POST /`).
+
+7. **Ошибка CORS для origin `http://localhost:5001/` (trailing slash)** — браузер добавляет завершающий слеш к origin (`http://localhost:5001/`), тогда как в белом списке CORS хранится строка без слеша (`http://localhost:5001`). Строгое сравнение `===` давало `false`, и сервер возвращал ошибку `403 CORS: origin not allowed`. Одновременно origin сервера (`localhost:5001`) вообще не был в whitelist, что создавало проблемы при production-режиме, когда сервер отдаёт собранный React. Исправлено: добавлена функция `stripSlash()`, нормализующая оба значения перед сравнением; функция `buildAllowedOrigins()` автоматически включает в whitelist `http://localhost:{PORT}`, `http://127.0.0.1:{PORT}` и значение `CLIENT_URL` из переменных окружения.
 
 Проведенное тестирование подтвердило работоспособность и соответствие системы заявленным требованиям. Итоговые выводы о результатах разработки и направлениях дальнейшего развития приведены в заключении.
 
@@ -1117,6 +1133,8 @@ const exportCSV = () => {
 – безопасная аутентификация: JWT [11], bcrypt (cost factor 10) [9], rate limiting, изоляция данных пользователей на уровне middleware;
 – серверная валидация всех входных данных через express-validator;
 – криптографически стойкий механизм сброса пароля (crypto.randomBytes(32) + TTL токена 1 час);
+– корректная обработка CORS с нормализацией trailing slash и автоматическим добавлением собственного origin сервера в whitelist;
+– правильный порядок Express-маршрутов: специфичные пути (`/date/:date`, `/range/:start/:end`) объявлены до параметрического (`/:id`), что обеспечивает их корректную достижимость;
 – модульная архитектура с четким разделением слоев представления, бизнес-логики и хранения данных.
 
 Все семь задач, поставленных во введении, выполнены в полном объеме.

@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const WorkoutRecommendation = require('../models/WorkoutRecommendation');
+const auth = require('../middleware/auth');
 
 // Получить все рекомендации
-router.get('/', async (req, res) => {
+router.get('/', auth, async (req, res) => {
     try {
         const recommendations = await WorkoutRecommendation.find();
         res.json(recommendations);
@@ -13,7 +14,7 @@ router.get('/', async (req, res) => {
 });
 
 // Получить рекомендацию по цели и уровню
-router.get('/:goal/:level', async (req, res) => {
+router.get('/:goal/:level', auth, async (req, res) => {
     try {
         const recommendation = await WorkoutRecommendation.findOne({
             goal: req.params.goal,
@@ -30,8 +31,8 @@ router.get('/:goal/:level', async (req, res) => {
     }
 });
 
-// Добавить новую рекомендацию
-router.post('/', async (req, res) => {
+// Добавить новую рекомендацию (защищено — только аутентифицированный пользователь)
+router.post('/', auth, async (req, res) => {
     const recommendation = new WorkoutRecommendation({
         goal: req.body.goal,
         level: req.body.level,

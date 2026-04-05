@@ -72,7 +72,7 @@ router.put(
 // @route   GET api/users/weight-history
 // @desc    Получение истории веса пользователя
 // @access  Private
-router.get('/weight-history', auth, async (req, res) => {
+router.get('/weight-history', profileLimiter, auth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         if (!user) {
@@ -92,6 +92,7 @@ router.get('/weight-history', auth, async (req, res) => {
 // @access  Private
 router.post(
     '/goals',
+    profileLimiter,
     auth,
     [
         check('type', 'Тип цели обязателен').isIn(['weight', 'workout', 'calories']),
@@ -132,7 +133,7 @@ router.post(
 // @route   GET api/users/goals
 // @desc    Получение целей пользователя
 // @access  Private
-router.get('/goals', auth, async (req, res) => {
+router.get('/goals', profileLimiter, auth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         if (!user) {
@@ -151,6 +152,7 @@ router.get('/goals', auth, async (req, res) => {
 // @access  Private
 router.post(
     '/workouts',
+    profileLimiter,
     auth,
     [
         check('name', 'Название тренировки обязательно').not().isEmpty(),
@@ -193,7 +195,7 @@ router.post(
 // @route   GET api/users/workouts
 // @desc    Получение тренировок пользователя
 // @access  Private
-router.get('/workouts', auth, async (req, res) => {
+router.get('/workouts', profileLimiter, auth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         if (!user) {

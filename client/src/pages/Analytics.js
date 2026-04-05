@@ -214,7 +214,7 @@ const Analytics = () => {
                 w.type || '',
                 w.duration || '',
                 w.caloriesBurned || '',
-                (w.notes || '').replace(/,/g, ';')
+                (w.comment || '').replace(/,/g, ';')
             ]);
         });
 

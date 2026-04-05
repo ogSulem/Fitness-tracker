@@ -17,11 +17,12 @@ const CalorieCalculator = () => {
     const calculateCalories = useCallback(() => {
         if (!user) return;
 
+        // Mifflin-St Jeor formula (most accurate for BMR estimation)
         let bmr;
         if (user.gender === 'male') {
-            bmr = 88.362 + (13.397 * user.weight) + (4.799 * user.height) - (5.677 * user.age);
+            bmr = 10 * user.weight + 6.25 * user.height - 5 * user.age + 5;
         } else {
-            bmr = 447.593 + (9.247 * user.weight) + (3.098 * user.height) - (4.330 * user.age);
+            bmr = 10 * user.weight + 6.25 * user.height - 5 * user.age - 161;
         }
 
         const activityMultipliers = {
@@ -32,14 +33,15 @@ const CalorieCalculator = () => {
             veryActive: 1.9
         };
 
-        const goalMultipliers = {
-            lose: 0.85,
-            maintain: 1,
-            gain: 1.15
+        // Fixed calorie adjustments per goal (standard clinical recommendations)
+        const goalAdjustments = {
+            lose:     -500, // deficit −500 kcal/day ≈ −0.5 kg/week
+            maintain:    0,
+            gain:     +300, // surplus +300 kcal/day for lean muscle gain
         };
 
         const tdee = bmr * activityMultipliers[formData.activityLevel];
-        const targetCalories = Math.round(tdee * goalMultipliers[formData.goal]);
+        const targetCalories = Math.round(tdee + goalAdjustments[formData.goal]);
 
         const protein = Math.round((targetCalories * 0.30) / 4);
         const fat = Math.round((targetCalories * 0.30) / 9);

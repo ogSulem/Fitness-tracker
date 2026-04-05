@@ -81,9 +81,10 @@ const Home = () => {
         if (!user) return 2000;
         let bmr;
         if (user.gender === 'male') {
-            bmr = 88.362 + (13.397 * (user.weight || 70)) + (4.799 * (user.height || 175)) - (5.677 * (user.age || 25));
+            // Mifflin-St Jeor formula
+            bmr = 10 * (user.weight || 70) + 6.25 * (user.height || 175) - 5 * (user.age || 25) + 5;
         } else {
-            bmr = 447.593 + (9.247 * (user.weight || 60)) + (3.098 * (user.height || 165)) - (4.330 * (user.age || 25));
+            bmr = 10 * (user.weight || 60) + 6.25 * (user.height || 165) - 5 * (user.age || 25) - 161;
         }
         const activityMultipliers = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, veryActive: 1.9 };
         const multiplier = activityMultipliers[user.activityLevel] || 1.55;

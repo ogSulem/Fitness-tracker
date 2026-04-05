@@ -1,10 +1,19 @@
 const express = require('express');
 const router = express.Router();
+const rateLimit = require('express-rate-limit');
 const WorkoutRecommendation = require('../models/WorkoutRecommendation');
 const auth = require('../middleware/auth');
 
+const recommendationsLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 минут
+    max: 100,
+    message: 'Слишком много запросов. Попробуйте позже.',
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
 // Получить все рекомендации
-router.get('/', auth, async (req, res) => {
+router.get('/', recommendationsLimiter, auth, async (req, res) => {
     try {
         const recommendations = await WorkoutRecommendation.find();
         res.json(recommendations);
@@ -14,7 +23,7 @@ router.get('/', auth, async (req, res) => {
 });
 
 // Получить рекомендацию по цели и уровню
-router.get('/:goal/:level', auth, async (req, res) => {
+router.get('/:goal/:level', recommendationsLimiter, auth, async (req, res) => {
     try {
         const recommendation = await WorkoutRecommendation.findOne({
             goal: req.params.goal,
@@ -32,7 +41,7 @@ router.get('/:goal/:level', auth, async (req, res) => {
 });
 
 // Добавить новую рекомендацию (защищено — только аутентифицированный пользователь)
-router.post('/', auth, async (req, res) => {
+router.post('/', recommendationsLimiter, auth, async (req, res) => {
     const recommendation = new WorkoutRecommendation({
         goal: req.body.goal,
         level: req.body.level,

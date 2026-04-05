@@ -431,14 +431,15 @@ Fitness-tracker/
 │           ├── ForgotPassword.js
 │           └── ResetPassword.js
 └── server/                     # Express API
+    ├── server.js               # Точка входа: Express, CORS, Helmet, маршруты
     ├── middleware/
-    │   ├── auth.js             # JWT middleware
-    │   └── rateLimit.js
+    │   └── auth.js             # JWT middleware
     ├── models/
     │   ├── User.js             # Модель пользователя
     │   ├── Workout.js          # Модель тренировки
     │   ├── Goal.js             # Модель цели
-    │   └── NutritionEntry.js   # Модель записи питания
+    │   ├── FoodEntry.js        # Модель записи питания
+    │   └── WorkoutRecommendation.js  # Модель рекомендации
     └── routes/
         ├── auth.js             # Аутентификация + сброс пароля
         ├── users.js
@@ -489,6 +490,7 @@ flowchart LR
   "age": "Number (15–100)",
   "weight": "Number (30–200 кг)",
   "height": "Number (100–250 см)",
+  "activityLevel": "Enum ['sedentary', 'light', 'moderate', 'active', 'veryActive']",
   "weightHistory": [
     { "weight": "Number", "date": "Date" }
   ],

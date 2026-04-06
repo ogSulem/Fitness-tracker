@@ -41,7 +41,7 @@ echo "✔  pandoc $PANDOC_VERSION"
 # Создаём базовый шаблон, затем патчим стили через Python-скрипт
 echo "⏳  Создание reference.docx..."
 
-pandoc -o "$REFERENCE" --print-default-data-file reference.docx > /dev/null 2>&1 || \
+pandoc --print-default-data-file reference.docx > "$REFERENCE" 2>/dev/null || \
     pandoc -o "$REFERENCE" /dev/null
 
 python3 << 'PYEOF'

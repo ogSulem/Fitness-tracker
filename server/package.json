@@ -1,7 +1,7 @@
 {
     "name": "turik-fittrack-server",
     "version": "1.0.0",
-    "description": "Серверная часть фитнес-трекера Turik FitTrack",
+    "description": "Серверная часть фитнес-трекера FitTrack",
     "main": "server.js",
     "scripts": {
         "start": "node server.js",

@@ -1185,7 +1185,7 @@ const exportCSV = () => {
 
 ### Основные компоненты серверной части
 
-Листинг А.1. Точка входа сервера (`server/server.js`) — фрагмент инициализации middleware и маршрутов
+Листинг А.1. Точка входа сервера (server/server.js) — фрагмент инициализации middleware и маршрутов
 
 ```javascript
 const express    = require('express');
@@ -1260,7 +1260,7 @@ const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Сервер запущен на порту ${PORT}`));
 ```
 
-Листинг А.2. Middleware аутентификации JWT (`server/middleware/auth.js`)
+Листинг А.2. Middleware аутентификации JWT (server/middleware/auth.js)
 
 ```javascript
 const jwt = require('jsonwebtoken');
@@ -1285,7 +1285,7 @@ module.exports = (req, res, next) => {
 
 ### Основные компоненты клиентской части
 
-Листинг Б.1. Контекст аутентификации (`client/src/context/AuthContext.js`)
+Листинг Б.1. Контекст аутентификации (client/src/context/AuthContext.js)
 
 ```javascript
 import React, { createContext, useState, useEffect } from 'react';
@@ -1330,7 +1330,7 @@ export const AuthProvider = ({ children }) => {
 };
 ```
 
-Листинг Б.2. Контекст темы (`client/src/context/ThemeContext.js`)
+Листинг Б.2. Контекст темы (client/src/context/ThemeContext.js)
 
 ```javascript
 import React, { createContext, useState, useEffect } from 'react';
@@ -1363,7 +1363,7 @@ export const ThemeProvider = ({ children }) => {
 
 ### Компонент рекомендаций по тренировкам
 
-Листинг В.1. Компонент рекомендаций (`client/src/components/WorkoutRecommendations.js`) — фрагмент
+Листинг В.1. Компонент рекомендаций (client/src/components/WorkoutRecommendations.js) — фрагмент
 
 ```javascript
 import React, { useState, useEffect } from 'react';
@@ -1416,7 +1416,7 @@ const WorkoutRecommendations = ({ goal, level }) => {
 export default WorkoutRecommendations;
 ```
 
-Листинг В.2. Скрипт инициализации рекомендаций (`server/scripts/initRecommendations.js`) — фрагмент
+Листинг В.2. Скрипт инициализации рекомендаций (server/scripts/initRecommendations.js) — фрагмент
 
 ```javascript
 const mongoose = require('mongoose');

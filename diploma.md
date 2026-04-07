@@ -412,50 +412,25 @@ flowchart TD
 
 ```
 Fitness-tracker/
-├── client/                     # React SPA
+├── client/                 # React SPA
 │   └── src/
-│       ├── components/         # Переиспользуемые UI-компоненты
-│       │   ├── Header.js       # Навигация + переключатель темы
-│       │   ├── Calendar.js     # Интерактивный календарь тренировок
-│       │   ├── DailyStats.js   # Суточная статистика с анимацией
-│       │   ├── WorkoutForm.js  # Форма добавления тренировки
-│       │   ├── GoalForm.js     # Форма постановки цели
-│       │   ├── Modal.js        # Универсальное модальное окно
-│       │   ├── ScrollProgress.js # Полоса прогресса прокрутки
-│       │   └── Notification.js # Toast-уведомления
+│       ├── components/     # Переиспользуемые UI-компоненты
+│       │   ├── Header.js, Calendar.js, DailyStats.js
+│       │   ├── WorkoutForm.js, GoalForm.js, Modal.js
+│       │   └── ScrollProgress.js, Notification.js
 │       ├── context/
-│       │   ├── AuthContext.js  # JWT-аутентификация
-│       │   ├── ThemeContext.js # Темная/светлая тема
+│       │   ├── AuthContext.js, ThemeContext.js
 │       │   └── NotificationContext.js
 │       ├── hooks/
-│       │   ├── useCountUp.js   # Анимированный счетчик чисел
-│       │   └── useAxiosInterceptor.js
+│       │   └── useCountUp.js, useAxiosInterceptor.js
 │       └── pages/
-│           ├── Home.js         # Дашборд
-│           ├── Nutrition.js    # Дневник питания
-│           ├── Analytics.js    # Графики и экспорт
-│           ├── Profile.js      # Профиль и настройки
-│           ├── Login.js        # Вход
-│           ├── Register.js     # Регистрация
-│           ├── ForgotPassword.js
-│           └── ResetPassword.js
-└── server/                     # Express API
-    ├── server.js               # Точка входа: Express, CORS, Helmet, маршруты
-    ├── middleware/
-    │   └── auth.js             # JWT middleware
-    ├── models/
-    │   ├── User.js             # Модель пользователя
-    │   ├── Workout.js          # Модель тренировки
-    │   ├── Goal.js             # Модель цели
-    │   ├── FoodEntry.js        # Модель записи питания
-    │   └── WorkoutRecommendation.js  # Модель рекомендации
-    └── routes/
-        ├── auth.js             # Аутентификация + сброс пароля
-        ├── users.js
-        ├── workouts.js
-        ├── goals.js
-        ├── nutrition.js
-        └── workoutRecommendations.js
+│           ├── Home.js, Nutrition.js, Analytics.js
+│           └── Profile.js, Login.js, Register.js, …
+└── server/                 # Express API
+    ├── server.js           # Точка входа: Express, CORS, Helmet
+    ├── middleware/auth.js  # JWT-проверка
+    ├── models/             # User, Workout, Goal, FoodEntry, …
+    └── routes/             # auth, users, workouts, goals, …
 ```
 
 Схема развертывания системы в облачной инфраструктуре представлена на рисунке 3.
@@ -768,32 +743,22 @@ module.exports = (req, res, next) => {
 export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [user, setUser] = useState(null);
-
-    useEffect(() => {
+    useEffect(() => {                              // восстановление сессии при загрузке
         const token = localStorage.getItem('token');
         if (token) {
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             axios.get('/api/auth/user')
-                .then(res => { setUser(res.data); setIsAuthenticated(true); })
+                .then(r => { setUser(r.data); setIsAuthenticated(true); })
                 .catch(() => localStorage.removeItem('token'));
         }
     }, []);
-
-    const login = async (email, password) => {
+    const login = async (email, password) => {     // вход: сохранение токена, обновление состояния
         const { data } = await axios.post('/api/auth/login', { email, password });
         localStorage.setItem('token', data.token);
         axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-        setUser(data.user);
-        setIsAuthenticated(true);
+        setUser(data.user);  setIsAuthenticated(true);
     };
-
-    const logout = () => {
-        localStorage.removeItem('token');
-        delete axios.defaults.headers.common['Authorization'];
-        setIsAuthenticated(false);
-        setUser(null);
-    };
-
+    // logout — удаляет токен, сбрасывает состояние. Полный код — Приложение Б
     return (
         <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
             {children}

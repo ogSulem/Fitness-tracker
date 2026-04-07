@@ -154,6 +154,8 @@ Cronometer — специализированное приложение для 
 
 ### 1.3. Сравнительная оценка аналогов и обоснование выбора подхода
 
+В таблице 1 представлено сравнение рассмотренных аналогов по ключевым критериям.
+
 Таблица 1. Сравнение аналогов по ключевым критериям
 
 | Критерий | MyFitnessPal | Strava | FatSecret | Cronometer | FitTrack |
@@ -234,6 +236,8 @@ flowchart TD
 
 #### 1.4.1. Функциональные требования
 
+Перечень функциональных требований к системе «FitTrack» приведен в таблице 2.
+
 Таблица 2. Функциональные требования к системе
 
 | Блок | ID | Требование | Статус |
@@ -273,6 +277,8 @@ flowchart TD
 
 #### 1.4.2. Нефункциональные требования
 
+Нефункциональные требования к системе «FitTrack» приведены в таблице 3.
+
 Таблица 3. Нефункциональные требования к системе
 
 | Категория | Требование |
@@ -304,6 +310,8 @@ flowchart TD
 
 #### 2.1.1. Клиентская часть (Frontend)
 
+Технологический стек клиентской части системы представлен в таблице 4.
+
 Таблица 4. Технологический стек клиентской части
 
 | Технология | Версия | Обоснование |
@@ -317,6 +325,8 @@ flowchart TD
 | View Transitions API | Нативный | Анимация переключения темы без библиотек [19] |
 
 #### 2.1.2. Серверная часть (Backend)
+
+Технологический стек серверной части системы представлен в таблице 5.
 
 Таблица 5. Технологический стек серверной части
 
@@ -334,7 +344,7 @@ flowchart TD
 
 Обоснование выбора MongoDB в сравнении с реляционными аналогами: в отличие от PostgreSQL и MySQL, MongoDB не требует фиксированной схемы таблиц — каждый документ в коллекции может иметь разный набор полей. Это критически важно для хранения фитнес-данных: пользователи добавляют разные типы тренировок (бег, силовая, плавание), каждый из которых может иметь специфические атрибуты. Горизонтальное масштабирование через Sharding реализовано нативно. MongoDB Atlas предоставляет бесплатный облачный хостинг с 512 МБ хранилища, достаточным для MVP.
 
-Обоснование выбора React в сравнении с Vue и Angular: React обладает наибольшей экосистемой пакетов на npm (более 1 миллиона совместимых пакетов), официальными инструментами (Create React App, React Router, React Query), а также хуками (`useState`, `useEffect`, `useContext`), позволяющими строить интерактивные компоненты без избыточного шаблонного кода. Context API обеспечивает централизованное управление глобальным состоянием (аутентификация, тема, уведомления) без подключения дополнительных библиотек (Redux).
+Обоснование выбора React в сравнении с Vue и Angular: React обладает наибольшей экосистемой пакетов на npm (более 1 миллиона совместимых пакетов), официальными инструментами (Create React App, React Router, React Query), а также хуками (`useState`, `useEffect`, `useContext`), позволяющими строить интерактивные компоненты без избыточного шаблонного кода. Context API обеспечивает централизованное управление глобальным состоянием (аутентификация, тема, уведомления) без подключения дополнительных библиотек (Redux). Обобщенное сравнение альтернативных стеков приведено в таблице 6.
 
 Таблица 6. Сравнение альтернативных технологических стеков
 
@@ -351,7 +361,7 @@ flowchart TD
 
 Система построена по архитектуре клиент-сервер с разделением на три уровня: уровень представления (React SPA), уровень бизнес-логики (Express API) и уровень хранения данных (MongoDB). Такое разделение обеспечивает независимость разработки frontend и backend, возможность горизонтального масштабирования каждого уровня, а также упрощенное тестирование и сопровождение.
 
-Взаимодействие уровней осуществляется через REST API: клиент отправляет HTTP-запросы с заголовком `Authorization: Bearer <JWT>`, сервер проверяет токен в middleware и возвращает JSON-ответ. Все пользовательские данные хранятся в MongoDB с обязательной привязкой к `userId` — это гарантирует полную изоляцию данных разных пользователей на уровне запросов к базе.
+Взаимодействие уровней осуществляется через REST API: клиент отправляет HTTP-запросы с заголовком `Authorization: Bearer <JWT>`, сервер проверяет токен в middleware и возвращает JSON-ответ. Все пользовательские данные хранятся в MongoDB с обязательной привязкой к `userId` — это гарантирует полную изоляцию данных разных пользователей на уровне запросов к базе. Схема взаимодействия компонентов системы приведена на рисунке 2.
 
 ```mermaid
 %% 📷 ВСТАВИТЬ СКРИНШОТ — удалить этот блок кода и вставить изображение
@@ -447,6 +457,8 @@ Fitness-tracker/
         ├── nutrition.js
         └── workoutRecommendations.js
 ```
+
+Схема развертывания системы в облачной инфраструктуре представлена на рисунке 3.
 
 ```mermaid
 %% 📷 ВСТАВИТЬ СКРИНШОТ — удалить этот блок кода и вставить изображение
@@ -561,9 +573,9 @@ flowchart LR
 }
 ```
 
+Связи между коллекциями базы данных представлены в виде ER-диаграммы на рисунке 4.
+
 ```mermaid
-%% 📷 ВСТАВИТЬ СКРИНШОТ — удалить этот блок кода и вставить изображение
-erDiagram
     USERS {
         ObjectId _id PK
         String   name
@@ -631,6 +643,8 @@ erDiagram
 Рисунок 4. ER-диаграмма базы данных
 
 ### 2.4. Проектирование REST API
+
+В таблице 7 представлен полный перечень эндпоинтов REST API системы с указанием HTTP-метода, маршрута, описания операции и уровня доступа.
 
 Таблица 7. Эндпоинты REST API
 
@@ -740,6 +754,8 @@ module.exports = (req, res, next) => {
 
 ### 3.2. Клиентская часть (Frontend)
 
+Исходный код основных компонентов серверной части приведен в Приложении А.
+
 Клиентская часть представляет собой React SPA (Single Page Application) с Context API для централизованного управления глобальным состоянием. Архитектура приложения состоит из трех слоев: контексты (глобальное состояние), страницы (маршрутизированные представления) и переиспользуемые компоненты.
 
 Маршрутизация реализована с использованием React Router v6 [17]. Защищенные маршруты обернуты в компонент `PrivateRoute`, который проверяет наличие валидного JWT в `localStorage` и перенаправляет неаутентифицированных пользователей на страницу входа. Публичные маршруты (login, register, forgot-password, reset-password) доступны без аутентификации.
@@ -786,6 +802,8 @@ export const AuthProvider = ({ children }) => {
 };
 ```
 
+Исходный код основных компонентов клиентской части (контексты аутентификации, темы и уведомлений) приведен в Приложении Б.
+
 ### 3.3. Система аутентификации и восстановления пароля
 
 Аутентификация реализована на основе JWT (JSON Web Tokens) по стандарту RFC 7519 [14].
@@ -798,6 +816,8 @@ export const AuthProvider = ({ children }) => {
 5. Пользователь сохраняется в MongoDB;
 6. Генерируется JWT-токен с payload `{ user: { id } }` и сроком жизни 7 дней;
 7. Токен возвращается клиенту и сохраняется в `localStorage`.
+
+На рисунке 5 представлена диаграмма последовательности для процесса восстановления пароля.
 
 ```mermaid
 %% 📷 ВСТАВИТЬ СКРИНШОТ — удалить этот блок кода и вставить изображение
@@ -877,7 +897,7 @@ TDEE = BMR × K_a,    (3.3)
 
 где K_a — коэффициент активности: 1,2 (сидячий образ жизни), 1,375 (слабая активность), 1,55 (умеренная), 1,725 (высокая), 1,9 (очень высокая).
 
-Целевая суточная норма калорий корректируется в зависимости от цели пользователя: при снижении веса — TDEE − 500 ккал (создает дефицит ~0,5 кг/нед), при наборе мышечной массы — TDEE + 300 ккал, при поддержании веса — TDEE.
+Целевая суточная норма калорий корректируется в зависимости от цели пользователя: при снижении веса — TDEE − 500 ккал (создает дефицит ~0,5 кг/нед), при наборе мышечной массы — TDEE + 300 ккал, при поддержании веса — TDEE. Полный алгоритм расчета TDEE и распределения макронутриентов представлен на рисунке 6.
 
 ```mermaid
 %% 📷 ВСТАВИТЬ СКРИНШОТ — удалить этот блок кода и вставить изображение
@@ -921,7 +941,7 @@ flowchart TD
 
 E = МЕТ × m × (t / 60),    (3.4)
 
-где m — масса тела пользователя (кг), t — длительность тренировки (мин), МЕТ — метаболический эквивалент, зависящий от типа и интенсивности нагрузки.
+где m — масса тела пользователя (кг), t — длительность тренировки (мин), МЕТ — метаболический эквивалент, зависящий от типа и интенсивности нагрузки. Значения МЕТ для основных типов тренировок приведены в таблице 8.
 
 Таблица 8. Значения МЕТ для основных типов тренировок
 
@@ -972,6 +992,8 @@ const exportCSV = () => {
     downloadBlob(blob, `fittrack_export_${dayjs().format('YYYY-MM-DD')}.csv`);
 };
 ```
+
+Исходный код компонента рекомендаций по тренировкам (`WorkoutRecommendations.js`) приведен в Приложении В.
 
 ### 3.7. Персонализация интерфейса и уведомления
 
@@ -1062,7 +1084,7 @@ const exportCSV = () => {
 
 ### 4.2. Нагрузочное тестирование
 
-Нагрузочное тестирование проводилось с использованием инструмента Apache JMeter версии 5.6. Для каждого сценария настраивался Thread Group с заданным числом потоков (виртуальных пользователей), периодом разгона 30 секунд и временем выполнения 120 секунд. Тестировались два критичных эндпоинта: `POST /api/auth/login` (аутентификация) и `GET /api/workouts` (получение списка тренировок с JWT).
+Нагрузочное тестирование проводилось с использованием инструмента Apache JMeter версии 5.6. Для каждого сценария настраивался Thread Group с заданным числом потоков (виртуальных пользователей), периодом разгона 30 секунд и временем выполнения 120 секунд. Тестировались два критичных эндпоинта: `POST /api/auth/login` (аутентификация) и `GET /api/workouts` (получение списка тренировок с JWT). Результаты нагрузочного тестирования представлены в таблице 10.
 
 Таблица 10. Результаты нагрузочного тестирования
 
@@ -1077,7 +1099,7 @@ const exportCSV = () => {
 
 ### 4.3. Тестирование безопасности
 
-Тестирование безопасности проводилось вручную по методологии OWASP Top 10 [16]. Проверялись наиболее критичные уязвимости для веб-приложений.
+Тестирование безопасности проводилось вручную по методологии OWASP Top 10 [16]. Проверялись наиболее критичные уязвимости для веб-приложений. Результаты тестирования приведены в таблице 11.
 
 Таблица 11. Результаты тестирования безопасности
 
@@ -1147,6 +1169,9 @@ const exportCSV = () => {
 4. социальные функции (друзья, сравнение прогресса, соревнования);
 5. персонализированные рекомендации тренировочных программ на основе методов машинного обучения;
 6. Push-уведомления через Service Workers для работы в фоновом режиме.
+
+---
+
 ## СПИСОК ИСПОЛЬЗОВАННЫХ ИСТОЧНИКОВ
 
 1. Кузнецов, А. Б. Node.js для профессиональной веб-разработки / А. Б. Кузнецов. – М.: Питер, 2024. – 368 с.
@@ -1188,3 +1213,271 @@ const exportCSV = () => {
 19. View Transitions API — MDN Web Docs. – URL: https://developer.mozilla.org/en-US/docs/Web/API/View_Transitions_API (дата обращения: 01.05.2025). – Текст: электронный.
 
 20. Web Notifications API — MDN Web Docs. – URL: https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API (дата обращения: 15.05.2025). – Текст: электронный.
+
+---
+
+## ПРИЛОЖЕНИЕ А
+
+### Основные компоненты серверной части
+
+Листинг А.1. Точка входа сервера (`server/server.js`) — фрагмент инициализации middleware и маршрутов
+
+```javascript
+const express    = require('express');
+const cors       = require('cors');
+const helmet     = require('helmet');
+const compression = require('compression');
+const rateLimit  = require('express-rate-limit');
+const mongoose   = require('mongoose');
+require('dotenv').config();
+
+const app = express();
+
+// ── Безопасность ──────────────────────────────────────────────────────────────
+app.use(helmet());
+app.use(compression());
+
+// ── CORS ──────────────────────────────────────────────────────────────────────
+const stripSlash = (s) => (s || '').replace(/\/$/, '');
+const buildAllowedOrigins = () => {
+    const port = process.env.PORT || 5001;
+    const origins = [
+        `http://localhost:${port}`,
+        `http://127.0.0.1:${port}`,
+    ];
+    if (process.env.CLIENT_URL) origins.push(stripSlash(process.env.CLIENT_URL));
+    if (process.env.ALLOWED_ORIGINS)
+        process.env.ALLOWED_ORIGINS.split(',').forEach(o => origins.push(stripSlash(o.trim())));
+    return origins;
+};
+app.use(cors({
+    origin: (origin, cb) => {
+        if (!origin) return cb(null, true);
+        const allowed = buildAllowedOrigins();
+        if (allowed.includes(stripSlash(origin))) return cb(null, true);
+        cb(new Error('CORS: origin not allowed'));
+    },
+    credentials: true,
+}));
+
+// ── Rate limiting (глобальный) ────────────────────────────────────────────────
+const globalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 200 });
+app.use(globalLimiter);
+
+// ── Парсинг тела запроса ──────────────────────────────────────────────────────
+app.use(express.json({ limit: '10mb' }));
+
+// ── Маршруты API ──────────────────────────────────────────────────────────────
+app.use('/api/auth',            require('./routes/auth'));
+app.use('/api/users',           require('./routes/users'));
+app.use('/api/workouts',        require('./routes/workouts'));
+app.use('/api/nutrition',       require('./routes/nutrition'));
+app.use('/api/goals',           require('./routes/goals'));
+app.use('/api/recommendations', require('./routes/workoutRecommendations'));
+
+// ── Health check ──────────────────────────────────────────────────────────────
+app.get('/api/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date() }));
+
+// ── Раздача собранного React (production) ─────────────────────────────────────
+if (process.env.NODE_ENV === 'production') {
+    const path = require('path');
+    app.use(express.static(path.join(__dirname, '../client/build')));
+    app.get('*', (_req, res) =>
+        res.sendFile(path.resolve(__dirname, '../client/build', 'index.html')));
+}
+
+// ── Подключение к MongoDB ─────────────────────────────────────────────────────
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/fittrack')
+    .then(() => console.log('MongoDB подключена'))
+    .catch(err  => { console.error(err); process.exit(1); });
+
+const PORT = process.env.PORT || 5001;
+app.listen(PORT, () => console.log(`Сервер запущен на порту ${PORT}`));
+```
+
+Листинг А.2. Middleware аутентификации JWT (`server/middleware/auth.js`)
+
+```javascript
+const jwt = require('jsonwebtoken');
+
+module.exports = (req, res, next) => {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    if (!token)
+        return res.status(401).json({ message: 'Нет токена, доступ запрещен' });
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded.user;
+        next();
+    } catch {
+        res.status(401).json({ message: 'Токен недействителен' });
+    }
+};
+```
+
+---
+
+## ПРИЛОЖЕНИЕ Б
+
+### Основные компоненты клиентской части
+
+Листинг Б.1. Контекст аутентификации (`client/src/context/AuthContext.js`)
+
+```javascript
+import React, { createContext, useState, useEffect } from 'react';
+import axios from 'axios';
+
+export const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            axios.get('/api/auth/user')
+                .then(res  => { setUser(res.data); setIsAuthenticated(true); })
+                .catch(() => localStorage.removeItem('token'));
+        }
+    }, []);
+
+    const login = async (email, password) => {
+        const { data } = await axios.post('/api/auth/login', { email, password });
+        localStorage.setItem('token', data.token);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+        setUser(data.user);
+        setIsAuthenticated(true);
+    };
+
+    const logout = () => {
+        localStorage.removeItem('token');
+        delete axios.defaults.headers.common['Authorization'];
+        setIsAuthenticated(false);
+        setUser(null);
+    };
+
+    return (
+        <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+            {children}
+        </AuthContext.Provider>
+    );
+};
+```
+
+Листинг Б.2. Контекст темы (`client/src/context/ThemeContext.js`)
+
+```javascript
+import React, { createContext, useState, useEffect } from 'react';
+
+export const ThemeContext = createContext();
+
+export const ThemeProvider = ({ children }) => {
+    const [isDark, setIsDark] = useState(() => {
+        const saved = localStorage.getItem('theme');
+        if (saved) return saved === 'dark';
+        return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    });
+
+    useEffect(() => {
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        document.documentElement.classList.toggle('dark', isDark);
+    }, [isDark]);
+
+    return (
+        <ThemeContext.Provider value={{ isDark, setIsDark }}>
+            {children}
+        </ThemeContext.Provider>
+    );
+};
+```
+
+---
+
+## ПРИЛОЖЕНИЕ В
+
+### Компонент рекомендаций по тренировкам
+
+Листинг В.1. Компонент рекомендаций (`client/src/components/WorkoutRecommendations.js`) — фрагмент
+
+```javascript
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const WorkoutRecommendations = ({ goal, level }) => {
+    const [recommendations, setRecommendations] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!goal || !level) return;
+        setLoading(true);
+        axios.get(`/api/recommendations/${goal}/${level}`)
+            .then(res  => setRecommendations(res.data))
+            .catch(err => console.error(err))
+            .finally(() => setLoading(false));
+    }, [goal, level]);
+
+    if (loading) return <div className="text-center py-4">Загрузка рекомендаций...</div>;
+    if (!recommendations) return null;
+
+    return (
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
+            <h3 className="text-lg font-semibold mb-4">
+                Рекомендации для цели: {recommendations.goalLabel}
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                Частота: {recommendations.frequency} | Длительность: {recommendations.duration}
+            </p>
+            <div className="space-y-2">
+                {recommendations.types?.map((type, i) => (
+                    <div key={i} className="flex items-center gap-2 text-sm">
+                        <span className="w-2 h-2 bg-blue-500 rounded-full" />
+                        {type}
+                    </div>
+                ))}
+            </div>
+            {recommendations.tips?.length > 0 && (
+                <div className="mt-4">
+                    <h4 className="font-medium mb-2">Советы:</h4>
+                    <ul className="list-disc list-inside space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                        {recommendations.tips.map((tip, i) => <li key={i}>{tip}</li>)}
+                    </ul>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default WorkoutRecommendations;
+```
+
+Листинг В.2. Скрипт инициализации рекомендаций (`server/scripts/initRecommendations.js`) — фрагмент
+
+```javascript
+const mongoose = require('mongoose');
+const Recommendation = require('../models/WorkoutRecommendation');
+require('dotenv').config({ path: '../.env' });
+
+const recommendations = [
+    {
+        goal: 'weight_loss', level: 'beginner',
+        frequency: '4–5 раз в неделю', duration: '30–45 минут',
+        types: ['Быстрая ходьба', 'Велосипед (умеренный темп)', 'Плавание', 'Аэробика'],
+        tips: [
+            'Начинайте с 20–25 минут и постепенно увеличивайте длительность',
+            'Поддерживайте дефицит калорий ~500 ккал/день',
+            'Сочетайте кардио и силовые тренировки для сохранения мышечной массы',
+        ],
+    },
+    // ... другие рекомендации
+];
+
+mongoose.connect(process.env.MONGO_URI)
+    .then(async () => {
+        await Recommendation.deleteMany({});
+        await Recommendation.insertMany(recommendations);
+        console.log('Рекомендации инициализированы');
+        process.exit(0);
+    })
+    .catch(err => { console.error(err); process.exit(1); });
+```

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import Modal from './Modal';
+import { useLang } from '../context/LanguageContext';
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();
     const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
+    const { t } = useLang();
 
     return (
         <footer className="bg-slate-900 dark:bg-slate-950 text-white py-8 mt-auto border-t border-slate-700 dark:border-slate-800 transition-colors duration-300">
@@ -15,12 +17,12 @@ const Footer = () => {
                         </div>
                         <span className="text-lg font-bold text-white">FitTrack</span>
                     </div>
-                    <p className="text-slate-400 text-sm">© {currentYear} FitTrack. Все права защищены.</p>
+                    <p className="text-slate-400 text-sm">© {currentYear} FitTrack. {t('footer_rights')}</p>
                     <button
                         onClick={() => setIsAboutModalOpen(true)}
                         className="text-slate-400 hover:text-white text-sm transition-colors"
                     >
-                        О проекте
+                        {t('footer_about')}
                     </button>
                 </div>
             </div>
@@ -28,20 +30,13 @@ const Footer = () => {
             <Modal
                 isOpen={isAboutModalOpen}
                 onClose={() => setIsAboutModalOpen(false)}
-                title="О проекте"
+                title={t('footer_about')}
             >
                 <div className="space-y-4">
-                    <p className="text-gray-600 dark:text-slate-300">
-                        Данная работа выполнена студентом Казанского Федерального Университета,
-                        направление Прикладная информатика, группа 09-253,
-                        Богдановым Артуром Владимировичем.
-                    </p>
+                    <p className="text-gray-600 dark:text-slate-300">{t('footer_about_body')}</p>
                     <div className="flex justify-end">
-                        <button
-                            onClick={() => setIsAboutModalOpen(false)}
-                            className="btn-secondary"
-                        >
-                            Закрыть
+                        <button onClick={() => setIsAboutModalOpen(false)} className="btn-secondary">
+                            {t('footer_close')}
                         </button>
                     </div>
                 </div>

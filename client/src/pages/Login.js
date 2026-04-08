@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { useLang } from '../context/LanguageContext';
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
@@ -9,6 +10,7 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
 
     const { login } = useContext(AuthContext);
+    const { t } = useLang();
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -24,11 +26,17 @@ const Login = () => {
             await login(formData);
             navigate('/');
         } catch (err) {
-            setError(err.response?.data?.message || 'Ошибка при входе. Проверьте данные.');
+            setError(err.response?.data?.message || t('error_generic'));
         } finally {
             setLoading(false);
         }
     };
+
+    const features = [
+        { icon: '🏋️', labelKey: 'login_features_workouts' },
+        { icon: '🥗',  labelKey: 'login_features_nutrition' },
+        { icon: '📈',  labelKey: 'login_features_progress'  },
+    ];
 
     return (
         <div className="min-h-screen flex bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
@@ -51,17 +59,13 @@ const Login = () => {
                     </div>
                     <h1 className="text-5xl font-bold mb-4 tracking-tight">FitTrack</h1>
                     <p className="text-violet-200 text-lg max-w-xs leading-relaxed">
-                        Твой персональный помощник в достижении фитнес-целей
+                        {t('login_slogan')}
                     </p>
                     <div className="mt-12 grid grid-cols-3 gap-4 text-center">
-                        {[
-                            { icon: '🏋️', label: 'Тренировки' },
-                            { icon: '🥗', label: 'Питание' },
-                            { icon: '📈', label: 'Прогресс' }
-                        ].map(item => (
-                            <div key={item.label} className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 hover:bg-white/15 transition-all">
+                        {features.map(item => (
+                            <div key={item.labelKey} className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 hover:bg-white/15 transition-all">
                                 <div className="text-3xl mb-2">{item.icon}</div>
-                                <div className="text-xs text-violet-200 font-medium">{item.label}</div>
+                                <div className="text-xs text-violet-200 font-medium">{t(item.labelKey)}</div>
                             </div>
                         ))}
                     </div>
@@ -78,8 +82,8 @@ const Login = () => {
                         <span className="text-xl font-bold text-gray-900 dark:text-white">FitTrack</span>
                     </div>
 
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Добро пожаловать!</h2>
-                    <p className="text-gray-400 dark:text-slate-500 mb-8">Войдите в свой аккаунт, чтобы продолжить</p>
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('login_title')}</h2>
+                    <p className="text-gray-400 dark:text-slate-500 mb-8">{t('login_subtitle')}</p>
 
                     {error && (
                         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl mb-6 flex items-center gap-2 text-sm">
@@ -89,7 +93,7 @@ const Login = () => {
 
                     <form onSubmit={handleSubmit} className="space-y-5">
                         <div>
-                            <label htmlFor="email" className="label">Email</label>
+                            <label htmlFor="email" className="label">{t('login_email')}</label>
                             <input
                                 type="email"
                                 id="email"
@@ -103,12 +107,12 @@ const Login = () => {
                         </div>
                         <div>
                             <div className="flex items-center justify-between mb-1.5">
-                                <label htmlFor="password" className="label mb-0">Пароль</label>
+                                <label htmlFor="password" className="label mb-0">{t('login_password')}</label>
                                 <Link
                                     to="/forgot-password"
                                     className="text-xs text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-medium transition-colors"
                                 >
-                                    Забыли пароль?
+                                    {t('login_forgot')}
                                 </Link>
                             </div>
                             <div className="relative">
@@ -119,12 +123,13 @@ const Login = () => {
                                     value={formData.password}
                                     onChange={handleChange}
                                     className="input pr-12"
-                                    placeholder="Введите пароль"
+                                    placeholder="••••••••"
                                     required
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
+                                    aria-label={showPassword ? t('login_hide_pass') : t('login_show_pass')}
                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 transition-colors"
                                 >
                                     {showPassword ? '🙈' : '👁️'}
@@ -142,16 +147,16 @@ const Login = () => {
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                                     </svg>
-                                    Вход...
+                                    {t('login_loading')}
                                 </span>
-                            ) : 'Войти →'}
+                            ) : `${t('login_submit')} →`}
                         </button>
                     </form>
 
                     <p className="mt-6 text-center text-sm text-gray-500 dark:text-slate-500">
-                        Нет аккаунта?{' '}
+                        {t('login_no_account')}{' '}
                         <Link to="/register" className="text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-semibold">
-                            Зарегистрироваться
+                            {t('login_signup')}
                         </Link>
                     </p>
                 </div>

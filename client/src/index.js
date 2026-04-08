@@ -6,10 +6,10 @@ import App from './App';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { LanguageProvider } from './context/LanguageContext';
 import axios from 'axios';
 
-// В production с раздельным деплоем (Vercel frontend + Railway backend)
-// установите REACT_APP_API_URL=https://your-backend.railway.app в настройках Vercel
+// В production с отдельным фронтендом задайте переменную REACT_APP_API_URL
 if (process.env.REACT_APP_API_URL) {
     axios.defaults.baseURL = process.env.REACT_APP_API_URL;
 }
@@ -23,13 +23,15 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <React.StrictMode>
         <ThemeProvider>
-            <Router>
-                <NotificationProvider>
-                    <AuthProvider>
-                        <App />
-                    </AuthProvider>
-                </NotificationProvider>
-            </Router>
+            <LanguageProvider>
+                <Router>
+                    <NotificationProvider>
+                        <AuthProvider>
+                            <App />
+                        </AuthProvider>
+                    </NotificationProvider>
+                </Router>
+            </LanguageProvider>
         </ThemeProvider>
     </React.StrictMode>
 );

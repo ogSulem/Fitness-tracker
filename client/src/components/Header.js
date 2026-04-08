@@ -2,10 +2,12 @@ import React, { useContext, useState, useRef } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { ThemeContext } from '../context/ThemeContext';
+import { useLang } from '../context/LanguageContext';
 
 const Header = () => {
     const { isAuthenticated, user, logout } = useContext(AuthContext);
     const { isDark, toggleTheme } = useContext(ThemeContext);
+    const { t, toggleLang, lang } = useLang();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [iconAnimating, setIconAnimating] = useState(false);
     const navigate = useNavigate();
@@ -18,10 +20,8 @@ const Header = () => {
     };
 
     const handleToggleTheme = (e) => {
-        // Spin the icon
         setIconAnimating(true);
         setTimeout(() => setIconAnimating(false), 500);
-        // Pass raw event so ThemeContext can read click coordinates
         toggleTheme(e);
     };
 
@@ -48,39 +48,46 @@ const Header = () => {
                     {isAuthenticated && (
                         <nav className="hidden md:flex items-center gap-1">
                             <NavLink to="/" end className={navLinkClass}>
-                                <span>🏠</span><span>Главная</span>
+                                <span>🏠</span><span>{t('nav_home')}</span>
                             </NavLink>
                             <NavLink to="/nutrition" className={navLinkClass}>
-                                <span>🥗</span><span>Питание</span>
+                                <span>🥗</span><span>{t('nav_nutrition')}</span>
                             </NavLink>
                             <NavLink to="/analytics" className={navLinkClass}>
-                                <span>📊</span><span>Аналитика</span>
+                                <span>📊</span><span>{t('nav_analytics')}</span>
                             </NavLink>
                             <NavLink to="/profile" className={navLinkClass}>
-                                <span>👤</span><span>Профиль</span>
+                                <span>👤</span><span>{t('nav_profile')}</span>
                             </NavLink>
                         </nav>
                     )}
 
                     {/* Right side */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                        {/* Language toggle */}
+                        <button
+                            onClick={toggleLang}
+                            title={lang === 'ru' ? 'Switch to English' : 'Переключить на русский'}
+                            className="px-2.5 py-1.5 rounded-xl text-xs font-bold tracking-wide text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-violet-600 dark:hover:text-violet-400 border border-gray-200 dark:border-slate-600 transition-all duration-150 select-none"
+                            aria-label="Toggle language"
+                        >
+                            {t('toggle_lang')}
+                        </button>
+
                         {/* Theme toggle */}
                         <button
                             ref={toggleBtnRef}
                             onClick={handleToggleTheme}
                             className="relative p-2 rounded-xl text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-violet-600 dark:hover:text-violet-400 transition-all duration-150 overflow-hidden"
-                            aria-label="Переключить тему"
+                            aria-label={t('toggle_theme')}
                         >
-                            {/* Ripple ring on button itself */}
                             <span className={`absolute inset-0 rounded-xl ${iconAnimating ? 'animate-ping bg-violet-400/20' : ''}`} />
                             <span className={`relative block ${iconAnimating ? 'theme-icon-animate' : ''}`}>
                                 {isDark ? (
-                                    /* Sun */
                                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m8.66-9H21m-18 0H3m15.36-5.36l-.7.7M6.34 17.66l-.7.7m12.02 0l-.7-.7M6.34 6.34l-.7-.7M12 6a6 6 0 100 12A6 6 0 0012 6z" />
                                     </svg>
                                 ) : (
-                                    /* Moon */
                                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
                                     </svg>
@@ -103,12 +110,12 @@ const Header = () => {
                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                     </svg>
-                                    Выйти
+                                    {t('nav_logout')}
                                 </button>
                                 <button
                                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                                     className="md:hidden p-2 rounded-lg text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
-                                    aria-label="Меню"
+                                    aria-label="Menu"
                                 >
                                     {mobileMenuOpen ? (
                                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -124,10 +131,10 @@ const Header = () => {
                         ) : (
                             <div className="flex items-center gap-2">
                                 <Link to="/login" className="text-sm font-medium text-gray-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-all">
-                                    Войти
+                                    {t('nav_login')}
                                 </Link>
                                 <Link to="/register" className="btn-primary text-sm py-2 px-4">
-                                    Регистрация
+                                    {t('nav_register')}
                                 </Link>
                             </div>
                         )}
@@ -146,16 +153,16 @@ const Header = () => {
                             <span className="text-sm font-medium text-gray-700 dark:text-slate-300">{user?.name}</span>
                         </div>
                         <NavLink to="/" end className={navLinkClass} onClick={() => setMobileMenuOpen(false)}>
-                            <span>🏠</span><span>Главная</span>
+                            <span>🏠</span><span>{t('nav_home')}</span>
                         </NavLink>
                         <NavLink to="/nutrition" className={navLinkClass} onClick={() => setMobileMenuOpen(false)}>
-                            <span>🥗</span><span>Питание</span>
+                            <span>🥗</span><span>{t('nav_nutrition')}</span>
                         </NavLink>
                         <NavLink to="/analytics" className={navLinkClass} onClick={() => setMobileMenuOpen(false)}>
-                            <span>📊</span><span>Аналитика</span>
+                            <span>📊</span><span>{t('nav_analytics')}</span>
                         </NavLink>
                         <NavLink to="/profile" className={navLinkClass} onClick={() => setMobileMenuOpen(false)}>
-                            <span>👤</span><span>Профиль</span>
+                            <span>👤</span><span>{t('nav_profile')}</span>
                         </NavLink>
                         <button
                             onClick={handleLogout}
@@ -164,7 +171,7 @@ const Header = () => {
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                             </svg>
-                            Выйти
+                            {t('nav_logout')}
                         </button>
                     </div>
                 </div>

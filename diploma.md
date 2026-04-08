@@ -470,19 +470,12 @@ flowchart LR
 ```json
 {
   "_id": "ObjectId",
-  "name": "String (required)",
   "email": "String (unique, required)",
-  "password": "String (bcrypt hash, required)",
-  "gender": "Enum ['male', 'female']",
-  "age": "Number (15–100)",
-  "weight": "Number (30–200 кг)",
-  "height": "Number (100–250 см)",
-  "activityLevel": "Enum ['sedentary', 'light', 'moderate', 'active', 'veryActive']",
-  "weightHistory": [
-    { "weight": "Number", "date": "Date" }
-  ],
+  "password": "String (bcrypt hash)",
+  "age": "Number", "weight": "Number", "height": "Number",
+  "activityLevel": "Enum ['sedentary', ..., 'veryActive']",
+  "weightHistory": [{ "weight": "Number", "date": "Date" }],
   "resetPasswordToken": "String | null",
-  "resetPasswordExpires": "Date | null",
   "createdAt": "Date"
 }
 ```
@@ -493,13 +486,9 @@ flowchart LR
 {
   "_id": "ObjectId",
   "user": "ObjectId (ref: User)",
-  "type": "String (тип тренировки)",
-  "date": "Date",
-  "time": "String (HH:mm)",
-  "duration": "Number (минуты)",
-  "caloriesBurned": "Number",
+  "type": "String", "date": "Date", "time": "String (HH:mm)",
+  "duration": "Number (мин)", "caloriesBurned": "Number",
   "intensity": "Enum ['low', 'medium', 'high']",
-  "comment": "String",
   "createdAt": "Date"
 }
 ```
@@ -512,19 +501,11 @@ flowchart LR
 {
   "_id": "ObjectId",
   "user": "ObjectId (ref: User)",
-  "date": "Date (YYYY-MM-DDT00:00:00.000Z)",
-  "mealType": "Enum ['breakfast', 'lunch', 'dinner', 'snack']",
-  "products": [
-    {
-      "_id": "ObjectId",
-      "name": "String",
-      "portion": "Number (граммы)",
-      "calories": "Number",
-      "protein": "Number",
-      "fat": "Number",
-      "carbs": "Number"
-    }
-  ],
+  "date": "Date", "mealType": "Enum ['breakfast', 'lunch', 'dinner', 'snack']",
+  "products": [{
+    "name": "String", "portion": "Number (г)",
+    "calories": "Number", "protein": "Number", "fat": "Number", "carbs": "Number"
+  }],
   "createdAt": "Date"
 }
 ```
@@ -535,15 +516,9 @@ flowchart LR
 {
   "_id": "ObjectId",
   "user": "ObjectId (ref: User)",
-  "title": "String",
-  "type": "String (тип цели)",
-  "startValue": "Number",
-  "currentValue": "Number",
-  "targetValue": "Number",
-  "unit": "String (по умолчанию 'кг')",
-  "deadline": "Date",
-  "description": "String",
-  "completed": "Boolean",
+  "title": "String", "type": "String",
+  "startValue": "Number", "currentValue": "Number", "targetValue": "Number",
+  "deadline": "Date", "completed": "Boolean",
   "createdAt": "Date"
 }
 ```
@@ -683,43 +658,24 @@ flowchart LR
 Инициализация сервера (`server.js`):
 
 ```javascript
-const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose');
-require('dotenv').config();
-
 const app = express();
-app.use(cors());
-app.use(express.json({ limit: '10mb' }));
-
-// Подключение к MongoDB
+app.use(helmet()); app.use(compression()); app.use(cors(corsOptions));
+app.use(express.json({ limit: '1mb' }));
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('MongoDB подключена'))
-    .catch(err => console.error(err));
-
-// Маршруты
+    .then(() => console.log('MongoDB подключена'));
 app.use('/api/auth', require('./routes/auth'));
-app.use('/api/users', require('./routes/users'));
-app.use('/api/workouts', require('./routes/workouts'));
-app.use('/api/nutrition', require('./routes/nutrition'));
-app.use('/api/goals', require('./routes/goals'));
-app.use('/api/recommendations', require('./routes/workoutRecommendations'));
-
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => console.log(`Сервер запущен на порту ${PORT}`));
+// ... ещё 5 маршрутов (users, workouts, nutrition, goals, recommendations) ...
+app.listen(process.env.PORT || 5001, () => console.log('Сервер запущен'));
 ```
 
 Middleware аутентификации (`middleware/auth.js`):
 
 ```javascript
-const jwt = require('jsonwebtoken');
-
 module.exports = (req, res, next) => {
     const token = req.header('Authorization')?.replace('Bearer ', '');
-    if (!token) return res.status(401).json({ message: 'Нет токена, доступ запрещен' });
+    if (!token) return res.status(401).json({ message: 'Нет токена' });
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded.user;
+        req.user = jwt.verify(token, process.env.JWT_SECRET).user;
         next();
     } catch {
         res.status(401).json({ message: 'Токен недействителен' });
@@ -743,27 +699,12 @@ module.exports = (req, res, next) => {
 export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [user, setUser] = useState(null);
-    useEffect(() => {                              // восстановление сессии при загрузке
+    useEffect(() => {                          // восстановление сессии при загрузке
         const token = localStorage.getItem('token');
-        if (token) {
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            axios.get('/api/auth/user')
-                .then(r => { setUser(r.data); setIsAuthenticated(true); })
-                .catch(() => localStorage.removeItem('token'));
-        }
-    }, []);
-    const login = async (email, password) => {     // вход: сохранение токена, обновление состояния
-        const { data } = await axios.post('/api/auth/login', { email, password });
-        localStorage.setItem('token', data.token);
-        axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-        setUser(data.user);  setIsAuthenticated(true);
-    };
-    // logout — удаляет токен, сбрасывает состояние. Полный код — Приложение Б
-    return (
-        <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
-            {children}
-        </AuthContext.Provider>
-    );
+        if (token) axios.get('/api/auth/user')
+            .then(r => { setUser(r.data); setIsAuthenticated(true); });
+    }, []);  // login/logout — полный код в Приложении Б
+    return <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>{children}</AuthContext.Provider>;
 };
 ```
 
@@ -944,16 +885,13 @@ E = МЕТ × m × (t / 60),    (3.4)
 
 ```javascript
 const exportCSV = () => {
-    const rows = [];
-    rows.push(['=== ТРЕНИРОВКИ ===']);
-    rows.push(['Дата', 'Тип', 'Длительность (мин)', 'Калорий сожжено']);
+    const rows = [['Дата', 'Тип', 'Длительность (мин)', 'Калорий сожжено']];
     filteredWorkouts.forEach(w =>
         rows.push([dayjs(w.date).format('YYYY-MM-DD'), w.type, w.duration, w.caloriesBurned])
     );
-    // ... nutrition section ...
-    const csv = rows.map(r => r.join(',')).join('\n');
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-    // BOM для корректного отображения кириллицы в Excel
+    // ... секция питания аналогично ...
+    const blob = new Blob(['\uFEFF' + rows.map(r => r.join(',')).join('\n')],
+        { type: 'text/csv;charset=utf-8;' }); // BOM для кириллицы в Excel
     downloadBlob(blob, `fittrack_export_${dayjs().format('YYYY-MM-DD')}.csv`);
 };
 ```

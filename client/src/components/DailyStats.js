@@ -37,13 +37,13 @@ const CircleProgress = ({ percent, size = 120, strokeWidth = 10, color = '#7c3ae
     );
 };
 
-const MacroBar = ({ label, value, max, color }) => {
+const MacroBar = ({ label, value, max, color, unit }) => {
     const pct = max > 0 ? Math.min(100, Math.round((value / max) * 100)) : 0;
     return (
         <div className="space-y-1">
             <div className="flex justify-between text-xs">
                 <span className="text-gray-500 dark:text-slate-400 font-medium">{label}</span>
-                <span className="text-gray-700 dark:text-slate-300 font-semibold">{value}г</span>
+                <span className="text-gray-700 dark:text-slate-300 font-semibold">{value}{unit}</span>
             </div>
             <div className="progress-bar">
                 <div
@@ -130,7 +130,7 @@ const DailyStats = ({ targetCalories = 2000 }) => {
     return (
         <div className="card animate-slideUp">
             <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100">Статистика сегодня</h2>
+                <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100">{t('daily_title')}</h2>
                 <span className="badge-primary">{dayjs().format('DD MMMM')}</span>
             </div>
 
@@ -146,7 +146,7 @@ const DailyStats = ({ targetCalories = 2000 }) => {
                         />
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
                             <span className="text-2xl font-bold text-gray-800 dark:text-slate-100">{animPct}%</span>
-                            <span className="text-xs text-gray-400 dark:text-slate-500">от нормы</span>
+                            <span className="text-xs text-gray-400 dark:text-slate-500">{t('daily_of_goal')}</span>
                         </div>
                     </div>
                     <p className="text-sm text-gray-500 dark:text-slate-400 mt-2 text-center">
@@ -191,7 +191,7 @@ const DailyStats = ({ targetCalories = 2000 }) => {
                     {/* Remaining */}
                     <div className="bg-gradient-to-br from-sky-50 to-sky-100 dark:from-sky-900/30 dark:to-sky-800/20 rounded-xl p-4 hover:scale-[1.02] transition-transform duration-200">
                         <div className="text-2xl mb-1">🎯</div>
-                        <p className="text-xs font-medium text-sky-600 dark:text-sky-400 mb-1">До цели</p>
+                        <p className="text-xs font-medium text-sky-600 dark:text-sky-400 mb-1">{t('daily_remaining')}</p>
                         <p className="text-xl font-bold text-sky-700 dark:text-sky-300">{animRemaining}</p>
                         <p className="text-xs text-sky-400 dark:text-sky-500">{t('daily_kcal')}</p>
                     </div>
@@ -200,25 +200,28 @@ const DailyStats = ({ targetCalories = 2000 }) => {
 
             {/* Macros */}
             <div className="mt-6 border-t border-gray-100 dark:border-slate-700 pt-4">
-                <h3 className="text-sm font-semibold text-gray-600 dark:text-slate-400 mb-3">Макронутриенты</h3>
+                <h3 className="text-sm font-semibold text-gray-600 dark:text-slate-400 mb-3">{t('daily_macros')}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <MacroBar
-                        label={`Белки (цель ${targetProtein}г)`}
+                        label={`${t('daily_protein_label')} (${t('daily_goal_fmt')} ${targetProtein}${t('daily_gram')})`}
                         value={macros.protein}
                         max={targetProtein}
                         color="#60a5fa"
+                        unit={t('daily_gram')}
                     />
                     <MacroBar
-                        label={`Жиры (цель ${targetFat}г)`}
+                        label={`${t('daily_fat_label')} (${t('daily_goal_fmt')} ${targetFat}${t('daily_gram')})`}
                         value={macros.fat}
                         max={targetFat}
                         color="#fbbf24"
+                        unit={t('daily_gram')}
                     />
                     <MacroBar
-                        label={`Углеводы (цель ${targetCarbs}г)`}
+                        label={`${t('daily_carbs_label')} (${t('daily_goal_fmt')} ${targetCarbs}${t('daily_gram')})`}
                         value={macros.carbs}
                         max={targetCarbs}
                         color="#34d399"
+                        unit={t('daily_gram')}
                     />
                 </div>
             </div>

@@ -107,6 +107,12 @@ const translations = {
         search_:         'Поиск...',
         no_data:         'Нет данных',
 
+        // NotFound
+        not_found_title:  'Страница не найдена',
+        not_found_body:   'Похоже, эта страница решила пропустить тренировку.\nВозвращайтесь на главную!',
+        not_found_home:   '← На главную',
+        not_found_stats:  'Аналитика',
+
         // Analytics
         analytics_title:      'Аналитика',
         analytics_subtitle:   'Анализируй свой прогресс и достижения',
@@ -241,6 +247,15 @@ const translations = {
         nutr_meal_snack:      'Перекус',
 
         // DailyStats
+        daily_title:          'Статистика сегодня',
+        daily_of_goal:        'от нормы',
+        daily_remaining:      'До цели',
+        daily_macros:         'Макронутриенты',
+        daily_gram:           'г',
+        daily_protein_label:  'Белки',
+        daily_fat_label:      'Жиры',
+        daily_carbs_label:    'Углеводы',
+        daily_goal_fmt:       'цель',
         daily_consumed:       'Потреблено',
         daily_burned:         'Сожжено',
         daily_balance:        'Баланс',
@@ -396,6 +411,12 @@ const translations = {
         search_:         'Search...',
         no_data:         'No data',
 
+        // NotFound
+        not_found_title:  'Page not found',
+        not_found_body:   'Looks like this page decided to skip leg day.\nHead back to the home screen!',
+        not_found_home:   '← Back to home',
+        not_found_stats:  'Analytics',
+
         // Analytics
         analytics_title:      'Analytics',
         analytics_subtitle:   'Track your progress and achievements',
@@ -530,6 +551,15 @@ const translations = {
         nutr_meal_snack:      'Snack',
 
         // DailyStats
+        daily_title:          'Today\'s Stats',
+        daily_of_goal:        'of goal',
+        daily_remaining:      'Remaining',
+        daily_macros:         'Macronutrients',
+        daily_gram:           'g',
+        daily_protein_label:  'Protein',
+        daily_fat_label:      'Fat',
+        daily_carbs_label:    'Carbs',
+        daily_goal_fmt:       'goal',
         daily_consumed:       'Consumed',
         daily_burned:         'Burned',
         daily_balance:        'Balance',

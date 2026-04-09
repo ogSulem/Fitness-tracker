@@ -291,7 +291,3 @@ git push origin feature/my-feature
 ## 📄 Лицензия
 
 MIT — см. [LICENSE](LICENSE)
-
----
-
-<p align="center">Сделано с ❤️ для достижения фитнес-целей</p>

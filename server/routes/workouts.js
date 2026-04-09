@@ -109,15 +109,13 @@ router.get('/:id', workoutsLimiter, auth, async (req, res) => {
 // @access  Private
 router.post(
     '/',
+    workoutsLimiter,
+    auth,
     [
-        workoutsLimiter,
-        auth,
-        [
-            check('type', 'Тип тренировки обязателен').not().isEmpty(),
-            check('date', 'Дата обязательна').not().isEmpty(),
-            check('time', 'Время обязательно').not().isEmpty(),
-            check('duration', 'Продолжительность обязательна').isNumeric()
-        ]
+        check('type', 'Тип тренировки обязателен').not().isEmpty(),
+        check('date', 'Дата обязательна').not().isEmpty(),
+        check('time', 'Время обязательно').not().isEmpty(),
+        check('duration', 'Продолжительность обязательна').isNumeric()
     ],
     async (req, res) => {
         // Проверка валидации
@@ -156,15 +154,13 @@ router.post(
 // @access  Private
 router.put(
     '/:id',
+    workoutsLimiter,
+    auth,
     [
-        workoutsLimiter,
-        auth,
-        [
-            check('type', 'Тип тренировки обязателен').not().isEmpty(),
-            check('date', 'Дата обязательна').not().isEmpty(),
-            check('time', 'Время обязательно').not().isEmpty(),
-            check('duration', 'Продолжительность обязательна').isNumeric()
-        ]
+        check('type', 'Тип тренировки обязателен').not().isEmpty(),
+        check('date', 'Дата обязательна').not().isEmpty(),
+        check('time', 'Время обязательно').not().isEmpty(),
+        check('duration', 'Продолжительность обязательна').isNumeric()
     ],
     async (req, res) => {
         // Проверка валидации

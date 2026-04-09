@@ -174,7 +174,13 @@ router.post(
 // @route   GET api/auth/user
 // @desc    Получение данных текущего пользователя
 // @access  Private
-router.get('/user', auth, async (req, res) => {
+const userLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 200,
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+router.get('/user', userLimiter, auth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password');
         if (!user) {

@@ -3,20 +3,26 @@ import axios from 'axios';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
 import { NotificationContext } from '../context/NotificationContext';
+import { useLang } from '../context/LanguageContext';
 
-dayjs.locale('ru');
-
-const MEAL_TYPES = {
-    breakfast: { label: 'Завтрак', icon: '🌅', color: 'from-orange-50 to-amber-50', accent: 'text-amber-600', badge: 'bg-amber-100 text-amber-700' },
-    lunch:     { label: 'Обед',    icon: '☀️', color: 'from-yellow-50 to-lime-50',  accent: 'text-lime-600',  badge: 'bg-lime-100 text-lime-700' },
-    dinner:    { label: 'Ужин',    icon: '🌙', color: 'from-indigo-50 to-violet-50', accent: 'text-violet-600', badge: 'bg-violet-100 text-violet-700' },
-    snack:     { label: 'Перекус', icon: '🍎', color: 'from-green-50 to-emerald-50', accent: 'text-emerald-600', badge: 'bg-emerald-100 text-emerald-700' },
+const MEAL_TYPES_STATIC = {
+    breakfast: { icon: '🌅', color: 'from-orange-50 to-amber-50', accent: 'text-amber-600', badge: 'bg-amber-100 text-amber-700' },
+    lunch:     { icon: '☀️', color: 'from-yellow-50 to-lime-50',  accent: 'text-lime-600',  badge: 'bg-lime-100 text-lime-700' },
+    dinner:    { icon: '🌙', color: 'from-indigo-50 to-violet-50', accent: 'text-violet-600', badge: 'bg-violet-100 text-violet-700' },
+    snack:     { icon: '🍎', color: 'from-green-50 to-emerald-50', accent: 'text-emerald-600', badge: 'bg-emerald-100 text-emerald-700' },
 };
 
 const emptyForm = { name: '', calories: '', protein: '', fat: '', carbs: '', portion: '100', mealType: 'breakfast' };
 
 const Nutrition = () => {
     const { showNotification } = useContext(NotificationContext);
+    const { t } = useLang();
+    const MEAL_TYPES = {
+        breakfast: { label: t('nutr_meal_breakfast'), ...MEAL_TYPES_STATIC.breakfast },
+        lunch:     { label: t('nutr_meal_lunch'),     ...MEAL_TYPES_STATIC.lunch },
+        dinner:    { label: t('nutr_meal_dinner'),    ...MEAL_TYPES_STATIC.dinner },
+        snack:     { label: t('nutr_meal_snack'),     ...MEAL_TYPES_STATIC.snack },
+    };
     const [data, setData] = useState({ meals: [], dailyTotals: { calories: 0, protein: 0, fat: 0, carbs: 0 } });
     const [loading, setLoading] = useState(true);
     const [selectedDate, setSelectedDate] = useState(dayjs().format('YYYY-MM-DD'));
@@ -80,7 +86,7 @@ const Nutrition = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!formData.name.trim() || !formData.calories) {
-            showNotification('Укажите название и калории', 'error');
+            showNotification(t('nutr_err_fields'), 'error');
             return;
         }
         setSubmitting(true);
@@ -97,12 +103,12 @@ const Nutrition = () => {
                     carbs: Number(formData.carbs) || 0,
                 }],
             });
-            showNotification('Запись добавлена!', 'success');
+            showNotification(t('nutr_added'), 'success');
             setFormData(emptyForm);
             setShowForm(false);
             fetchEntries();
         } catch (err) {
-            showNotification(err.response?.data?.message || 'Ошибка при добавлении', 'error');
+            showNotification(err.response?.data?.message || t('nutr_err_add'), 'error');
         } finally {
             setSubmitting(false);
         }
@@ -111,10 +117,10 @@ const Nutrition = () => {
     const handleDelete = async (id) => {
         try {
             await axios.delete(`/api/nutrition/entries/${id}`);
-            showNotification('Запись удалена', 'success');
+            showNotification(t('nutr_deleted'), 'success');
             fetchEntries();
         } catch {
-            showNotification('Ошибка при удалении', 'error');
+            showNotification(t('nutr_err_delete'), 'error');
         }
     };
 
@@ -134,11 +140,11 @@ const Nutrition = () => {
             {/* Page header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">🥗 Дневник питания</h1>
-                    <p className="text-gray-400 dark:text-slate-500 mt-0.5 text-sm">Отслеживай калории и макронутриенты</p>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">🥗 {t('nutr_title')}</h1>
+                    <p className="text-gray-400 dark:text-slate-500 mt-0.5 text-sm">{t('nutr_subtitle')}</p>
                 </div>
                 <button onClick={() => { setShowForm(!showForm); setSearchQuery(''); setSearchResults([]); }} className="btn-primary shrink-0">
-                    {showForm ? '✕ Отмена' : '+ Добавить'}
+                    {showForm ? t('nutr_cancel_btn') : t('nutr_add_btn')}
                 </button>
             </div>
 
@@ -155,7 +161,7 @@ const Nutrition = () => {
                         className="input w-auto text-sm text-center"
                     />
                     {!isToday && (
-                        <button onClick={goToday} className="text-xs text-primary-600 hover:underline font-medium">Сегодня</button>
+                        <button onClick={goToday} className="text-xs text-primary-600 hover:underline font-medium">{t('nutr_today')}</button>
                     )}
                 </div>
                 <button onClick={() => changeDay(1)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-500 dark:text-slate-400 transition-colors">
@@ -166,19 +172,19 @@ const Nutrition = () => {
             {/* Add form */}
             {showForm && (
                 <div className="card mb-6 animate-slideUp">
-                    <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4">Добавить приём пищи</h3>
+                    <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4">{t('nutr_add_meal_title')}</h3>
 
                     {/* Food search */}
                     <div className="mb-4 relative">
-                        <label className="label">Поиск продукта в базе</label>
+                        <label className="label">{t('nutr_search_label')}</label>
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={e => handleSearch(e.target.value)}
                             className="input"
-                            placeholder="Начните вводить название (например: курица, рис...)"
+                            placeholder={t('nutr_search_placeholder')}
                         />
-                        {searching && <p className="text-xs text-gray-400 mt-1">Поиск...</p>}
+                        {searching && <p className="text-xs text-gray-400 mt-1">{t('nutr_searching')}</p>}
                         {searchResults.length > 0 && (
                             <div className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl shadow-lg max-h-52 overflow-y-auto">
                                 {searchResults.map(food => (
@@ -189,7 +195,7 @@ const Nutrition = () => {
                                         className="w-full text-left px-4 py-2.5 hover:bg-primary-50 dark:hover:bg-violet-900/30 transition-colors text-sm border-b border-gray-50 dark:border-slate-700 last:border-0"
                                     >
                                         <span className="font-medium text-gray-800 dark:text-slate-100">{food.name}</span>
-                                        <span className="text-gray-400 dark:text-slate-500 ml-2 text-xs">{food.calories} ккал / 100г · Б{food.protein} Ж{food.fat} У{food.carbs}</span>
+                                        <span className="text-gray-400 dark:text-slate-500 ml-2 text-xs">{food.calories} {t('nutr_per100g')} · Б{food.protein} Ж{food.fat} У{food.carbs}</span>
                                     </button>
                                 ))}
                             </div>
@@ -199,11 +205,11 @@ const Nutrition = () => {
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="label">Название блюда / продукта *</label>
-                                <input type="text" name="name" value={formData.name} onChange={handleChange} className="input" placeholder="Например: Гречка с курицей" required />
+                                <label className="label">{t('nutr_dish_label')}</label>
+                                <input type="text" name="name" value={formData.name} onChange={handleChange} className="input" placeholder={t('nutr_dish_placeholder')} required />
                             </div>
                             <div>
-                                <label className="label">Приём пищи</label>
+                                <label className="label">{t('nutr_meal_type')}</label>
                                 <select name="mealType" value={formData.mealType} onChange={handleChange} className="input">
                                     {Object.entries(MEAL_TYPES).map(([k, v]) => (
                                         <option key={k} value={k}>{v.icon} {v.label}</option>
@@ -214,31 +220,31 @@ const Nutrition = () => {
 
                         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                             <div>
-                                <label className="label">Порция, г</label>
+                                <label className="label">{t('nutr_portion')}</label>
                                 <input type="number" name="portion" value={formData.portion} onChange={handlePortionChange} className="input" min="1" placeholder="г" />
                             </div>
                             <div>
-                                <label className="label">Калории *</label>
+                                <label className="label">{t('nutr_calories_label')}</label>
                                 <input type="number" name="calories" value={formData.calories} onChange={handleChange} className="input" placeholder="ккал" min="0" required />
                             </div>
                             <div>
-                                <label className="label">Белки, г</label>
+                                <label className="label">{t('nutr_protein')}</label>
                                 <input type="number" name="protein" value={formData.protein} onChange={handleChange} className="input" placeholder="г" min="0" step="0.1" />
                             </div>
                             <div>
-                                <label className="label">Жиры, г</label>
+                                <label className="label">{t('nutr_fat')}</label>
                                 <input type="number" name="fat" value={formData.fat} onChange={handleChange} className="input" placeholder="г" min="0" step="0.1" />
                             </div>
                             <div>
-                                <label className="label">Углеводы, г</label>
+                                <label className="label">{t('nutr_carbs')}</label>
                                 <input type="number" name="carbs" value={formData.carbs} onChange={handleChange} className="input" placeholder="г" min="0" step="0.1" />
                             </div>
                         </div>
 
                         <div className="flex justify-end gap-3 pt-1">
-                            <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">Отмена</button>
+                            <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">{t('nutr_cancel')}</button>
                             <button type="submit" disabled={submitting} className="btn-primary">
-                                {submitting ? 'Сохранение...' : 'Сохранить'}
+                                {submitting ? t('nutr_saving') : t('nutr_save')}
                             </button>
                         </div>
                     </form>
@@ -248,10 +254,10 @@ const Nutrition = () => {
             {/* Daily summary */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                 {[
-                    { label: 'Калории', value: Math.round(dailyTotals.calories || 0), unit: 'ккал', bg: 'from-violet-50 to-purple-50 dark:from-violet-950/60 dark:to-purple-950/40', text: 'text-violet-700 dark:text-violet-300', icon: '🔥' },
-                    { label: 'Белки',   value: Math.round(dailyTotals.protein || 0),  unit: 'г',    bg: 'from-blue-50 to-sky-50 dark:from-blue-950/60 dark:to-sky-950/40',        text: 'text-blue-700 dark:text-blue-300',   icon: '💪' },
-                    { label: 'Жиры',    value: Math.round(dailyTotals.fat || 0),      unit: 'г',    bg: 'from-amber-50 to-yellow-50 dark:from-amber-950/60 dark:to-yellow-950/40', text: 'text-amber-700 dark:text-amber-300',  icon: '🧈' },
-                    { label: 'Углеводы',value: Math.round(dailyTotals.carbs || 0),    unit: 'г',    bg: 'from-green-50 to-emerald-50 dark:from-green-950/60 dark:to-emerald-950/40', text: 'text-green-700 dark:text-green-300',  icon: '🌾' },
+                    { label: t('nutr_total_calories'), value: Math.round(dailyTotals.calories || 0), unit: t('nutr_kcal'), bg: 'from-violet-50 to-purple-50 dark:from-violet-950/60 dark:to-purple-950/40', text: 'text-violet-700 dark:text-violet-300', icon: '🔥' },
+                    { label: t('nutr_total_protein'),   value: Math.round(dailyTotals.protein || 0),  unit: 'г',    bg: 'from-blue-50 to-sky-50 dark:from-blue-950/60 dark:to-sky-950/40',        text: 'text-blue-700 dark:text-blue-300',   icon: '💪' },
+                    { label: t('nutr_total_fat'),    value: Math.round(dailyTotals.fat || 0),      unit: 'г',    bg: 'from-amber-50 to-yellow-50 dark:from-amber-950/60 dark:to-yellow-950/40', text: 'text-amber-700 dark:text-amber-300',  icon: '🧈' },
+                    { label: t('nutr_total_carbs'),value: Math.round(dailyTotals.carbs || 0),    unit: 'г',    bg: 'from-green-50 to-emerald-50 dark:from-green-950/60 dark:to-emerald-950/40', text: 'text-green-700 dark:text-green-300',  icon: '🌾' },
                 ].map(stat => (
                     <div key={stat.label} className={`bg-gradient-to-br ${stat.bg} rounded-2xl p-4 border border-white dark:border-slate-700/60`}>
                         <div className="text-xl mb-1">{stat.icon}</div>
@@ -269,8 +275,8 @@ const Nutrition = () => {
             ) : totalEntries === 0 ? (
                 <div className="card text-center py-16">
                     <div className="text-5xl mb-4">🥗</div>
-                    <p className="text-gray-600 dark:text-slate-300 font-semibold text-lg">Нет записей питания</p>
-                    <p className="text-gray-400 dark:text-slate-500 text-sm mt-1">Нажмите «+ Добавить», чтобы записать приём пищи</p>
+                    <p className="text-gray-600 dark:text-slate-300 font-semibold text-lg">{t('nutr_no_entries')}</p>
+                    <p className="text-gray-400 dark:text-slate-500 text-sm mt-1">{t('nutr_no_entries_hint')}</p>
                 </div>
             ) : (
                 <div className="space-y-4">
@@ -285,7 +291,7 @@ const Nutrition = () => {
                                         <span className="text-xl">{meta.icon}</span>
                                         {meta.label}
                                     </h3>
-                                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${meta.badge}`}>{mealCals} ккал</span>
+                                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${meta.badge}`}>{mealCals} {t('nutr_kcal')}</span>
                                 </div>
                                 <div className="p-3 space-y-2">
                                     {mealData.entries.map(entry =>
@@ -298,11 +304,11 @@ const Nutrition = () => {
                                                     </p>
                                                 </div>
                                                 <div className="flex items-center gap-3 ml-3">
-                                                    <span className={`text-sm font-semibold ${meta.accent}`}>{product.calories} ккал</span>
+                                                    <span className={`text-sm font-semibold ${meta.accent}`}>{product.calories} {t('nutr_kcal')}</span>
                                                     <button
                                                         onClick={() => handleDelete(entry._id)}
                                                         className="opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-500 transition-all"
-                                                        title="Удалить запись"
+                                                        title={t('nutr_delete_entry')}
                                                     >
                                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

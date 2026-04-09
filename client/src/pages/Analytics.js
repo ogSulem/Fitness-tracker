@@ -17,12 +17,13 @@ import {
 } from 'chart.js';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import { ThemeContext } from '../context/ThemeContext';
+import { useLang } from '../context/LanguageContext';
+import 'dayjs/locale/en';
 
 ChartJS.register(
     CategoryScale, LinearScale, PointElement, LineElement,
     BarElement, ArcElement, Title, Tooltip, Legend, Filler
 );
-dayjs.locale('ru');
 
 const StatSummaryCard = ({ icon, label, value, unit, sub, color }) => (
     <div className={`card border-l-4 ${color}`}>
@@ -43,6 +44,8 @@ const Analytics = () => {
     const [period, setPeriod]           = useState('week');
     const [loading, setLoading]         = useState(true);
     const { isDark } = useContext(ThemeContext);
+    const { lang, t } = useLang();
+    dayjs.locale(lang === 'en' ? 'en' : 'ru');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -124,7 +127,7 @@ const Analytics = () => {
     const caloriesChartData = {
         labels,
         datasets: [{
-            label: 'Калории',
+            label: t('analytics_unit_kcal'),
             data: caloriesData,
             backgroundColor: 'rgba(124, 58, 237, 0.15)',
             borderColor: '#7c3aed',
@@ -139,7 +142,7 @@ const Analytics = () => {
     const durationChartData = {
         labels,
         datasets: [{
-            label: 'Минуты',
+            label: t('analytics_unit_min'),
             data: durationData,
             backgroundColor: 'rgba(16, 185, 129, 0.7)',
             borderColor: '#059669',
@@ -186,7 +189,7 @@ const Analytics = () => {
     const nutritionChartData = {
         labels,
         datasets: [{
-            label: 'Калории',
+            label: t('analytics_unit_kcal'),
             data: nutritionCaloriesData,
             backgroundColor: 'rgba(16, 185, 129, 0.15)',
             borderColor: '#10b981',
@@ -206,8 +209,8 @@ const Analytics = () => {
         const rows = [];
 
         // Workouts
-        rows.push(['=== ТРЕНИРОВКИ ===']);
-        rows.push(['Дата', 'Тип', 'Длительность (мин)', 'Калорий сожжено', 'Примечание']);
+        rows.push([t('analytics_csv_workouts_header')]);
+        rows.push([t('analytics_csv_date'), t('analytics_csv_type'), t('analytics_csv_duration'), t('analytics_csv_cal_burned'), t('analytics_csv_note')]);
         filteredWorkouts.forEach(w => {
             rows.push([
                 dayjs(w.date).format('YYYY-MM-DD'),
@@ -221,8 +224,8 @@ const Analytics = () => {
         rows.push([]);
 
         // Nutrition
-        rows.push(['=== ПИТАНИЕ ===']);
-        rows.push(['Дата', 'Калории', 'Белки (г)', 'Жиры (г)', 'Углеводы (г)']);
+        rows.push([t('analytics_csv_nutrition_header')]);
+        rows.push([t('analytics_csv_date'), t('analytics_csv_calories'), t('analytics_csv_protein'), t('analytics_csv_fat'), t('analytics_csv_carbs')]);
         filteredNutrition.forEach(n => {
             rows.push([
                 dayjs(n.date).format('YYYY-MM-DD'),
@@ -248,14 +251,14 @@ const Analytics = () => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                        📊 Аналитика
+                        📊 {t('analytics_title')}
                     </h1>
-                    <p className="text-gray-400 dark:text-slate-500 mt-1 text-sm">Анализируй свой прогресс и достижения</p>
+                    <p className="text-gray-400 dark:text-slate-500 mt-1 text-sm">{t('analytics_subtitle')}</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <button
                         onClick={exportCSV}
-                        title="Экспорт данных в CSV"
+                        title={t('analytics_export_csv')}
                         className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-slate-400 border border-gray-200 dark:border-slate-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 hover:text-violet-600 dark:hover:text-violet-400 hover:border-violet-300 dark:hover:border-violet-700 transition-all duration-200"
                     >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -265,9 +268,9 @@ const Analytics = () => {
                     </button>
                     <div className="flex gap-2 bg-gray-100 dark:bg-slate-700 rounded-xl p-1">
                         {[
-                            { key: 'week', label: '7 дней' },
-                            { key: 'month', label: '30 дней' },
-                            { key: 'year', label: 'Год' },
+                            { key: 'week', label: t('analytics_7days') },
+                            { key: 'month', label: t('analytics_30days') },
+                            { key: 'year', label: t('analytics_year') },
                         ].map(opt => (
                             <button
                                 key={opt.key}
@@ -295,34 +298,34 @@ const Analytics = () => {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                         <StatSummaryCard
                             icon="🏋️"
-                            label="Тренировок"
+                            label={t('analytics_workouts')}
                             value={filteredWorkouts.length}
-                            unit="шт"
-                            sub={`за ${getDaysBack()} дней`}
+                            unit={t('analytics_unit_pcs')}
+                            sub={`${t('analytics_for_days')} ${getDaysBack()} ${t('analytics_days')}`}
                             color="border-primary-400"
                         />
                         <StatSummaryCard
                             icon="🔥"
-                            label="Сожжено"
+                            label={t('analytics_burned')}
                             value={totalCaloriesBurned}
-                            unit="ккал"
-                            sub={`~${avgCalories} за тренировку`}
+                            unit={t('analytics_unit_kcal')}
+                            sub={`~${avgCalories} ${t('analytics_per_workout')}`}
                             color="border-amber-400"
                         />
                         <StatSummaryCard
                             icon="⏱️"
-                            label="Время"
+                            label={t('analytics_time')}
                             value={totalDuration}
-                            unit="мин"
-                            sub={filteredWorkouts.length > 0 ? `~${Math.round(totalDuration / filteredWorkouts.length)} мин/тренировка` : ''}
+                            unit={t('analytics_unit_min')}
+                            sub={filteredWorkouts.length > 0 ? `~${Math.round(totalDuration / filteredWorkouts.length)} ${t('analytics_unit_min')}` : ''}
                             color="border-green-400"
                         />
                         <StatSummaryCard
                             icon="🥗"
-                            label="Съедено"
+                            label={t('analytics_consumed')}
                             value={Math.round(totalConsumedCalories)}
-                            unit="ккал"
-                            sub={avgConsumedCalories > 0 ? `~${avgConsumedCalories} ккал/день` : 'нет данных'}
+                            unit={t('analytics_unit_kcal')}
+                            sub={avgConsumedCalories > 0 ? `~${avgConsumedCalories} ${t('analytics_per_day')}` : t('analytics_no_data')}
                             color="border-emerald-400"
                         />
                     </div>
@@ -330,16 +333,16 @@ const Analytics = () => {
                     {/* Charts */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                         <div className="lg:col-span-2 card">
-                            <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4">🔥 Сожжённые калории (тренировки)</h3>
+                            <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4">🔥 {t('analytics_cal_burned_chart')}</h3>
                             <Line data={caloriesChartData} options={chartOptions} />
                         </div>
                         <div className="card">
-                            <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4">🏷️ Типы тренировок</h3>
+                            <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4">🏷️ {t('analytics_workout_types')}</h3>
                             {Object.keys(workoutTypes).length > 0 ? (
                                 <Doughnut data={doughnutData} options={doughnutOptions} />
                             ) : (
                                 <div className="flex items-center justify-center h-48 text-gray-400 dark:text-slate-500 text-sm">
-                                    Нет данных
+                                    {t('analytics_no_data')}
                                 </div>
                             )}
                         </div>
@@ -347,21 +350,21 @@ const Analytics = () => {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                         <div className="card">
-                            <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4">⏱️ Длительность тренировок (мин)</h3>
+                            <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4">⏱️ {t('analytics_duration_chart')}</h3>
                             <Bar data={durationChartData} options={chartOptions} />
                         </div>
                         <div className="card">
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100">🥗 Калории из питания</h3>
+                                <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100">🥗 {t('analytics_nutrition_chart')}</h3>
                                 {avgConsumedCalories > 0 && (
-                                    <span className="badge-primary text-xs">~{avgConsumedCalories} ккал/день</span>
+                                    <span className="badge-primary text-xs">~{avgConsumedCalories} {t('analytics_per_day')}</span>
                                 )}
                             </div>
                             {nutritionCaloriesData.some(v => v > 0) ? (
                                 <Line data={nutritionChartData} options={chartOptions} />
                             ) : (
                                 <div className="flex items-center justify-center h-48 text-gray-400 dark:text-slate-500 text-sm">
-                                    Нет данных о питании
+                                    {t('analytics_no_nutrition')}
                                 </div>
                             )}
                         </div>
@@ -370,7 +373,7 @@ const Analytics = () => {
                     {/* Workout list */}
                     {filteredWorkouts.length > 0 && (
                         <div className="card mt-2">
-                            <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4">📋 Последние тренировки</h3>
+                            <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4">📋 {t('analytics_recent_workouts')}</h3>
                             <div className="space-y-2">
                                 {filteredWorkouts.slice(0, 10).map(w => (
                                     <div key={w._id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
@@ -379,13 +382,13 @@ const Analytics = () => {
                                                 🏋️
                                             </div>
                                             <div>
-                                                <p className="font-medium text-gray-800 dark:text-slate-100 text-sm">{w.type || 'Тренировка'}</p>
+                                                <p className="font-medium text-gray-800 dark:text-slate-100 text-sm">{w.type || t('analytics_workout_fallback')}</p>
                                                 <p className="text-xs text-gray-400 dark:text-slate-500">{dayjs(w.date).format('D MMM YYYY')}</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-4 text-sm">
-                                            <span className="text-amber-600 dark:text-amber-400 font-medium">{w.caloriesBurned || 0} ккал</span>
-                                            <span className="text-gray-400 dark:text-slate-500">{w.duration || 0} мин</span>
+                                            <span className="text-amber-600 dark:text-amber-400 font-medium">{w.caloriesBurned || 0} {t('analytics_unit_kcal')}</span>
+                                            <span className="text-gray-400 dark:text-slate-500">{w.duration || 0} {t('analytics_unit_min')}</span>
                                         </div>
                                     </div>
                                 ))}
@@ -396,8 +399,8 @@ const Analytics = () => {
                     {filteredWorkouts.length === 0 && (
                         <div className="card text-center py-12 mt-2">
                             <div className="text-5xl mb-4">📊</div>
-                            <p className="text-gray-500 dark:text-slate-400 font-medium">Нет данных за выбранный период</p>
-                            <p className="text-gray-400 dark:text-slate-500 text-sm mt-1">Добавьте тренировки в календарь, чтобы увидеть статистику</p>
+                            <p className="text-gray-500 dark:text-slate-400 font-medium">{t('analytics_no_data_period')}</p>
+                            <p className="text-gray-400 dark:text-slate-500 text-sm mt-1">{t('analytics_no_data_hint')}</p>
                         </div>
                     )}
                 </>

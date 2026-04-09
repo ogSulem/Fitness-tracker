@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import useCountUp from '../hooks/useCountUp';
+import { useLang } from '../context/LanguageContext';
 
 const CircleProgress = ({ percent, size = 120, strokeWidth = 10, color = '#7c3aed' }) => {
     const radius = (size - strokeWidth) / 2;
@@ -55,6 +56,7 @@ const MacroBar = ({ label, value, max, color }) => {
 };
 
 const DailyStats = ({ targetCalories = 2000 }) => {
+    const { t } = useLang();
     const [consumedCalories, setConsumedCalories] = useState(0);
     const [burnedCalories, setBurnedCalories] = useState(0);
     const [macros, setMacros] = useState({ protein: 0, fat: 0, carbs: 0 });
@@ -157,9 +159,9 @@ const DailyStats = ({ targetCalories = 2000 }) => {
                     {/* Consumed */}
                     <div className="bg-gradient-to-br from-violet-50 to-violet-100 dark:from-violet-900/30 dark:to-violet-800/20 rounded-xl p-4 hover:scale-[1.02] transition-transform duration-200">
                         <div className="text-2xl mb-1">🔥</div>
-                        <p className="text-xs font-medium text-violet-600 dark:text-violet-400 mb-1">Потреблено</p>
+                        <p className="text-xs font-medium text-violet-600 dark:text-violet-400 mb-1">{t('daily_consumed')}</p>
                         <p className="text-xl font-bold text-violet-700 dark:text-violet-300">{animConsumed}</p>
-                        <p className="text-xs text-violet-400 dark:text-violet-500">ккал</p>
+                        <p className="text-xs text-violet-400 dark:text-violet-500">{t('daily_kcal')}</p>
                         <div className="progress-bar mt-2">
                             <div
                                 className="progress-fill bg-violet-500"
@@ -171,19 +173,19 @@ const DailyStats = ({ targetCalories = 2000 }) => {
                     {/* Burned */}
                     <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-800/20 rounded-xl p-4 hover:scale-[1.02] transition-transform duration-200">
                         <div className="text-2xl mb-1">💪</div>
-                        <p className="text-xs font-medium text-amber-600 dark:text-amber-400 mb-1">Сожжено</p>
+                        <p className="text-xs font-medium text-amber-600 dark:text-amber-400 mb-1">{t('daily_burned')}</p>
                         <p className="text-xl font-bold text-amber-700 dark:text-amber-300">{animBurned}</p>
-                        <p className="text-xs text-amber-400 dark:text-amber-500">ккал</p>
+                        <p className="text-xs text-amber-400 dark:text-amber-500">{t('daily_kcal')}</p>
                     </div>
 
                     {/* Balance */}
                     <div className={`bg-gradient-to-br rounded-xl p-4 hover:scale-[1.02] transition-transform duration-200 ${isOver ? 'from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/20' : 'from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/20'}`}>
                         <div className="text-2xl mb-1">⚖️</div>
-                        <p className={`text-xs font-medium mb-1 ${isOver ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>Баланс</p>
+                        <p className={`text-xs font-medium mb-1 ${isOver ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>{t('daily_balance')}</p>
                         <p className={`text-xl font-bold ${isOver ? 'text-red-700 dark:text-red-300' : 'text-green-700 dark:text-green-300'}`}>
                             {isOver ? '+' : ''}{netCalories < 0 ? '-' : ''}{animNet}
                         </p>
-                        <p className={`text-xs ${isOver ? 'text-red-400 dark:text-red-500' : 'text-green-400 dark:text-green-500'}`}>ккал</p>
+                        <p className={`text-xs ${isOver ? 'text-red-400 dark:text-red-500' : 'text-green-400 dark:text-green-500'}`}>{t('daily_kcal')}</p>
                     </div>
 
                     {/* Remaining */}
@@ -191,7 +193,7 @@ const DailyStats = ({ targetCalories = 2000 }) => {
                         <div className="text-2xl mb-1">🎯</div>
                         <p className="text-xs font-medium text-sky-600 dark:text-sky-400 mb-1">До цели</p>
                         <p className="text-xl font-bold text-sky-700 dark:text-sky-300">{animRemaining}</p>
-                        <p className="text-xs text-sky-400 dark:text-sky-500">ккал</p>
+                        <p className="text-xs text-sky-400 dark:text-sky-500">{t('daily_kcal')}</p>
                     </div>
                 </div>
             </div>

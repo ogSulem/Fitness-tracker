@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { useLang } from '../context/LanguageContext';
 
 const CalorieCalculator = () => {
     const { user } = useContext(AuthContext);
+    const { t } = useLang();
     const [formData, setFormData] = useState({
         activityLevel: 'moderate',
         goal: 'maintain'
@@ -72,36 +74,36 @@ const CalorieCalculator = () => {
     return (
         <div className="card">
             <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2">
-                <span className="text-lg">🔢</span> Калькулятор калорий
+                <span className="text-lg">🔢</span> {t('calc_title')}
             </h3>
 
             <div className="grid grid-cols-2 gap-3 mb-4">
                 <div>
-                    <label className="label text-xs">Активность</label>
+                    <label className="label text-xs">{t('calc_activity')}</label>
                     <select
                         name="activityLevel"
                         value={formData.activityLevel}
                         onChange={handleChange}
                         className="input text-sm py-2"
                     >
-                        <option value="sedentary">Сидячий</option>
-                        <option value="light">Лёгкая</option>
-                        <option value="moderate">Умеренная</option>
-                        <option value="active">Высокая</option>
-                        <option value="veryActive">Очень высокая</option>
+                        <option value="sedentary">{t('profile_sedentary')}</option>
+                        <option value="light">{t('profile_light')}</option>
+                        <option value="moderate">{t('profile_moderate')}</option>
+                        <option value="active">{t('profile_active')}</option>
+                        <option value="veryActive">{t('profile_veryActive')}</option>
                     </select>
                 </div>
                 <div>
-                    <label className="label text-xs">Цель</label>
+                    <label className="label text-xs">{t('calc_goal')}</label>
                     <select
                         name="goal"
                         value={formData.goal}
                         onChange={handleChange}
                         className="input text-sm py-2"
                     >
-                        <option value="lose">Похудение</option>
-                        <option value="maintain">Поддержание</option>
-                        <option value="gain">Набор массы</option>
+                        <option value="lose">{t('calc_lose')}</option>
+                        <option value="maintain">{t('calc_maintain')}</option>
+                        <option value="gain">{t('calc_gain')}</option>
                     </select>
                 </div>
             </div>
@@ -109,9 +111,9 @@ const CalorieCalculator = () => {
             {result && (
                 <div className="space-y-3">
                     <div className="bg-gradient-to-r from-violet-50 to-violet-100 dark:from-violet-900/30 dark:to-violet-800/20 rounded-xl p-4 text-center">
-                        <p className="text-xs text-violet-600 dark:text-violet-400 font-medium mb-1">Рекомендуемая норма</p>
+                        <p className="text-xs text-violet-600 dark:text-violet-400 font-medium mb-1">{t('calc_result_label')}</p>
                         <p className="text-3xl font-bold text-violet-700 dark:text-violet-300">{result.targetCalories}</p>
-                        <p className="text-xs text-violet-500 dark:text-violet-400">ккал / день</p>
+                        <p className="text-xs text-violet-500 dark:text-violet-400">{t('calc_kcal_day')}</p>
                     </div>
 
                     <div className="grid grid-cols-3 gap-2 text-center">
@@ -131,21 +133,21 @@ const CalorieCalculator = () => {
 
                     <div className="space-y-1.5">
                         <div className="flex justify-between text-xs text-gray-500 dark:text-slate-400">
-                            <span>Белки (30%)</span>
+                            <span>{t('calc_protein')}</span>
                             <span>{result.protein}г</span>
                         </div>
                         <div className="progress-bar">
                             <div className="progress-fill bg-blue-400" style={{ width: '30%' }} />
                         </div>
                         <div className="flex justify-between text-xs text-gray-500 dark:text-slate-400">
-                            <span>Жиры (30%)</span>
+                            <span>{t('calc_fat')}</span>
                             <span>{result.fat}г</span>
                         </div>
                         <div className="progress-bar">
                             <div className="progress-fill bg-amber-400" style={{ width: '30%' }} />
                         </div>
                         <div className="flex justify-between text-xs text-gray-500 dark:text-slate-400">
-                            <span>Углеводы (40%)</span>
+                            <span>{t('calc_carbs')}</span>
                             <span>{result.carbs}г</span>
                         </div>
                         <div className="progress-bar">

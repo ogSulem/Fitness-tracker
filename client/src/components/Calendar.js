@@ -1,15 +1,20 @@
 import React, { useState, useEffect, useContext } from 'react';
 import dayjs from 'dayjs';
+import 'dayjs/locale/ru';
+import 'dayjs/locale/en';
 import Modal from './Modal';
 import WorkoutForm from './WorkoutForm';
 import GoalForm from './GoalForm';
 import { NotificationContext } from '../context/NotificationContext';
+import { useLang } from '../context/LanguageContext';
 import axios from 'axios';
 import useAuth from '../hooks/useAuth';
 
 const Calendar = () => {
     const { showNotification } = useContext(NotificationContext);
     const { isAuthenticated } = useAuth();
+    const { lang, t } = useLang();
+    dayjs.locale(lang === 'en' ? 'en' : 'ru');
     const [currentDate, setCurrentDate] = useState(dayjs());
     const [calendarDays, setCalendarDays] = useState([]);
     const [workouts, setWorkouts] = useState([]);
@@ -123,7 +128,7 @@ const Calendar = () => {
             const newWorkout = response.data;
             setWorkouts([...workouts, newWorkout]);
             setIsWorkoutModalOpen(false);
-            showNotification('Тренировка успешно добавлена', 'success');
+            showNotification(t('cal_workout_added'), 'success');
         } catch (err) {
             console.error('Ошибка при добавлении тренировки:', err.response?.data || err.message);
 
@@ -153,7 +158,7 @@ const Calendar = () => {
             const newGoal = response.data;
             setGoals([...goals, newGoal]);
             setIsGoalModalOpen(false);
-            showNotification('Цель успешно добавлена', 'success');
+            showNotification(t('cal_goal_added'), 'success');
         } catch (err) {
             console.error('Ошибка при добавлении цели:', err.response?.data || err.message);
 
@@ -170,7 +175,7 @@ const Calendar = () => {
             await axios.delete(`/api/workouts/${workoutId}`);
             setWorkouts(prev => prev.filter(w => w._id !== workoutId));
             setIsViewWorkoutModalOpen(false);
-            showNotification('Тренировка удалена', 'success');
+            showNotification(t('cal_deleted'), 'success');
         } catch (err) {
             console.error('Ошибка при удалении тренировки:', err);
             showNotification('Ошибка при удалении тренировки', 'error');
@@ -294,13 +299,13 @@ const Calendar = () => {
                     onClick={openGoalModal}
                     className="btn-secondary"
                 >
-                    🎯 Добавить цель
+                    🎯 {t('cal_add_goal')}
                 </button>
                 <button
                     onClick={() => openWorkoutModal()}
                     className="btn-primary"
                 >
-                    + Добавить тренировку
+                    + {t('cal_add_workout')}
                 </button>
             </div>
 
@@ -366,7 +371,7 @@ const Calendar = () => {
                                 onClick={() => handleDeleteWorkout(selectedWorkout._id)}
                                 className="btn-danger text-sm py-2 px-4"
                             >
-                                🗑️ Удалить
+                                🗑️ {t('cal_delete')}
                             </button>
                             <button
                                 onClick={() => setIsViewWorkoutModalOpen(false)}

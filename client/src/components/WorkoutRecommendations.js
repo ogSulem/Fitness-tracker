@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useLang } from '../context/LanguageContext';
 
 const GOALS = [
     { value: 'weightLoss',  label: '🔥 Похудение' },
@@ -7,13 +8,13 @@ const GOALS = [
     { value: 'endurance',   label: '🏃 Выносливость' },
 ];
 
-const LEVELS = [
-    { value: 'beginner',     label: '🟢 Начинающий' },
-    { value: 'intermediate', label: '🟡 Средний' },
-    { value: 'advanced',     label: '🔴 Продвинутый' },
-];
-
 const WorkoutRecommendations = () => {
+    const { t } = useLang();
+    const LEVELS = [
+        { value: 'beginner',     label: t('wrec_level_beginner') },
+        { value: 'intermediate', label: t('wrec_level_intermediate') },
+        { value: 'advanced',     label: t('wrec_level_advanced') },
+    ];
     const [selectedGoal, setSelectedGoal]   = useState('weightLoss');
     const [selectedLevel, setSelectedLevel] = useState('beginner');
     const [recommendation, setRecommendation] = useState(null);
@@ -40,7 +41,7 @@ const WorkoutRecommendations = () => {
     return (
         <div className="card">
             <h2 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2">
-                <span>🎯</span> Рекомендации по тренировкам
+                <span>🎯</span> {t('wrec_title')}
             </h2>
 
             <div className="space-y-3 mb-5">
@@ -92,7 +93,7 @@ const WorkoutRecommendations = () => {
             )}
 
             {error && !loading && (
-                <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl p-3 text-sm text-center">{error}</div>
+                <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl p-3 text-sm text-center">{t('wrec_unavailable')}</div>
             )}
 
             {recommendation && !loading && !error && (
@@ -110,7 +111,7 @@ const WorkoutRecommendations = () => {
 
                     {recommendation.types?.length > 0 && (
                         <div>
-                            <p className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-2">Типы тренировок</p>
+                            <p className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-2">{t('wrec_types_label')}</p>
                             <div className="flex flex-wrap gap-1.5">
                                 {recommendation.types.map((type, i) => (
                                     <span key={i} className="badge-primary text-xs">{type}</span>

@@ -2,9 +2,11 @@ import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { NotificationContext } from '../context/NotificationContext';
 import { ThemeContext } from '../context/ThemeContext';
+import { useLang } from '../context/LanguageContext';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
+import 'dayjs/locale/en';
 import {
     Chart as ChartJS,
     CategoryScale, LinearScale, PointElement, LineElement,
@@ -13,14 +15,6 @@ import {
 import { Line } from 'react-chartjs-2';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
-dayjs.locale('ru');
-
-const TABS = [
-    { key: 'profile',  label: 'Профиль',         icon: '👤' },
-    { key: 'weight',   label: 'Динамика веса',    icon: '⚖️' },
-    { key: 'goals',    label: 'Цели',              icon: '🎯' },
-    { key: 'workouts', label: 'Тренировки',        icon: '🏋️' },
-];
 
 const StatPill = ({ label, value }) => (
     <div className="bg-gray-50 dark:bg-slate-700 rounded-xl px-4 py-3 text-center">
@@ -33,6 +27,14 @@ const Profile = () => {
     const { user, updateUser } = useContext(AuthContext);
     const { isDark } = useContext(ThemeContext);
     const { showNotification } = useContext(NotificationContext);
+    const { lang, t } = useLang();
+    dayjs.locale(lang === 'en' ? 'en' : 'ru');
+    const TABS = [
+        { key: 'profile',  label: t('profile_tab_profile'),  icon: '👤' },
+        { key: 'weight',   label: t('profile_tab_weight'),   icon: '⚖️' },
+        { key: 'goals',    label: t('profile_tab_goals'),    icon: '🎯' },
+        { key: 'workouts', label: t('profile_tab_workouts'), icon: '🏋️' },
+    ];
     const [activeTab, setActiveTab] = useState('profile');
     const [workouts, setWorkouts] = useState([]);
     const [goals, setGoals] = useState([]);
@@ -99,7 +101,7 @@ const Profile = () => {
             const weightRes = await axios.get('/api/users/weight-history');
             setWeightHistory(weightRes.data || []);
             setEditMode(false);
-            showNotification('Профиль обновлён!', 'success');
+            showNotification(t('profile_updated'), 'success');
         } catch (err) {
             showNotification(err.response?.data?.message || 'Ошибка при сохранении', 'error');
         } finally {
@@ -124,7 +126,7 @@ const Profile = () => {
     const weightChartData = {
         labels: weightLabels,
         datasets: [{
-            label: 'Вес, кг',
+            label: t('profile_weight') + ', ' + t('profile_kg'),
             data: weightValues,
             borderColor: '#7c3aed',
             backgroundColor: 'rgba(124, 58, 237, 0.08)',
@@ -163,23 +165,23 @@ const Profile = () => {
                         <p className="text-primary-200 text-sm mt-0.5">{user?.email}</p>
                         <div className="flex flex-wrap gap-2 mt-3">
                             <span className="bg-white/20 text-white text-xs font-medium px-2.5 py-1 rounded-full">
-                                {user?.gender === 'male' ? '👨 Мужской' : '👩 Женский'}
+                                {user?.gender === 'male' ? t('profile_gender_male_icon') : t('profile_gender_female_icon')}
                             </span>
                             <span className="bg-white/20 text-white text-xs font-medium px-2.5 py-1 rounded-full">
-                                {user?.age} лет
+                                {user?.age} {t('profile_years')}
                             </span>
                             <span className="bg-white/20 text-white text-xs font-medium px-2.5 py-1 rounded-full">
-                                {user?.weight} кг · {user?.height} см
+                                {user?.weight} {t('profile_kg')} · {user?.height} {t('profile_cm')}
                             </span>
                         </div>
                     </div>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 border-t border-white/20 pt-5">
                     {[
-                        { label: 'Тренировок', value: totalWorkouts },
-                        { label: 'Минут', value: totalMinutes },
-                        { label: 'Ккал сожжено', value: totalCalBurned },
-                        { label: 'Целей выполнено', value: `${completedGoals}/${goals.length}` },
+                        { label: t('profile_workouts_count'), value: totalWorkouts },
+                        { label: t('profile_minutes'), value: totalMinutes },
+                        { label: t('profile_kcal_burned'), value: totalCalBurned },
+                        { label: t('profile_goals_done'), value: `${completedGoals}/${goals.length}` },
                     ].map(s => (
                         <div key={s.label} className="text-center">
                             <p className="text-xl font-bold">{s.value}</p>
@@ -211,10 +213,10 @@ const Profile = () => {
             {activeTab === 'profile' && (
                 <div className="card animate-fadeIn">
                     <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100">Личные данные</h2>
+                        <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100">{t('profile_personal_data')}</h2>
                         {!editMode && (
                             <button onClick={() => setEditMode(true)} className="btn-secondary text-sm py-2 px-4">
-                                ✏️ Редактировать
+                                ✏️ {t('profile_edit_btn')}
                             </button>
                         )}
                     </div>
@@ -223,13 +225,13 @@ const Profile = () => {
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="label">Имя</label>
+                                    <label className="label">{t('profile_name')}</label>
                                     <input type="text" name="name" value={formData.name} onChange={handleChange} className="input" required />
                                 </div>
                                 <div>
-                                    <label className="label">Пол</label>
+                                    <label className="label">{t('profile_gender')}</label>
                                     <div className="grid grid-cols-2 gap-3">
-                                        {[{ value: 'male', label: '👨 Мужской' }, { value: 'female', label: '👩 Женский' }].map(opt => (
+                                        {[{ value: 'male', label: t('profile_gender_male_icon') }, { value: 'female', label: t('profile_gender_female_icon') }].map(opt => (
                                             <label key={opt.value} className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border-2 cursor-pointer transition-all text-sm font-medium ${
                                                 formData.gender === opt.value
                                                     ? 'border-primary-500 bg-primary-50 dark:bg-violet-900/30 text-primary-700 dark:text-violet-300'
@@ -244,45 +246,45 @@ const Profile = () => {
                             </div>
                             <div className="grid grid-cols-3 gap-4">
                                 <div>
-                                    <label className="label">Возраст</label>
+                                    <label className="label">{t('profile_age')}</label>
                                     <input type="number" name="age" value={formData.age} onChange={handleChange} className="input" min="15" max="100" required />
                                 </div>
                                 <div>
-                                    <label className="label">Вес, кг</label>
+                                    <label className="label">{t('profile_weight')} ({t('profile_kg')})</label>
                                     <input type="number" name="weight" value={formData.weight} onChange={handleChange} className="input" min="30" max="300" step="0.1" required />
                                 </div>
                                 <div>
-                                    <label className="label">Рост, см</label>
+                                    <label className="label">{t('profile_height')} ({t('profile_cm')})</label>
                                     <input type="number" name="height" value={formData.height} onChange={handleChange} className="input" min="100" max="250" required />
                                 </div>
                             </div>
                             <div>
-                                <label className="label">Уровень активности</label>
+                                <label className="label">{t('profile_activity_level')}</label>
                                 <select name="activityLevel" value={formData.activityLevel} onChange={handleChange} className="input">
-                                    <option value="sedentary">🪑 Сидячий образ жизни</option>
-                                    <option value="light">🚶 Лёгкая активность (1–2 раза/нед)</option>
-                                    <option value="moderate">🏃 Умеренная активность (3–5 раз/нед)</option>
-                                    <option value="active">💪 Высокая активность (6–7 раз/нед)</option>
-                                    <option value="veryActive">🔥 Очень высокая (спорт + физ. работа)</option>
+                                    <option value="sedentary">{t('profile_sedentary_full')}</option>
+                                    <option value="light">{t('profile_light_full')}</option>
+                                    <option value="moderate">{t('profile_moderate_full')}</option>
+                                    <option value="active">{t('profile_active_full')}</option>
+                                    <option value="veryActive">{t('profile_veryActive_full')}</option>
                                 </select>
                             </div>
                             <div className="flex gap-3 justify-end pt-2">
-                                <button type="button" onClick={handleCancelEdit} className="btn-secondary">Отмена</button>
+                                <button type="button" onClick={handleCancelEdit} className="btn-secondary">{t('profile_cancel')}</button>
                                 <button type="submit" disabled={saving} className="btn-primary">
-                                    {saving ? 'Сохранение...' : 'Сохранить'}
+                                    {saving ? t('profile_saving') : t('profile_save')}
                                 </button>
                             </div>
                         </form>
                     ) : (
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             {[
-                                { label: 'Имя', value: user?.name },
+                                { label: t('profile_name'), value: user?.name },
                                 { label: 'Email', value: user?.email },
-                                { label: 'Пол', value: user?.gender === 'male' ? 'Мужской' : 'Женский' },
-                                { label: 'Возраст', value: `${user?.age} лет` },
-                                { label: 'Вес', value: `${user?.weight} кг` },
-                                { label: 'Рост', value: `${user?.height} см` },
-                                { label: 'Активность', value: { sedentary: 'Сидячий', light: 'Лёгкая', moderate: 'Умеренная', active: 'Высокая', veryActive: 'Очень высокая' }[user?.activityLevel] || 'Умеренная' },
+                                { label: t('profile_gender'), value: user?.gender === 'male' ? t('profile_gender_male') : t('profile_gender_female') },
+                                { label: t('profile_age'), value: `${user?.age} ${t('profile_years')}` },
+                                { label: t('profile_weight'), value: `${user?.weight} ${t('profile_kg')}` },
+                                { label: t('profile_height'), value: `${user?.height} ${t('profile_cm')}` },
+                                { label: t('profile_activity'), value: { sedentary: t('profile_sedentary'), light: t('profile_light'), moderate: t('profile_moderate'), active: t('profile_active'), veryActive: t('profile_veryActive') }[user?.activityLevel] || t('profile_moderate') },
                             ].map(item => (
                                 <div key={item.label} className="bg-gray-50 dark:bg-slate-700 rounded-xl p-4">
                                     <p className="text-xs text-gray-400 dark:text-slate-400 font-medium mb-1">{item.label}</p>
@@ -297,7 +299,7 @@ const Profile = () => {
             {/* Tab: Weight */}
             {activeTab === 'weight' && (
                 <div className="card animate-fadeIn">
-                    <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100 mb-6">Динамика веса</h2>
+                    <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100 mb-6">{t('profile_weight_chart')}</h2>
                     {weightHistory.length > 1 ? (
                         <>
                             <div className="mb-4">
@@ -312,8 +314,8 @@ const Profile = () => {
                     ) : (
                         <div className="text-center py-12">
                             <div className="text-5xl mb-4">⚖️</div>
-                            <p className="text-gray-500 dark:text-slate-400 font-medium">Пока нет истории изменений веса</p>
-                            <p className="text-gray-400 dark:text-slate-500 text-sm mt-1">Обновите профиль с новым весом, чтобы увидеть динамику</p>
+                            <p className="text-gray-500 dark:text-slate-400 font-medium">{t('profile_no_weight')}</p>
+                            <p className="text-gray-400 dark:text-slate-500 text-sm mt-1">{t('profile_no_weight_hint')}</p>
                         </div>
                     )}
                 </div>
@@ -326,8 +328,8 @@ const Profile = () => {
                     {goals.length === 0 ? (
                         <div className="text-center py-12">
                             <div className="text-5xl mb-4">🎯</div>
-                            <p className="text-gray-500 dark:text-slate-400 font-medium">Нет активных целей</p>
-                            <p className="text-gray-400 dark:text-slate-500 text-sm mt-1">Добавьте цель через календарь на главной странице</p>
+                            <p className="text-gray-500 dark:text-slate-400 font-medium">{t('profile_goals_empty')}</p>
+                            <p className="text-gray-400 dark:text-slate-500 text-sm mt-1">{t('profile_goals_hint')}</p>
                         </div>
                     ) : (
                         <div className="space-y-4">
@@ -357,7 +359,7 @@ const Profile = () => {
                                                 <button
                                                     onClick={() => handleDeleteGoal(goal._id)}
                                                     className="text-gray-300 hover:text-red-500 transition-colors"
-                                                    title="Удалить цель"
+                                                    title={t('profile_delete_goal')}
                                                 >
                                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -391,8 +393,8 @@ const Profile = () => {
                     {workouts.length === 0 ? (
                         <div className="text-center py-12">
                             <div className="text-5xl mb-4">🏋️</div>
-                            <p className="text-gray-500 dark:text-slate-400 font-medium">Тренировки ещё не добавлены</p>
-                            <p className="text-gray-400 dark:text-slate-500 text-sm mt-1">Добавьте тренировку через календарь на главной странице</p>
+                            <p className="text-gray-500 dark:text-slate-400 font-medium">{t('profile_workouts_empty')}</p>
+                            <p className="text-gray-400 dark:text-slate-500 text-sm mt-1">{t('profile_goals_hint')}</p>
                         </div>
                     ) : (
                         <div className="space-y-2">
@@ -407,9 +409,9 @@ const Profile = () => {
                                     </div>
                                     <div className="flex items-center gap-4 text-sm">
                                         {w.caloriesBurned > 0 && (
-                                            <span className="text-amber-600 dark:text-amber-400 font-medium">{w.caloriesBurned} ккал</span>
+                                            <span className="text-amber-600 dark:text-amber-400 font-medium">{w.caloriesBurned} {t('analytics_unit_kcal')}</span>
                                         )}
-                                        <span className="text-gray-400 dark:text-slate-500">{w.duration} мин</span>
+                                        <span className="text-gray-400 dark:text-slate-500">{w.duration} {t('analytics_unit_min')}</span>
                                     </div>
                                 </div>
                             ))}

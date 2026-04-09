@@ -103,7 +103,7 @@ const Profile = () => {
             setEditMode(false);
             showNotification(t('profile_updated'), 'success');
         } catch (err) {
-            showNotification(err.response?.data?.message || 'Ошибка при сохранении', 'error');
+            showNotification(err.response?.data?.message || t('profile_save_error'), 'error');
         } finally {
             setSaving(false);
         }
@@ -113,9 +113,9 @@ const Profile = () => {
         try {
             await axios.delete(`/api/goals/${id}`);
             setGoals(prev => prev.filter(g => g._id !== id));
-            showNotification('Цель удалена', 'success');
+            showNotification(t('profile_goal_deleted'), 'success');
         } catch {
-            showNotification('Ошибка при удалении цели', 'error');
+            showNotification(t('profile_goal_del_err'), 'error');
         }
     };
 

@@ -14,7 +14,7 @@ const Register = () => {
     const [showPassword, setShowPassword] = useState(false);
 
     const { register } = useContext(AuthContext);
-    const { t } = useLang();
+    const { t, lang } = useLang();
     const navigate = useNavigate();
 
     const STEPS = [t('reg_step_account'), t('reg_step_profile')];
@@ -25,11 +25,11 @@ const Register = () => {
     };
 
     const validateStep0 = () => {
-        if (!formData.name.trim()) return 'Введите имя / Enter name';
-        if (!formData.email.trim()) return 'Введите email';
-        if (!formData.password) return 'Введите пароль / Enter password';
-        if (formData.password.length < 6) return 'Пароль не менее 6 символов';
-        if (formData.password !== formData.confirmPassword) return 'Пароли не совпадают';
+        if (!formData.name.trim()) return t('reg_err_name');
+        if (!formData.email.trim()) return t('reg_err_email');
+        if (!formData.password) return t('reg_err_password');
+        if (formData.password.length < 6) return t('reg_err_pass_short');
+        if (formData.password !== formData.confirmPassword) return t('reg_err_pass_match');
         return null;
     };
 
@@ -45,7 +45,7 @@ const Register = () => {
         e.preventDefault();
         setError('');
         if (Number(formData.age) < 15 || Number(formData.age) > 100) {
-            setError('Возраст от 15 до 100 лет');
+            setError(t('reg_err_age'));
             return;
         }
         setLoading(true);
@@ -54,7 +54,7 @@ const Register = () => {
             await register(registerData);
             navigate('/');
         } catch (err) {
-            setError(err.response?.data?.message || 'Ошибка при регистрации.');
+            setError(err.response?.data?.message || t('reg_err_generic'));
         } finally {
             setLoading(false);
         }
@@ -90,7 +90,7 @@ const Register = () => {
                             <div key={item.ru} className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2.5">
                                 <span>{item.icon}</span>
                                 <span className="text-sm text-violet-100 font-medium">
-                                    {t('toggle_lang') === 'RU' ? item.ru : item.en}
+                                    {lang === 'ru' ? item.ru : item.en}
                                 </span>
                             </div>
                         ))}
@@ -109,7 +109,7 @@ const Register = () => {
 
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('reg_title')}</h2>
                     <p className="text-gray-400 dark:text-slate-500 mb-6">
-                        {t('toggle_lang') === 'RU'
+                        {lang === 'ru'
                             ? `Шаг ${step + 1} из ${STEPS.length}: ${STEPS[step]}`
                             : `Step ${step + 1} of ${STEPS.length}: ${STEPS[step]}`}
                     </p>

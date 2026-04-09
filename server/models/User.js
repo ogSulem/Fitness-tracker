@@ -37,6 +37,11 @@ const UserSchema = new mongoose.Schema({
         min: 100,
         max: 250
     },
+    activityLevel: {
+        type: String,
+        enum: ['sedentary', 'light', 'moderate', 'active', 'veryActive'],
+        default: 'moderate'
+    },
     weightHistory: [{
         weight: Number,
         date: {
@@ -44,28 +49,18 @@ const UserSchema = new mongoose.Schema({
             default: Date.now
         }
     }],
+    // Password reset fields
+    resetPasswordToken: {
+        type: String,
+        default: null
+    },
+    resetPasswordExpires: {
+        type: Date,
+        default: null
+    },
     createdAt: {
         type: Date,
         default: Date.now
-    }
-});
-
-// Создаем отдельную модель для истории веса
-const WeightHistorySchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-        index: true
-    },
-    weight: {
-        type: Number,
-        required: true
-    },
-    date: {
-        type: Date,
-        default: Date.now,
-        index: true
     }
 });
 

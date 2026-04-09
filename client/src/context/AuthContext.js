@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }) => {
             setIsAuthenticated(true);
             return user;
         } catch (err) {
-            setError(err.response?.data?.message || 'Ошибка при регистрации');
+            setError(err.response?.data?.message || 'Registration failed');
             throw err;
         }
     };
@@ -73,25 +73,17 @@ export const AuthProvider = ({ children }) => {
             setIsAuthenticated(true);
             return user;
         } catch (err) {
-            setError(err.response?.data?.message || 'Ошибка при входе');
+            setError(err.response?.data?.message || 'Login failed');
             throw err;
         }
     };
 
     // Выход пользователя
-    const logout = async () => {
-        try {
-            await axios.post('/api/auth/logout');
-        } catch (err) {
-            console.error('Ошибка при выходе:', err);
-        } finally {
-            // Удаляем токен
-            localStorage.removeItem('token');
-            delete axios.defaults.headers.common['Authorization'];
-
-            setUser(null);
-            setIsAuthenticated(false);
-        }
+    const logout = () => {
+        localStorage.removeItem('token');
+        delete axios.defaults.headers.common['Authorization'];
+        setUser(null);
+        setIsAuthenticated(false);
     };
 
     // Обновление данных пользователя
@@ -101,18 +93,9 @@ export const AuthProvider = ({ children }) => {
             const response = await axios.put('/api/users/profile', userData);
             const updatedUser = response.data;
             setUser(updatedUser);
-            
-            // Обновляем данные для отображения динамики веса
-            try {
-                const weightHistoryRes = await axios.get('/api/users/weight-history');
-                console.log('Обновлена история веса после изменения профиля', weightHistoryRes.data);
-            } catch (historyErr) {
-                console.error('Ошибка при обновлении истории веса:', historyErr);
-            }
-            
             return updatedUser;
         } catch (err) {
-            setError(err.response?.data?.message || 'Ошибка при обновлении профиля');
+            setError(err.response?.data?.message || 'Failed to update profile');
             throw err;
         }
     };

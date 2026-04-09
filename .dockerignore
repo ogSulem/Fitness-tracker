@@ -1,0 +1,38 @@
+# Git
+.git
+.gitignore
+
+# Dependencies (rebuilt inside Docker)
+node_modules
+client/node_modules
+server/node_modules
+
+# Build output (rebuilt inside Docker)
+client/build
+server/dist
+
+# Environment files (passed via docker-compose / VPS env)
+.env
+.env.*
+!.env.example
+!client/.env.example
+!server/.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode
+.idea
+
+# Diploma / docs (not needed in container)
+diploma.md
+diploma.docx
+v1_*.docx
+v1_*.txt
+convert_to_docx.sh
+reference.docx
+*.pdf

@@ -1,21 +1,32 @@
 const express = require('express');
 const router = express.Router();
 const { check, validationResult } = require('express-validator');
+const rateLimit = require('express-rate-limit');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+
+const profileLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 30,
+    message: 'Слишком много запросов. Попробуйте позже.',
+    standardHeaders: true,
+    legacyHeaders: false
+});
 
 // @route   PUT api/users/profile
 // @desc    Обновление профиля пользователя
 // @access  Private
 router.put(
     '/profile',
+    profileLimiter,
     auth,
     [
         check('name', 'Имя обязательно').not().isEmpty(),
         check('gender', 'Пол обязателен').isIn(['male', 'female']),
         check('age', 'Возраст должен быть от 15 до 100').isInt({ min: 15, max: 100 }),
         check('weight', 'Вес должен быть от 30 до 200 кг').isFloat({ min: 30, max: 200 }),
-        check('height', 'Рост должен быть от 100 до 250 см').isFloat({ min: 100, max: 250 })
+        check('height', 'Рост должен быть от 100 до 250 см').isFloat({ min: 100, max: 250 }),
+        check('activityLevel').optional().isIn(['sedentary', 'light', 'moderate', 'active', 'veryActive'])
     ],
     async (req, res) => {
         try {
@@ -24,7 +35,7 @@ router.put(
                 return res.status(400).json({ errors: errors.array() });
             }
 
-            const { name, gender, age, weight, height } = req.body;
+            const { name, gender, age, weight, height, activityLevel } = req.body;
 
             let user = await User.findById(req.user.id);
             if (!user) {
@@ -34,6 +45,8 @@ router.put(
             user.name = name;
             user.gender = gender;
             user.age = age;
+
+            if (activityLevel) user.activityLevel = activityLevel;
 
             if (weight !== undefined && weight !== user.weight) {
                 user.weight = weight;
@@ -51,7 +64,7 @@ router.put(
             res.json(updatedUser);
         } catch (err) {
             console.error(err.message);
-            res.status(500).send('Ошибка сервера');
+            res.status(500).json({ message: 'Ошибка сервера' });
         }
     }
 );
@@ -59,7 +72,7 @@ router.put(
 // @route   GET api/users/weight-history
 // @desc    Получение истории веса пользователя
 // @access  Private
-router.get('/weight-history', auth, async (req, res) => {
+router.get('/weight-history', profileLimiter, auth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         if (!user) {
@@ -70,7 +83,7 @@ router.get('/weight-history', auth, async (req, res) => {
         res.json(history);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Ошибка сервера');
+        res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
 
@@ -79,6 +92,7 @@ router.get('/weight-history', auth, async (req, res) => {
 // @access  Private
 router.post(
     '/goals',
+    profileLimiter,
     auth,
     [
         check('type', 'Тип цели обязателен').isIn(['weight', 'workout', 'calories']),
@@ -111,7 +125,7 @@ router.post(
             res.json(user.goals);
         } catch (err) {
             console.error(err.message);
-            res.status(500).send('Ошибка сервера');
+            res.status(500).json({ message: 'Ошибка сервера' });
         }
     }
 );
@@ -119,7 +133,7 @@ router.post(
 // @route   GET api/users/goals
 // @desc    Получение целей пользователя
 // @access  Private
-router.get('/goals', auth, async (req, res) => {
+router.get('/goals', profileLimiter, auth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         if (!user) {
@@ -129,7 +143,7 @@ router.get('/goals', auth, async (req, res) => {
         res.json(user.goals);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Ошибка сервера');
+        res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
 
@@ -138,6 +152,7 @@ router.get('/goals', auth, async (req, res) => {
 // @access  Private
 router.post(
     '/workouts',
+    profileLimiter,
     auth,
     [
         check('name', 'Название тренировки обязательно').not().isEmpty(),
@@ -172,7 +187,7 @@ router.post(
             res.json(user.workouts);
         } catch (err) {
             console.error(err.message);
-            res.status(500).send('Ошибка сервера');
+            res.status(500).json({ message: 'Ошибка сервера' });
         }
     }
 );
@@ -180,7 +195,7 @@ router.post(
 // @route   GET api/users/workouts
 // @desc    Получение тренировок пользователя
 // @access  Private
-router.get('/workouts', auth, async (req, res) => {
+router.get('/workouts', profileLimiter, auth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         if (!user) {
@@ -190,7 +205,7 @@ router.get('/workouts', auth, async (req, res) => {
         res.json(user.workouts);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Ошибка сервера');
+        res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
 

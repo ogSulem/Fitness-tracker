@@ -39,7 +39,7 @@ const Notification = () => {
 
     if (!visible || !notification) return null;
 
-    const bgColor = notification.type === 'workout' ? 'bg-primary' : 'bg-green-600';
+    const bgColor = notification.type === 'workout' ? 'bg-primary-600' : 'bg-emerald-600';
 
     return (
         <div className={`fixed bottom-4 right-4 ${bgColor} text-white p-4 rounded-lg shadow-lg max-w-sm z-50`}>

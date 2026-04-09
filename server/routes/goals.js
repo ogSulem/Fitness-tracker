@@ -1,27 +1,36 @@
 const express = require('express');
 const router = express.Router();
 const { check, validationResult } = require('express-validator');
+const rateLimit = require('express-rate-limit');
 const auth = require('../middleware/auth');
 const Goal = require('../models/Goal');
 const User = require('../models/User');
 
+const goalsLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 минут
+    max: 100,
+    message: 'Слишком много запросов. Попробуйте позже.',
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
 // @route   GET api/goals
 // @desc    Получение всех целей пользователя
 // @access  Private
-router.get('/', auth, async (req, res) => {
+router.get('/', goalsLimiter, auth, async (req, res) => {
     try {
         const goals = await Goal.find({ user: req.user.id }).sort({ createdAt: -1 });
         res.json(goals);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Ошибка сервера');
+        res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
 
 // @route   GET api/goals/:id
 // @desc    Получение цели по ID
 // @access  Private
-router.get('/:id', auth, async (req, res) => {
+router.get('/:id', goalsLimiter, auth, async (req, res) => {
     try {
         const goal = await Goal.findById(req.params.id);
 
@@ -40,7 +49,7 @@ router.get('/:id', auth, async (req, res) => {
         if (err.kind === 'ObjectId') {
             return res.status(404).json({ message: 'Цель не найдена' });
         }
-        res.status(500).send('Ошибка сервера');
+        res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
 
@@ -49,6 +58,7 @@ router.get('/:id', auth, async (req, res) => {
 // @access  Private
 router.post(
     '/',
+    goalsLimiter,
     auth,
     [
         check('title', 'Название цели обязательно').not().isEmpty(),
@@ -83,7 +93,7 @@ router.post(
             res.json(goal);
         } catch (err) {
             console.error(err.message);
-            res.status(500).send('Ошибка сервера');
+            res.status(500).json({ message: 'Ошибка сервера' });
         }
     }
 );
@@ -91,7 +101,7 @@ router.post(
 // @route   PUT api/goals/:id
 // @desc    Обновление цели
 // @access  Private
-router.put('/:id', auth, async (req, res) => {
+router.put('/:id', goalsLimiter, auth, async (req, res) => {
     try {
         const { title, type, startValue, currentValue, targetValue, unit, deadline, description, completed } = req.body;
 
@@ -125,14 +135,14 @@ router.put('/:id', auth, async (req, res) => {
         if (err.kind === 'ObjectId') {
             return res.status(404).json({ message: 'Цель не найдена' });
         }
-        res.status(500).send('Ошибка сервера');
+        res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
 
 // @route   PUT api/goals/:id/progress
 // @desc    Обновление прогресса цели
 // @access  Private
-router.put('/:id/progress', auth, async (req, res) => {
+router.put('/:id/progress', goalsLimiter, auth, async (req, res) => {
     try {
         const { currentValue, completed } = req.body;
 
@@ -171,14 +181,14 @@ router.put('/:id/progress', auth, async (req, res) => {
         if (err.kind === 'ObjectId') {
             return res.status(404).json({ message: 'Цель не найдена' });
         }
-        res.status(500).send('Ошибка сервера');
+        res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
 
 // @route   DELETE api/goals/:id
 // @desc    Удаление цели
 // @access  Private
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', goalsLimiter, auth, async (req, res) => {
     try {
         const goal = await Goal.findById(req.params.id);
 
@@ -191,14 +201,14 @@ router.delete('/:id', auth, async (req, res) => {
             return res.status(401).json({ message: 'Нет прав доступа' });
         }
 
-        await goal.remove();
+        await goal.deleteOne();
         res.json({ message: 'Цель удалена' });
     } catch (err) {
         console.error(err.message);
         if (err.kind === 'ObjectId') {
             return res.status(404).json({ message: 'Цель не найдена' });
         }
-        res.status(500).send('Ошибка сервера');
+        res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
 

@@ -34,18 +34,15 @@ const useAxiosInterceptor = () => {
             },
             error => {
                 const statusCode = error.response?.status;
-                const errorMessage = error.response?.data?.message || 'Произошла ошибка при выполнении запроса';
 
                 console.error('Ошибка ответа:', statusCode, error.response?.data || error.message);
 
                 // Обрабатываем ошибки аутентификации
                 if (statusCode === 401) {
                     showNotification('Сессия истекла. Необходимо войти заново.', 'error');
-                    logout(); // Выходим при истечении токена
+                    logout();
                 } else if (statusCode === 403) {
                     showNotification('У вас нет доступа к этому ресурсу', 'error');
-                } else if (statusCode === 404) {
-                    showNotification('Запрашиваемый ресурс не найден', 'error');
                 } else if (statusCode >= 500) {
                     showNotification('Ошибка сервера. Попробуйте позже', 'error');
                 }

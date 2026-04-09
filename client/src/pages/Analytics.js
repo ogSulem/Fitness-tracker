@@ -1,0 +1,412 @@
+import React, { useState, useEffect, useContext } from 'react';
+import axios from 'axios';
+import dayjs from 'dayjs';
+import 'dayjs/locale/ru';
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    BarElement,
+    ArcElement,
+    Title,
+    Tooltip,
+    Legend,
+    Filler,
+} from 'chart.js';
+import { Line, Bar, Doughnut } from 'react-chartjs-2';
+import { ThemeContext } from '../context/ThemeContext';
+import { useLang } from '../context/LanguageContext';
+import 'dayjs/locale/en';
+
+ChartJS.register(
+    CategoryScale, LinearScale, PointElement, LineElement,
+    BarElement, ArcElement, Title, Tooltip, Legend, Filler
+);
+
+const StatSummaryCard = ({ icon, label, value, unit, sub, color }) => (
+    <div className={`card border-l-4 ${color}`}>
+        <div className="flex items-start justify-between">
+            <div>
+                <p className="text-sm text-gray-500 dark:text-slate-400 font-medium">{label}</p>
+                <p className="text-2xl font-bold text-gray-800 dark:text-slate-100 mt-1">{value}<span className="text-sm font-normal text-gray-400 dark:text-slate-500 ml-1">{unit}</span></p>
+                {sub && <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">{sub}</p>}
+            </div>
+            <span className="text-3xl">{icon}</span>
+        </div>
+    </div>
+);
+
+const Analytics = () => {
+    const [workouts, setWorkouts]       = useState([]);
+    const [nutritionSummary, setNutritionSummary] = useState([]);
+    const [period, setPeriod]           = useState('week');
+    const [loading, setLoading]         = useState(true);
+    const { isDark } = useContext(ThemeContext);
+    const { lang, t } = useLang();
+    dayjs.locale(lang === 'en' ? 'en' : 'ru');
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                const [workoutsRes, nutritionRes] = await Promise.allSettled([
+                    axios.get('/api/workouts'),
+                    axios.get(`/api/nutrition/summary?start=${dayjs().subtract(365, 'day').format('YYYY-MM-DD')}&end=${dayjs().format('YYYY-MM-DD')}`),
+                ]);
+                if (workoutsRes.status === 'fulfilled') setWorkouts(workoutsRes.value.data || []);
+                if (nutritionRes.status === 'fulfilled') setNutritionSummary(nutritionRes.value.data || []);
+            } catch (err) {
+                console.error('Ошибка загрузки данных:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
+
+    const getDaysBack = () => ({ week: 7, month: 30, year: 365 }[period] || 7);
+
+    const filteredWorkouts = workouts.filter(w => {
+        const workoutDate = dayjs(w.date);
+        return workoutDate.isAfter(dayjs().subtract(getDaysBack(), 'day'));
+    });
+
+    const generateLabels = () => {
+        const days = getDaysBack();
+        return Array.from({ length: days }, (_, i) =>
+            dayjs().subtract(days - 1 - i, 'day').format(days <= 7 ? 'dd' : 'D MMM')
+        );
+    };
+
+    const labels = generateLabels();
+
+    // Precompute label→date and date→workouts to avoid O(n²) per render
+    const labelDates = labels.map((_, i) =>
+        dayjs().subtract(getDaysBack() - 1 - i, 'day').format('YYYY-MM-DD')
+    );
+
+    const workoutsByDate = filteredWorkouts.reduce((acc, w) => {
+        const d = dayjs(w.date).format('YYYY-MM-DD');
+        if (!acc[d]) acc[d] = [];
+        acc[d].push(w);
+        return acc;
+    }, {});
+
+    const caloriesData = labelDates.map(d =>
+        (workoutsByDate[d] || []).reduce((sum, w) => sum + (w.caloriesBurned || 0), 0)
+    );
+
+    const durationData = labelDates.map(d =>
+        (workoutsByDate[d] || []).reduce((sum, w) => sum + (w.duration || 0), 0)
+    );
+
+    const workoutTypes = filteredWorkouts.reduce((acc, w) => {
+        const type = w.type || 'Другое';
+        acc[type] = (acc[type] || 0) + 1;
+        return acc;
+    }, {});
+
+    const totalCaloriesBurned = filteredWorkouts.reduce((s, w) => s + (w.caloriesBurned || 0), 0);
+    const totalDuration = filteredWorkouts.reduce((s, w) => s + (w.duration || 0), 0);
+    const avgCalories = filteredWorkouts.length > 0 ? Math.round(totalCaloriesBurned / filteredWorkouts.length) : 0;
+
+    const tickColor  = isDark ? '#94a3b8' : '#6b7280';
+    const gridColor  = isDark ? '#334155' : '#f1f5f9';
+
+    const chartOptions = {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 }, color: tickColor } },
+            y: { grid: { color: gridColor }, ticks: { font: { size: 11 }, color: tickColor } },
+        },
+    };
+
+    const caloriesChartData = {
+        labels,
+        datasets: [{
+            label: t('analytics_unit_kcal'),
+            data: caloriesData,
+            backgroundColor: 'rgba(124, 58, 237, 0.15)',
+            borderColor: '#7c3aed',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#7c3aed',
+            pointRadius: 4,
+        }],
+    };
+
+    const durationChartData = {
+        labels,
+        datasets: [{
+            label: t('analytics_unit_min'),
+            data: durationData,
+            backgroundColor: 'rgba(16, 185, 129, 0.7)',
+            borderColor: '#059669',
+            borderWidth: 0,
+            borderRadius: 6,
+        }],
+    };
+
+    const doughnutData = {
+        labels: Object.keys(workoutTypes),
+        datasets: [{
+            data: Object.values(workoutTypes),
+            backgroundColor: ['#7c3aed', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#8b5cf6'],
+            borderWidth: 0,
+        }],
+    };
+
+    const doughnutOptions = {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: { font: { size: 12 }, padding: 16, color: isDark ? '#94a3b8' : '#374151' },
+            },
+        },
+        cutout: '65%',
+    };
+
+    // Nutrition chart data
+    const filteredNutrition = nutritionSummary.filter(n =>
+        dayjs(n.date).isAfter(dayjs().subtract(getDaysBack(), 'day'))
+    );
+
+    const nutritionByDate = filteredNutrition.reduce((acc, n) => {
+        acc[n.date] = n;
+        return acc;
+    }, {});
+
+    const nutritionCaloriesData = labelDates.map(d => {
+        const entry = nutritionByDate[d];
+        return entry ? Math.round(entry.calories) : 0;
+    });
+
+    const nutritionChartData = {
+        labels,
+        datasets: [{
+            label: t('analytics_unit_kcal'),
+            data: nutritionCaloriesData,
+            backgroundColor: 'rgba(16, 185, 129, 0.15)',
+            borderColor: '#10b981',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#10b981',
+            pointRadius: 4,
+        }],
+    };
+
+    const totalConsumedCalories = filteredNutrition.reduce((s, n) => s + (n.calories || 0), 0);
+    const avgConsumedCalories   = filteredNutrition.length > 0 ? Math.round(totalConsumedCalories / filteredNutrition.length) : 0;
+
+    // ─── CSV Export ──────────────────────────────────────────────────────────────
+    const exportCSV = () => {
+        const rows = [];
+
+        // Workouts
+        rows.push([t('analytics_csv_workouts_header')]);
+        rows.push([t('analytics_csv_date'), t('analytics_csv_type'), t('analytics_csv_duration'), t('analytics_csv_cal_burned'), t('analytics_csv_note')]);
+        filteredWorkouts.forEach(w => {
+            rows.push([
+                dayjs(w.date).format('YYYY-MM-DD'),
+                w.type || '',
+                w.duration || '',
+                w.caloriesBurned || '',
+                (w.comment || '').replace(/,/g, ';')
+            ]);
+        });
+
+        rows.push([]);
+
+        // Nutrition
+        rows.push([t('analytics_csv_nutrition_header')]);
+        rows.push([t('analytics_csv_date'), t('analytics_csv_calories'), t('analytics_csv_protein'), t('analytics_csv_fat'), t('analytics_csv_carbs')]);
+        filteredNutrition.forEach(n => {
+            rows.push([
+                dayjs(n.date).format('YYYY-MM-DD'),
+                Math.round(n.calories || 0),
+                Math.round(n.protein || 0),
+                Math.round(n.fat || 0),
+                Math.round(n.carbs || 0)
+            ]);
+        });
+
+        const csv = rows.map(r => r.join(',')).join('\n');
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `fittrack_export_${dayjs().format('YYYY-MM-DD')}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
+    return (
+        <div className="container mx-auto px-4 py-8 animate-fadeIn">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        📊 {t('analytics_title')}
+                    </h1>
+                    <p className="text-gray-400 dark:text-slate-500 mt-1 text-sm">{t('analytics_subtitle')}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={exportCSV}
+                        title={t('analytics_export_csv')}
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-slate-400 border border-gray-200 dark:border-slate-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 hover:text-violet-600 dark:hover:text-violet-400 hover:border-violet-300 dark:hover:border-violet-700 transition-all duration-200"
+                    >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        CSV
+                    </button>
+                    <div className="flex gap-2 bg-gray-100 dark:bg-slate-700 rounded-xl p-1">
+                        {[
+                            { key: 'week', label: t('analytics_7days') },
+                            { key: 'month', label: t('analytics_30days') },
+                            { key: 'year', label: t('analytics_year') },
+                        ].map(opt => (
+                            <button
+                                key={opt.key}
+                                onClick={() => setPeriod(opt.key)}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                                    period === opt.key
+                                        ? 'bg-white dark:bg-slate-600 text-primary-600 dark:text-violet-300 shadow-sm'
+                                        : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'
+                                }`}
+                            >
+                                {opt.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {loading ? (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse mb-8">
+                    {[...Array(4)].map((_, i) => <div key={i} className="h-24 bg-gray-100 dark:bg-slate-700 rounded-2xl" />)}
+                </div>
+            ) : (
+                <>
+                    {/* Summary stats */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                        <StatSummaryCard
+                            icon="🏋️"
+                            label={t('analytics_workouts')}
+                            value={filteredWorkouts.length}
+                            unit={t('analytics_unit_pcs')}
+                            sub={`${t('analytics_for_days')} ${getDaysBack()} ${t('analytics_days')}`}
+                            color="border-primary-400"
+                        />
+                        <StatSummaryCard
+                            icon="🔥"
+                            label={t('analytics_burned')}
+                            value={totalCaloriesBurned}
+                            unit={t('analytics_unit_kcal')}
+                            sub={`~${avgCalories} ${t('analytics_per_workout')}`}
+                            color="border-amber-400"
+                        />
+                        <StatSummaryCard
+                            icon="⏱️"
+                            label={t('analytics_time')}
+                            value={totalDuration}
+                            unit={t('analytics_unit_min')}
+                            sub={filteredWorkouts.length > 0 ? `~${Math.round(totalDuration / filteredWorkouts.length)} ${t('analytics_unit_min')}` : ''}
+                            color="border-green-400"
+                        />
+                        <StatSummaryCard
+                            icon="🥗"
+                            label={t('analytics_consumed')}
+                            value={Math.round(totalConsumedCalories)}
+                            unit={t('analytics_unit_kcal')}
+                            sub={avgConsumedCalories > 0 ? `~${avgConsumedCalories} ${t('analytics_per_day')}` : t('analytics_no_data')}
+                            color="border-emerald-400"
+                        />
+                    </div>
+
+                    {/* Charts */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                        <div className="lg:col-span-2 card">
+                            <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4">🔥 {t('analytics_cal_burned_chart')}</h3>
+                            <Line data={caloriesChartData} options={chartOptions} />
+                        </div>
+                        <div className="card">
+                            <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4">🏷️ {t('analytics_workout_types')}</h3>
+                            {Object.keys(workoutTypes).length > 0 ? (
+                                <Doughnut data={doughnutData} options={doughnutOptions} />
+                            ) : (
+                                <div className="flex items-center justify-center h-48 text-gray-400 dark:text-slate-500 text-sm">
+                                    {t('analytics_no_data')}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <div className="card">
+                            <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4">⏱️ {t('analytics_duration_chart')}</h3>
+                            <Bar data={durationChartData} options={chartOptions} />
+                        </div>
+                        <div className="card">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100">🥗 {t('analytics_nutrition_chart')}</h3>
+                                {avgConsumedCalories > 0 && (
+                                    <span className="badge-primary text-xs">~{avgConsumedCalories} {t('analytics_per_day')}</span>
+                                )}
+                            </div>
+                            {nutritionCaloriesData.some(v => v > 0) ? (
+                                <Line data={nutritionChartData} options={chartOptions} />
+                            ) : (
+                                <div className="flex items-center justify-center h-48 text-gray-400 dark:text-slate-500 text-sm">
+                                    {t('analytics_no_nutrition')}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Workout list */}
+                    {filteredWorkouts.length > 0 && (
+                        <div className="card mt-2">
+                            <h3 className="text-base font-semibold text-gray-800 dark:text-slate-100 mb-4">📋 {t('analytics_recent_workouts')}</h3>
+                            <div className="space-y-2">
+                                {filteredWorkouts.slice(0, 10).map(w => (
+                                    <div key={w._id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-9 h-9 rounded-xl bg-primary-100 dark:bg-violet-900/40 flex items-center justify-center text-primary-600 font-bold text-sm">
+                                                🏋️
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-gray-800 dark:text-slate-100 text-sm">{w.type || t('analytics_workout_fallback')}</p>
+                                                <p className="text-xs text-gray-400 dark:text-slate-500">{dayjs(w.date).format('D MMM YYYY')}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-4 text-sm">
+                                            <span className="text-amber-600 dark:text-amber-400 font-medium">{w.caloriesBurned || 0} {t('analytics_unit_kcal')}</span>
+                                            <span className="text-gray-400 dark:text-slate-500">{w.duration || 0} {t('analytics_unit_min')}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {filteredWorkouts.length === 0 && (
+                        <div className="card text-center py-12 mt-2">
+                            <div className="text-5xl mb-4">📊</div>
+                            <p className="text-gray-500 dark:text-slate-400 font-medium">{t('analytics_no_data_period')}</p>
+                            <p className="text-gray-400 dark:text-slate-500 text-sm mt-1">{t('analytics_no_data_hint')}</p>
+                        </div>
+                    )}
+                </>
+            )}
+        </div>
+    );
+};
+
+export default Analytics;

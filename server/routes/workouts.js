@@ -1,26 +1,87 @@
 const express = require('express');
 const router = express.Router();
 const { check, validationResult } = require('express-validator');
+const rateLimit = require('express-rate-limit');
 const Workout = require('../models/Workout');
 const auth = require('../middleware/auth');
+
+const workoutsLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 минут
+    max: 100,
+    message: 'Слишком много запросов. Попробуйте позже.',
+    standardHeaders: true,
+    legacyHeaders: false
+});
 
 // @route   GET api/workouts
 // @desc    Получение всех тренировок пользователя
 // @access  Private
-router.get('/', auth, async (req, res) => {
+router.get('/', workoutsLimiter, auth, async (req, res) => {
     try {
         const workouts = await Workout.find({ user: req.user.id }).sort({ date: -1 });
         res.json(workouts);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Ошибка сервера');
+        res.status(500).json({ message: 'Ошибка сервера' });
+    }
+});
+
+// @route   GET api/workouts/date/:date
+// @desc    Получение тренировок на определенную дату
+// @access  Private
+// NOTE: This route MUST be declared before /:id to prevent Express from
+//       treating the literal string "date" as a MongoDB ObjectId.
+router.get('/date/:date', workoutsLimiter, auth, async (req, res) => {
+    try {
+        const date = new Date(req.params.date);
+        const nextDay = new Date(date);
+        nextDay.setDate(date.getDate() + 1);
+
+        const workouts = await Workout.find({
+            user: req.user.id,
+            date: {
+                $gte: date,
+                $lt: nextDay
+            }
+        }).sort({ time: 1 });
+
+        res.json(workouts);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ message: 'Ошибка сервера' });
+    }
+});
+
+// @route   GET api/workouts/range/:start/:end
+// @desc    Получение тренировок в диапазоне дат
+// @access  Private
+router.get('/range/:start/:end', workoutsLimiter, auth, async (req, res) => {
+    try {
+        const startDate = new Date(req.params.start);
+        const endDate = new Date(req.params.end);
+        endDate.setDate(endDate.getDate() + 1); // Включаем конечную дату
+
+        const workouts = await Workout.find({
+            user: req.user.id,
+            date: {
+                $gte: startDate,
+                $lt: endDate
+            }
+        }).sort({ date: 1, time: 1 });
+
+        res.json(workouts);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
 
 // @route   GET api/workouts/:id
 // @desc    Получение тренировки по ID
 // @access  Private
-router.get('/:id', auth, async (req, res) => {
+// NOTE: This route is declared AFTER all specific named routes (/date/:date,
+//       /range/:start/:end) so it does not shadow them.
+router.get('/:id', workoutsLimiter, auth, async (req, res) => {
     try {
         const workout = await Workout.findById(req.params.id);
 
@@ -39,55 +100,7 @@ router.get('/:id', auth, async (req, res) => {
         if (err.kind === 'ObjectId') {
             return res.status(404).json({ message: 'Тренировка не найдена' });
         }
-        res.status(500).send('Ошибка сервера');
-    }
-});
-
-// @route   GET api/workouts/date/:date
-// @desc    Получение тренировок на определенную дату
-// @access  Private
-router.get('/date/:date', auth, async (req, res) => {
-    try {
-        const date = new Date(req.params.date);
-        const nextDay = new Date(date);
-        nextDay.setDate(date.getDate() + 1);
-
-        const workouts = await Workout.find({
-            user: req.user.id,
-            date: {
-                $gte: date,
-                $lt: nextDay
-            }
-        }).sort({ time: 1 });
-
-        res.json(workouts);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Ошибка сервера');
-    }
-});
-
-// @route   GET api/workouts/range/:start/:end
-// @desc    Получение тренировок в диапазоне дат
-// @access  Private
-router.get('/range/:start/:end', auth, async (req, res) => {
-    try {
-        const startDate = new Date(req.params.start);
-        const endDate = new Date(req.params.end);
-        endDate.setDate(endDate.getDate() + 1); // Включаем конечную дату
-
-        const workouts = await Workout.find({
-            user: req.user.id,
-            date: {
-                $gte: startDate,
-                $lt: endDate
-            }
-        }).sort({ date: 1, time: 1 });
-
-        res.json(workouts);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Ошибка сервера');
+        res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
 
@@ -96,14 +109,13 @@ router.get('/range/:start/:end', auth, async (req, res) => {
 // @access  Private
 router.post(
     '/',
+    workoutsLimiter,
+    auth,
     [
-        auth,
-        [
-            check('type', 'Тип тренировки обязателен').not().isEmpty(),
-            check('date', 'Дата обязательна').not().isEmpty(),
-            check('time', 'Время обязательно').not().isEmpty(),
-            check('duration', 'Продолжительность обязательна').isNumeric()
-        ]
+        check('type', 'Тип тренировки обязателен').not().isEmpty(),
+        check('date', 'Дата обязательна').not().isEmpty(),
+        check('time', 'Время обязательно').not().isEmpty(),
+        check('duration', 'Продолжительность обязательна').isNumeric()
     ],
     async (req, res) => {
         // Проверка валидации
@@ -112,7 +124,7 @@ router.post(
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { type, date, time, duration, comment } = req.body;
+        const { type, date, time, duration, comment, caloriesBurned, intensity } = req.body;
 
         try {
             // Создание новой тренировки
@@ -122,7 +134,9 @@ router.post(
                 date,
                 time,
                 duration,
-                comment
+                comment,
+                caloriesBurned,
+                intensity
             });
 
             // Сохранение тренировки
@@ -130,7 +144,7 @@ router.post(
             res.json(workout);
         } catch (err) {
             console.error(err.message);
-            res.status(500).send('Ошибка сервера');
+            res.status(500).json({ message: 'Ошибка сервера' });
         }
     }
 );
@@ -140,14 +154,13 @@ router.post(
 // @access  Private
 router.put(
     '/:id',
+    workoutsLimiter,
+    auth,
     [
-        auth,
-        [
-            check('type', 'Тип тренировки обязателен').not().isEmpty(),
-            check('date', 'Дата обязательна').not().isEmpty(),
-            check('time', 'Время обязательно').not().isEmpty(),
-            check('duration', 'Продолжительность обязательна').isNumeric()
-        ]
+        check('type', 'Тип тренировки обязателен').not().isEmpty(),
+        check('date', 'Дата обязательна').not().isEmpty(),
+        check('time', 'Время обязательно').not().isEmpty(),
+        check('duration', 'Продолжительность обязательна').isNumeric()
     ],
     async (req, res) => {
         // Проверка валидации
@@ -156,7 +169,7 @@ router.put(
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { type, date, time, duration, comment } = req.body;
+        const { type, date, time, duration, comment, caloriesBurned, intensity } = req.body;
 
         try {
             // Поиск тренировки
@@ -178,6 +191,8 @@ router.put(
             workout.time = time;
             workout.duration = duration;
             workout.comment = comment;
+            workout.caloriesBurned = caloriesBurned;
+            workout.intensity = intensity;
 
             // Сохранение тренировки
             await workout.save();
@@ -187,7 +202,7 @@ router.put(
             if (err.kind === 'ObjectId') {
                 return res.status(404).json({ message: 'Тренировка не найдена' });
             }
-            res.status(500).send('Ошибка сервера');
+            res.status(500).json({ message: 'Ошибка сервера' });
         }
     }
 );
@@ -195,7 +210,7 @@ router.put(
 // @route   DELETE api/workouts/:id
 // @desc    Удаление тренировки
 // @access  Private
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', workoutsLimiter, auth, async (req, res) => {
     try {
         // Поиск тренировки
         const workout = await Workout.findById(req.params.id);
@@ -211,14 +226,14 @@ router.delete('/:id', auth, async (req, res) => {
         }
 
         // Удаление тренировки
-        await workout.remove();
+        await workout.deleteOne();
         res.json({ message: 'Тренировка удалена' });
     } catch (err) {
         console.error(err.message);
         if (err.kind === 'ObjectId') {
             return res.status(404).json({ message: 'Тренировка не найдена' });
         }
-        res.status(500).send('Ошибка сервера');
+        res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
 

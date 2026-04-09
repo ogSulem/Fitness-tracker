@@ -17,7 +17,11 @@ module.exports = function (req, res, next) {
 
     try {
         // Верификация токена
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'turik_fittrack_secret_key_123');
+        if (!process.env.JWT_SECRET) {
+            console.error('JWT_SECRET не задан. Установите переменную окружения JWT_SECRET.');
+            return res.status(500).json({ message: 'Ошибка конфигурации сервера' });
+        }
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
         // Добавление пользователя из payload
         req.user = decoded.user;

@@ -195,8 +195,10 @@ cd server && npm run init-recommendations
 | Расход калорий | Б/Ж/У | Doughnut по типам | История тренировок |
 | Рекомендации | Навигация по датам | Питание vs. активность | Редактирование |
 | Цели + прогресс-бар | Удаление записей | Список тренировок | Цели |
+| | | CSV-экспорт данных | Калькулятор КБЖУ |
 
 **🌙 Тёмная/Светлая тема** — автоопределение системы, сохранение в localStorage.  
+**🌐 Двуязычный интерфейс RU/EN** — переключение языка в один клик, сохранение в localStorage.  
 **🔐 Аутентификация** — JWT, rate limiting, восстановление пароля по токену.
 
 ---
@@ -213,7 +215,7 @@ Fitness-tracker/
 │   ├── .env.example         # только для раздельного деплоя
 │   └── src/
 │       ├── components/      # Header, Calendar, DailyStats, WorkoutForm…
-│       ├── context/         # AuthContext, ThemeContext, NotificationContext
+│       ├── context/         # AuthContext, ThemeContext, NotificationContext, LanguageContext (RU/EN)
 │       ├── hooks/           # useAxiosInterceptor, useAuth, useCountUp
 │       ├── pages/           # Home, Nutrition, Analytics, Profile, Login…
 │       └── services/

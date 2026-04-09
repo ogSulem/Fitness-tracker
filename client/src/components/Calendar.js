@@ -50,8 +50,8 @@ const Calendar = () => {
                 setWorkouts(filteredWorkouts);
                 setGoals(allGoals);
             } catch (err) {
-                console.error('Ошибка при загрузке данных:', err);
-                showNotification(`Ошибка при загрузке данных: ${err.response?.data?.message || err.message}`, 'error');
+                console.error('[Calendar] load error:', err);
+                showNotification(t('cal_load_err'), 'error');
             }
         };
 
@@ -115,11 +115,7 @@ const Calendar = () => {
     const handleAddWorkout = async (workoutData) => {
         try {
             if (!isAuthenticated) {
-                showNotification('Необходимо войти в систему', 'error');
-                return;
-            }
-
-            const numericWorkoutData = {
+                showNotification(t('cal_login_req'), 'error');
                 ...workoutData,
                 duration: Number(workoutData.duration)
             };
@@ -130,20 +126,18 @@ const Calendar = () => {
             setIsWorkoutModalOpen(false);
             showNotification(t('cal_workout_added'), 'success');
         } catch (err) {
-            console.error('Ошибка при добавлении тренировки:', err.response?.data || err.message);
-
-            const errorMessage = err.response?.data?.errors
-                ? `Ошибка: ${err.response.data.errors.map(e => e.msg).join(', ')}`
-                : err.response?.data?.message || 'Ошибка при добавлении тренировки';
-
-            showNotification(errorMessage, 'error');
+            console.error('[Calendar] add workout error:', err.response?.data || err.message);
+            showNotification(
+                err.response?.data?.message || t('cal_workout_add_err'),
+                'error'
+            );
         }
     };
 
     const handleAddGoal = async (goalData) => {
         try {
             if (!isAuthenticated) {
-                showNotification('Необходимо войти в систему', 'error');
+                showNotification(t('cal_login_req'), 'error');
                 return;
             }
 
@@ -160,13 +154,11 @@ const Calendar = () => {
             setIsGoalModalOpen(false);
             showNotification(t('cal_goal_added'), 'success');
         } catch (err) {
-            console.error('Ошибка при добавлении цели:', err.response?.data || err.message);
-
-            const errorMessage = err.response?.data?.errors
-                ? `Ошибка: ${err.response.data.errors.map(e => e.msg).join(', ')}`
-                : err.response?.data?.message || 'Ошибка при добавлении цели';
-
-            showNotification(errorMessage, 'error');
+            console.error('[Calendar] add goal error:', err.response?.data || err.message);
+            showNotification(
+                err.response?.data?.message || t('cal_goal_add_err'),
+                'error'
+            );
         }
     };
 
@@ -177,8 +169,8 @@ const Calendar = () => {
             setIsViewWorkoutModalOpen(false);
             showNotification(t('cal_deleted'), 'success');
         } catch (err) {
-            console.error('Ошибка при удалении тренировки:', err);
-            showNotification('Ошибка при удалении тренировки', 'error');
+            console.error('[Calendar] delete workout error:', err);
+            showNotification(t('cal_delete_err'), 'error');
         }
     };
 
@@ -194,7 +186,11 @@ const Calendar = () => {
         );
     };
 
-    const weekDays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+    // Locale-aware Mon→Sun header: dayjs day() 0=Sun,1=Mon…6=Sat; we shift +1 mod 7
+    const weekDays = Array.from({ length: 7 }, (_, i) => {
+        const d = dayjs().day((i + 1) % 7).format('dd');
+        return d.charAt(0).toUpperCase() + d.slice(1);
+    });
 
     return (
         <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-4 transition-colors duration-200">

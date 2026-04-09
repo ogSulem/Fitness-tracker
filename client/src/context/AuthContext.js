@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }) => {
             setIsAuthenticated(true);
             return user;
         } catch (err) {
-            setError(err.response?.data?.message || 'Ошибка при регистрации');
+            setError(err.response?.data?.message || 'Registration failed');
             throw err;
         }
     };
@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }) => {
             setIsAuthenticated(true);
             return user;
         } catch (err) {
-            setError(err.response?.data?.message || 'Ошибка при входе');
+            setError(err.response?.data?.message || 'Login failed');
             throw err;
         }
     };
@@ -95,7 +95,7 @@ export const AuthProvider = ({ children }) => {
             setUser(updatedUser);
             return updatedUser;
         } catch (err) {
-            setError(err.response?.data?.message || 'Ошибка при обновлении профиля');
+            setError(err.response?.data?.message || 'Failed to update profile');
             throw err;
         }
     };

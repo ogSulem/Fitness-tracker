@@ -317,6 +317,11 @@ const translations = {
         cal_goal_added:       'Цель добавлена!',
         cal_deleted:          'Удалено',
         cal_error:            'Ошибка при сохранении',
+        cal_load_err:         'Ошибка загрузки данных',
+        cal_login_req:        'Необходимо войти в систему',
+        cal_workout_add_err:  'Ошибка при добавлении тренировки',
+        cal_goal_add_err:     'Ошибка при добавлении цели',
+        cal_delete_err:       'Ошибка при удалении тренировки',
     },
 
     en: {
@@ -632,6 +637,11 @@ const translations = {
         cal_goal_added:       'Goal added!',
         cal_deleted:          'Deleted',
         cal_error:            'Error saving',
+        cal_load_err:         'Failed to load data',
+        cal_login_req:        'Please sign in to continue',
+        cal_workout_add_err:  'Failed to add workout',
+        cal_goal_add_err:     'Failed to add goal',
+        cal_delete_err:       'Failed to delete workout',
     },
 };
 

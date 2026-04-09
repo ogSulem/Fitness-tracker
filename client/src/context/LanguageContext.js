@@ -196,6 +196,9 @@ const translations = {
         profile_saving:       'Сохранение...',
         profile_cancel:       'Отмена',
         profile_updated:      'Профиль обновлён!',
+        profile_initial_weight: 'Начальный вес',
+        profile_current_weight: 'Текущий вес',
+        profile_weight_change: 'Изменение',
 
         // Nutrition
         nutr_title:           'Дневник питания',
@@ -482,6 +485,9 @@ const translations = {
         profile_saving:       'Saving...',
         profile_cancel:       'Cancel',
         profile_updated:      'Profile updated!',
+        profile_initial_weight: 'Initial weight',
+        profile_current_weight: 'Current weight',
+        profile_weight_change: 'Change',
 
         // Nutrition
         nutr_title:           'Nutrition diary',

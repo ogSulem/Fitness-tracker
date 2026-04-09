@@ -306,9 +306,9 @@ const Profile = () => {
                                 <Line data={weightChartData} options={chartOptions} />
                             </div>
                             <div className="grid grid-cols-3 gap-3">
-                                <StatPill label="Начальный вес" value={`${weightValues[0]} кг`} />
-                                <StatPill label="Текущий вес" value={`${weightValues[weightValues.length - 1]} кг`} />
-                                <StatPill label="Изменение" value={`${(weightValues[weightValues.length - 1] - weightValues[0]).toFixed(1)} кг`} />
+                                <StatPill label={t('profile_initial_weight')} value={`${weightValues[0]} ${t('profile_kg')}`} />
+                                <StatPill label={t('profile_current_weight')} value={`${weightValues[weightValues.length - 1]} ${t('profile_kg')}`} />
+                                <StatPill label={t('profile_weight_change')} value={`${(weightValues[weightValues.length - 1] - weightValues[0]).toFixed(1)} ${t('profile_kg')}`} />
                             </div>
                         </>
                     ) : (
